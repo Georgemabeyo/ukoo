@@ -37,12 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ukoo wa Makomelelo | Contact</title>
     <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f9f9f9;
-            margin: 0;
-            padding: 0 20px;
             color: #333;
+            line-height: 1.6;
         }
         header {
             background: #0d47a1;
@@ -52,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            position: relative;
         }
         header .logo {
             font-weight: 700;
@@ -79,6 +85,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #0d47a1;
             outline: none;
         }
+
+        /* Hamburger menu button */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            width: 30px;
+            height: 25px;
+            justify-content: space-between;
+        }
+        .menu-toggle span {
+            height: 3px;
+            width: 100%;
+            background: #ffc107;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        @media(max-width: 768px) {
+            nav {
+                position: absolute;
+                top: 60px;
+                right: 0;
+                background: #0d47a1;
+                flex-direction: column;
+                width: 220px;
+                padding: 15px 0;
+                border-radius: 0 0 0 10px;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                z-index: 1000;
+            }
+            nav.open {
+                max-height: 300px;
+            }
+            nav a {
+                padding: 12px 20px;
+                font-size: 1.1rem;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
         main {
             max-width: 600px;
             margin: 40px auto;
@@ -178,7 +238,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <header>
     <div class="logo">Ukoo wa Makomelelo</div>
-    <nav>
+    <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <nav id="nav-menu" role="navigation">
         <a href="index.php">Home</a>
         <a href="registration.php">Registration</a>
         <a href="family_tree.php">Family Tree</a>
@@ -215,5 +280,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <footer>
     &copy; 2025 Ukoo wa Makomelelo | Haki zote zimehifadhiwa
 </footer>
+
+<script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('open');
+        menuToggle.classList.toggle('active');
+    });
+
+    // Accessibility: Toggle menu with keyboard keys Enter or Space
+    menuToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            menuToggle.click();
+        }
+    });
+</script>
+
 </body>
 </html>
