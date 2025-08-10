@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body {
-            background-color: #f8f9fa; /* same as form bg */
+            background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%);
         }
 
         .tree-container {
