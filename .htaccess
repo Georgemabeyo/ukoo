@@ -1,0 +1,8 @@
+# Weka index.php kama ukurasa wa mwanzo
+DirectoryIndex index.php index.html
+
+# Zuia directory listing
+Options -Indexes
+
+# Ruhusu mod_rewrite ikiwa utahitaji baadaye
+RewriteEngine On
