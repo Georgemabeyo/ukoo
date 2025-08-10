@@ -293,7 +293,8 @@
         color: #0d47a1;
         transition: background-color 0.25s ease, color 0.25s ease;
     }
-    #searchResults div.result-item:hover {
+    #searchResults div.result-item:hover,
+    #searchResults div.result-item[aria-selected="true"] {
         background: #ffc107;
         color: #0d47a1;
     }
@@ -395,8 +396,17 @@
 </section>
 
 <div class="search-container" role="search" aria-label="Tafuta mtu kwa jina">
-    <input type="text" id="searchInput" placeholder="Tafuta mtu kwa jina..." autocomplete="off" aria-autocomplete="list" aria-controls="searchResults" aria-haspopup="listbox" />
-    <div id="searchResults" role="listbox" tabindex="-1"></div>
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Tafuta mtu kwa jina..."
+        autocomplete="off"
+        aria-autocomplete="list"
+        aria-controls="searchResults"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+    />
+    <div id="searchResults" role="listbox" tabindex="-1" aria-label="Matokeo ya utaftaji"></div>
 </div>
 
 <div id="personDetails" aria-live="polite" aria-atomic="true"></div>
@@ -447,10 +457,16 @@
     const searchResults = document.getElementById('searchResults');
     const personDetails = document.getElementById('personDetails');
 
+    let currentFocus = -1; // For keyboard navigation
+
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim();
         personDetails.style.display = 'none';
         searchResults.innerHTML = '';
+        searchResults.style.display = 'none';
+        searchInput.setAttribute('aria-expanded', 'false');
+        currentFocus = -1;
+
         if (query.length < 2) return;
 
         fetch('search.php?q=' + encodeURIComponent(query))
@@ -459,6 +475,8 @@
                 searchResults.innerHTML = '';
                 if (data.length === 0) {
                     searchResults.innerHTML = '<div class="result-item" role="option" aria-selected="false">Hakuna mtu aliye patikana</div>';
+                    searchResults.style.display = 'block';
+                    searchInput.setAttribute('aria-expanded', 'true');
                     return;
                 }
                 data.forEach(person => {
@@ -467,24 +485,71 @@
                     div.textContent = person.full_name;
                     div.dataset.id = person.id;
                     div.setAttribute('role', 'option');
-                    div.setAttribute('tabindex', '0');
+                    div.setAttribute('tabindex', '-1');
+                    div.setAttribute('aria-selected', 'false');
+
                     div.addEventListener('click', () => {
                         showPersonDetails(person);
                         searchResults.innerHTML = '';
+                        searchResults.style.display = 'none';
                         searchInput.value = person.full_name;
+                        searchInput.setAttribute('aria-expanded', 'false');
                     });
+
                     div.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             div.click();
+                        } else if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (div.nextSibling) div.nextSibling.focus();
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (div.previousSibling) div.previousSibling.focus();
+                            else searchInput.focus();
                         }
                     });
+
                     searchResults.appendChild(div);
                 });
+                searchResults.style.display = 'block';
+                searchInput.setAttribute('aria-expanded', 'true');
             })
             .catch(() => {
                 searchResults.innerHTML = '<div class="result-item" role="option" aria-selected="false">Tatizo la mtandao. Jaribu tena.</div>';
+                searchResults.style.display = 'block';
+                searchInput.setAttribute('aria-expanded', 'true');
             });
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+        const items = searchResults.querySelectorAll('.result-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentFocus++;
+            if (currentFocus >= items.length) currentFocus = 0;
+            items.forEach(item => item.setAttribute('aria-selected', 'false'));
+            items[currentFocus].setAttribute('aria-selected', 'true');
+            items[currentFocus].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentFocus--;
+            if (currentFocus < 0) currentFocus = items.length - 1;
+            items.forEach(item => item.setAttribute('aria-selected', 'false'));
+            items[currentFocus].setAttribute('aria-selected', 'true');
+            items[currentFocus].focus();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1) {
+                items[currentFocus].click();
+            }
+        } else if (e.key === 'Escape') {
+            searchResults.innerHTML = '';
+            searchResults.style.display = 'none';
+            searchInput.setAttribute('aria-expanded', 'false');
+        }
     });
 
     function showPersonDetails(person) {
@@ -498,10 +563,12 @@
         `;
     }
 
-    // Optional: Close results if clicking outside search container
+    // Close results if clicking outside search container
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-container')) {
             searchResults.innerHTML = '';
+            searchResults.style.display = 'none';
+            searchInput.setAttribute('aria-expanded', 'false');
         }
     });
 </script>
