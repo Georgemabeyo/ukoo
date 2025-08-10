@@ -19,6 +19,9 @@
             background: #f9f9f9;
             color: #333;
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         header {
             background: #0d47a1; /* deep blue */
@@ -29,12 +32,14 @@
             align-items: center;
             flex-wrap: wrap;
             position: relative;
+            z-index: 1000;
         }
         header .logo {
             font-weight: 700;
             font-size: 1.8rem;
             letter-spacing: 2px;
             cursor: default;
+            user-select: none;
         }
         nav {
             display: flex;
@@ -44,6 +49,8 @@
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
             transition: max-height 0.3s ease;
+            max-height: none;
+            position: static;
         }
         nav a {
             color: #ffc107;
@@ -55,6 +62,7 @@
             transition: background-color 0.3s ease;
             white-space: nowrap;
             display: inline-block;
+            user-select: none;
         }
         nav a:hover,
         nav a:focus {
@@ -71,6 +79,8 @@
             width: 30px;
             height: 25px;
             justify-content: space-between;
+            user-select: none;
+            z-index: 1010;
         }
         .menu-toggle span {
             height: 3px;
@@ -104,14 +114,21 @@
                 border-radius: 0 0 0 10px;
                 max-height: 0;
                 overflow: hidden;
-                z-index: 1000;
+                z-index: 9999;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.25);
             }
             nav.open {
-                max-height: 300px; /* enough for all links */
+                max-height: 400px; /* enough for all links */
             }
             nav a {
                 padding: 12px 20px;
                 font-size: 1.1rem;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            nav a:last-child {
+                /* Add some margin bottom if needed */
+                margin-bottom: 8px;
             }
             .menu-toggle {
                 display: flex;
@@ -130,17 +147,20 @@
             color: white;
             text-shadow: 1px 1px 8px rgba(0,0,0,0.7);
             flex-direction: column;
+            user-select: none;
         }
         .hero h1 {
             font-size: 3rem;
             margin-bottom: 20px;
             font-weight: 900;
+            letter-spacing: 1.5px;
         }
         .hero p {
             font-size: 1.3rem;
             max-width: 600px;
             margin-bottom: 30px;
             font-weight: 500;
+            letter-spacing: 0.5px;
         }
         .btn-primary {
             background: #ffc107;
@@ -153,15 +173,21 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s ease;
+            user-select: none;
+            box-shadow: 0 5px 15px rgba(255,193,7,0.6);
         }
-        .btn-primary:hover {
+        .btn-primary:hover,
+        .btn-primary:focus {
             background: #e6b007;
+            outline: none;
+            box-shadow: 0 7px 22px rgba(230,176,7,0.8);
         }
 
         main {
             padding: 40px 20px;
             max-width: 1200px;
             margin: auto;
+            flex-grow: 1;
         }
         .features {
             display: grid;
@@ -174,8 +200,10 @@
             padding: 25px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
+            user-select: none;
         }
-        .feature-box:hover {
+        .feature-box:hover,
+        .feature-box:focus-within {
             transform: translateY(-8px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
@@ -207,61 +235,79 @@
         }
         #searchInput {
             width: 100%;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1.5px solid #0d47a1;
+            padding: 14px 22px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: 2px solid #0d47a1;
             outline: none;
-            box-shadow: 0 0 5px rgba(13,71,161,0.4);
+            box-shadow: 0 0 10px rgba(13,71,161,0.5);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: text;
+        }
+        #searchInput:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 14px #ffc107;
         }
         #searchResults {
             position: absolute;
-            top: 48px;
+            top: 56px;
             width: 100%;
             background: white;
-            border: 1px solid #0d47a1;
+            border: 2px solid #0d47a1;
             border-top: none;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            z-index: 10000;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            z-index: 2000;
+            user-select: none;
         }
         #searchResults div.result-item {
-            padding: 10px 15px;
+            padding: 12px 18px;
             cursor: pointer;
             border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #0d47a1;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
-        #searchResults div.result-item:hover {
+        #searchResults div.result-item:hover,
+        #searchResults div.result-item[aria-selected="true"] {
             background: #ffc107;
             color: #0d47a1;
+            outline: none;
         }
+
         #personDetails {
             max-width: 600px;
             margin: 20px auto;
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
             display: none;
+            user-select: none;
         }
         #personDetails img {
             float: left;
-            width: 120px;
-            height: 120px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 20px;
-            border: 3px solid #0d47a1;
+            margin-right: 25px;
+            border: 4px solid #0d47a1;
+            box-shadow: 0 0 10px #0d47a1;
         }
         #personDetails h2 {
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: #0d47a1;
+            font-family: 'Segoe UI Black', sans-serif;
+            font-size: 2rem;
         }
         #personDetails p {
-            font-size: 1rem;
-            color: #333;
-            line-height: 1.4;
+            font-size: 1.1rem;
+            color: #222;
+            line-height: 1.6;
+            font-weight: 600;
         }
         #personDetails::after {
             content: "";
@@ -282,55 +328,73 @@
             }
             nav {
                 justify-content: flex-start;
+                max-height: none !important;
+                position: static !important;
+                width: auto !important;
+                background: none !important;
+                flex-direction: row !important;
+            }
+            nav a {
+                padding: 8px 10px !important;
+                font-size: 1rem !important;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">Ukoo wa Makomelelo</div>
+        <div class="logo" aria-label="Ukoo wa Makomelelo">Ukoo wa Makomelelo</div>
         <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
             <span></span>
             <span></span>
             <span></span>
         </div>
-        <nav id="nav-menu" role="navigation">
-            <a href="index.php">Home</a>
-            <a href="registration.php">Registration</a>
-            <a href="family_tree.php">Family Tree</a>
-            <a href="events.html">Events</a>
-            <a href="contact.php">Contact</a>
+        <nav id="nav-menu" role="navigation" aria-label="Main navigation">
+            <a href="index.php">Nyumbani</a>
+            <a href="registration.php">Jisajiri</a>
+            <a href="family_tree.php">Ukoo</a>
+            <a href="events.html">Matukio</a>
+            <a href="contact.php">Mawasiliano</a>
         </nav>
     </header>
 
-    <section class="hero">
+    <section class="hero" role="banner" aria-label="Hero Section">
         <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
         <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
-        <a href="registration.php" class="btn-primary">Jiandikishe Sasa</a>
+        <a href="registration.php" class="btn-primary" role="button" aria-label="Jiandikishe Sasa">Jiandikishe Sasa</a>
     </section>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Tafuta mtu kwa jina..." autocomplete="off" />
-        <div id="searchResults"></div>
+    <div class="search-container" role="search" aria-label="Tafuta mtu kwa jina">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Tafuta mtu kwa jina..."
+            autocomplete="off"
+            aria-autocomplete="list"
+            aria-controls="searchResults"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+        />
+        <div id="searchResults" role="listbox" tabindex="-1" aria-label="Matokeo ya utaftaji"></div>
     </div>
 
-    <div id="personDetails"></div>
+    <div id="personDetails" aria-live="polite" aria-atomic="true"></div>
 
     <main>
-        <section class="features">
-            <div class="feature-box">
+        <section class="features" aria-label="Sehemu za huduma kuu">
+            <div class="feature-box" tabindex="0">
                 <h3>Usajili Rahisi</h3>
                 <p>Jaza taarifa zako kwa urahisi, upload picha, na ungana moja kwa moja na ukoo.</p>
             </div>
-            <div class="feature-box">
+            <div class="feature-box" tabindex="0">
                 <h3>Uchunguzi wa Familia</h3>
                 <p>Angalia uhusiano wa familia zako, talifa na watoto wa mfuasi wako kwa urahisi.</p>
             </div>
-            <div class="feature-box">
+            <div class="feature-box" tabindex="0">
                 <h3>Usalama wa Taarifa</h3>
                 <p>Taarifa zako zinahifadhiwa kwa usiri mkubwa na usalama wa hali ya juu.</p>
             </div>
-            <div class="feature-box">
+            <div class="feature-box" tabindex="0">
                 <h3>Muonekano wa Kisasa</h3>
                 <p>Tovuti yetu ni responsive na ina muonekano mzuri kwenye simu, kompyuta, na tablet.</p>
             </div>
@@ -359,58 +423,118 @@
             }
         });
 
-        // Search functionality
+        // SEARCH WITH KEYBOARD NAVIGATION
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const personDetails = document.getElementById('personDetails');
 
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim();
-            personDetails.style.display = 'none'; // hide details on new search
-            if (query.length < 2) {
-                searchResults.innerHTML = '';
-                return;
-            }
-            fetch('search.php?q=' + encodeURIComponent(query))
-                .then(res => res.json())
-                .then(data => {
-                    searchResults.innerHTML = '';
-                    if (data.length === 0) {
-                        searchResults.innerHTML = '<div class="result-item">Hakuna mtu aliye patikana</div>';
-                        return;
-                    }
-                    data.forEach(person => {
-                        const div = document.createElement('div');
-                        div.classList.add('result-item');
-                        div.textContent = person.full_name;
-                        div.dataset.id = person.id;
-                        div.addEventListener('click', () => {
-                            showPersonDetails(person);
-                            searchResults.innerHTML = '';
-                            searchInput.value = person.full_name;
-                        });
-                        searchResults.appendChild(div);
-                    });
-                })
-                .catch(() => {
-                    searchResults.innerHTML = '<div class="result-item">Tatizo la mtandao. Jaribu tena.</div>';
-                });
-        });
+        let results = [];
+        let selectedIndex = -1;
+
+        function clearResults() {
+            searchResults.innerHTML = '';
+            searchResults.setAttribute('aria-expanded', 'false');
+            selectedIndex = -1;
+        }
+
+        function highlightResult(index) {
+            const items = searchResults.querySelectorAll('.result-item');
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.setAttribute('aria-selected', 'true');
+                    item.scrollIntoView({ block: 'nearest' });
+                    searchInput.setAttribute('aria-activedescendant', item.id);
+                } else {
+                    item.removeAttribute('aria-selected');
+                }
+            });
+        }
 
         function showPersonDetails(person) {
             personDetails.style.display = 'block';
             personDetails.innerHTML = `
-                <img src="${person.photo ? person.photo : 'default-avatar.png'}" alt="Picha ya ${person.full_name}" />
+                <img src="${person.photo_url ? person.photo_url : 'default-avatar.png'}" alt="Picha ya ${person.full_name}" />
                 <h2>${person.full_name}</h2>
                 <p><strong>Umri:</strong> ${person.age || 'Haijulikani'}</p>
                 <p><strong>Mkoa:</strong> ${person.region || 'Haijulikani'}</p>
-                <p><strong>Mji/Kijiji:</strong> ${person.town || 'Haijulikani'}</p>
+                <p><strong>Kijiji/Mji:</strong> ${person.village || 'Haijulikani'}</p>
                 <p><strong>Simu:</strong> ${person.phone || 'Haijulikani'}</p>
                 <p><strong>Barua pepe:</strong> ${person.email || 'Haijulikani'}</p>
                 <p><strong>Hali ya ndoa:</strong> ${person.marital_status || 'Haijulikani'}</p>
                 <p><strong>Watoto:</strong> ${person.children || 'Haijulikani'}</p>
             `;
         }
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            personDetails.style.display = 'none'; // hide details on new search
+            clearResults();
+            if (query.length < 2) return;
+
+            fetch('search.php?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    results = data;
+                    if (results.length === 0) {
+                        searchResults.innerHTML = '<div class="result-item" role="option">Hakuna mtu aliye patikana</div>';
+                        searchResults.setAttribute('aria-expanded', 'true');
+                        return;
+                    }
+                    searchResults.innerHTML = '';
+                    results.forEach((person, i) => {
+                        const div = document.createElement('div');
+                        div.classList.add('result-item');
+                        div.id = 'result-' + i;
+                        div.setAttribute('role', 'option');
+                        div.textContent = person.full_name;
+                        div.dataset.index = i;
+                        div.tabIndex = -1;
+                        div.addEventListener('click', () => {
+                            showPersonDetails(person);
+                            clearResults();
+                            searchInput.value = person.full_name;
+                            searchInput.focus();
+                        });
+                        searchResults.appendChild(div);
+                    });
+                    searchResults.setAttribute('aria-expanded', 'true');
+                    selectedIndex = -1;
+                })
+                .catch(() => {
+                    searchResults.innerHTML = '<div class="result-item" role="option">Tatizo la mtandao. Jaribu tena.</div>';
+                    searchResults.setAttribute('aria-expanded', 'true');
+                });
+        });
+
+        searchInput.addEventListener('keydown', e => {
+            const items = searchResults.querySelectorAll('.result-item');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+                highlightResult(selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                highlightResult(selectedIndex);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && selectedIndex < results.length) {
+                    showPersonDetails(results[selectedIndex]);
+                    clearResults();
+                }
+            } else if (e.key === 'Escape') {
+                clearResults();
+            }
+        });
+
+        // Close search results if clicked outside
+        document.addEventListener('click', (e) => {
+            if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                clearResults();
+            }
+        });
     </script>
 </body>
 </html>
