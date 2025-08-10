@@ -1,23 +1,23 @@
-<?php include 'config.php'; ?> 
+<?php include 'config.php'; ?>  
 <!DOCTYPE html>
 <html lang="sw">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ukoo wa Makomelelo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body {
-            background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%);
+            background: #0d47a1; /* deep blue background like index */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #222;
             user-select: none;
             padding-bottom: 50px;
+            margin: 0;
         }
         .tree-container {
             max-width: 900px;
             margin: 2rem auto 3rem;
-            background: #fff;
+            background: #fff; /* white box */
             padding: 2rem 2rem 3rem;
             border-radius: 16px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.12);
@@ -26,9 +26,10 @@
             font-size: clamp(1.8rem, 4vw, 2.6rem);
             font-weight: 900;
             margin-bottom: 2rem;
-            color: #0d6efd;
+            color: #ffc107; /* amber yellow */
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             user-select: none;
+            text-align: center;
         }
         /* Tree list */
         .tree, .tree ul {
@@ -43,7 +44,7 @@
             top: 0;
             left: 15px;
             bottom: 0;
-            border-left: 2px solid #0d6efd;
+            border-left: 2px solid #ffc107; /* amber line */
         }
         .tree li {
             position: relative;
@@ -56,25 +57,26 @@
             top: 1.25rem;
             left: 0;
             width: 38px;
-            border-top: 2px solid #0d6efd;
+            border-top: 2px solid #ffc107; /* amber line */
             border-radius: 3px;
         }
         /* Member block */
         .member {
             display: flex;
             align-items: center;
-            background: #e7f1ff;
+            background: #0d47a1; /* deep blue background */
             padding: 0.45rem 1rem;
             border-radius: 12px;
-            box-shadow: 0 0 8px rgba(13,110,253,0.15);
+            box-shadow: 0 0 8px rgba(255,193,7,0.6); /* amber glow */
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             user-select: text;
         }
         .member:hover, .member:focus {
-            background-color: #cfe3ff;
-            box-shadow: 0 0 14px rgba(13,110,253,0.4);
+            background-color: #ffc107; /* amber background on hover */
+            color: #0d47a1; /* blue text on hover */
+            box-shadow: 0 0 14px rgba(255,193,7,0.9);
             outline: none;
         }
         .member img {
@@ -83,15 +85,15 @@
             object-fit: cover;
             border-radius: 50%;
             margin-right: 1rem;
-            border: 3px solid #0d6efd;
-            box-shadow: 0 0 6px rgba(13,110,253,0.5);
+            border: 3px solid #ffc107; /* amber border */
+            box-shadow: 0 0 6px rgba(255,193,7,0.8);
             flex-shrink: 0;
         }
         .member p {
             margin: 0;
             font-weight: 700;
             font-size: clamp(0.95rem, 1.5vw, 1.15rem);
-            color: #ff8800;
+            color: #ffc107; /* amber text */
             text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
             flex-grow: 1;
             user-select: text;
@@ -100,8 +102,8 @@
         .view-children-btn {
             flex-shrink: 0;
             font-size: 1.35rem;
-            color: #0d6efd;
-            background: #cfe3ff;
+            color: #ffc107; /* amber icon */
+            background: #0d47a1; /* blue bg */
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -110,17 +112,17 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 0 6px rgba(13,110,253,0.4);
+            box-shadow: 0 0 6px rgba(255,193,7,0.6);
             transition: background-color 0.3s ease, transform 0.25s ease;
             user-select: none;
             margin-left: 8px;
         }
         .view-children-btn:hover, .view-children-btn:focus {
-            background: #0d6efd;
-            color: white;
+            background: #ffc107; /* amber */
+            color: #0d47a1; /* blue */
             outline: none;
             transform: scale(1.15);
-            box-shadow: 0 0 14px rgba(13,110,253,0.6);
+            box-shadow: 0 0 14px rgba(255,193,7,0.8);
         }
         /* Children container - hidden by default */
         .children-list {
@@ -134,11 +136,56 @@
             from {opacity: 0; max-height: 0;}
             to {opacity: 1; max-height: 1000px;}
         }
-
-        /* Responsive adjustments */
+        /* Buttons container */
+        .btn-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .btn-custom {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 0.65rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            margin: 0 10px;
+            text-decoration: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Ongeza Mtu Mpya button - amber text, blue bg */
+        .btn-ongeza {
+            background-color: #0d47a1;
+            color: #ffc107;
+            box-shadow: 0 5px 15px rgba(255,193,7,0.6);
+        }
+        .btn-ongeza:hover,
+        .btn-ongeza:focus {
+            background-color: #08306b;
+            color: #fff176;
+            box-shadow: 0 7px 22px rgba(8,48,107,0.8);
+            outline: none;
+        }
+        /* Rudi Nyumbani button - blue text, amber bg */
+        .btn-rudi {
+            background-color: #ffc107;
+            color: #0d47a1;
+            box-shadow: 0 5px 15px rgba(13,71,161,0.6);
+        }
+        .btn-rudi:hover,
+        .btn-rudi:focus {
+            background-color: #e6b007;
+            color: #0a356b;
+            box-shadow: 0 7px 22px rgba(230,176,7,0.8);
+            outline: none;
+        }
+        /* Responsive */
         @media (max-width: 600px) {
             .tree-container {
                 padding: 1.2rem 1rem 2rem;
+                margin: 1rem auto 2rem;
             }
             .member img {
                 width: 42px;
@@ -164,6 +211,11 @@
             }
             .tree ul::before {
                 left: 12px;
+            }
+            .btn-custom {
+                font-size: 1rem;
+                padding: 0.5rem 1.5rem;
+                margin: 0 6px;
             }
         }
     </style>
@@ -206,9 +258,9 @@
         displayTree(null, $conn);
         ?>
     </div>
-    <div class="text-center mt-4">
-        <a href="register.php" class="btn btn-primary me-2" role="button">Ongeza Mtu Mpya</a>
-        <a href="index.php" class="btn btn-secondary" role="button">Rudi Nyumbani</a>
+    <div class="btn-container">
+        <a href="register.php" class="btn-custom btn-ongeza" role="button" aria-label="Ongeza mtu mpya">Ongeza Mtu Mpya</a>
+        <a href="index.php" class="btn-custom btn-rudi" role="button" aria-label="Rudi nyumbani">Rudi Nyumbani</a>
     </div>
 </div>
 
@@ -234,7 +286,6 @@ $(document).ready(function() {
     // Open member details modal on clicking the member block
     $(document).on('click keypress', '.member', function(e){
         if(e.target.classList.contains('view-children-btn')) {
-            // If clicked on view children button, don't open modal
             return;
         }
         if(e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
@@ -259,7 +310,6 @@ $(document).ready(function() {
                 $(this).attr('aria-expanded', 'false');
             } else {
                 if(container.children().length === 0) {
-                    // Load children via AJAX
                     $.get('load_children.php', {parent_id: parentId}, function(data){
                         container.html(data);
                         container.slideDown(250);
