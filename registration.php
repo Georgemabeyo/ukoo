@@ -33,31 +33,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $sql = "INSERT INTO family_tree (
-        first_name, middle_name, last_name, dob, gender, marital_status, 
-        has_children, children_male, children_female, country, region, district, 
+        first_name, middle_name, last_name, dob, gender, marital_status,
+        has_children, children_male, children_female, country, region, district,
         ward, village, city, phone, email, password, photo, parent_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    ) VALUES (
+        $1, $2, $3, $4, $5, $6,
+        $7, $8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17, $18, $19, $20
+    )";
 
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param(
-        "ssssssiiissssssssssi",
+    $params = [
         $first_name, $middle_name, $last_name, $dob, $gender, $marital_status,
         $has_children, $children_male, $children_female, $country, $region, $district,
         $ward, $village, $city, $phone, $email, $password, $photo, $parent_id
-    );
+    ];
 
-    if ($stmt->execute()) {
+    $result = pg_query_params($conn, $sql, $params);
+
+    if ($result) {
         echo "<div class='alert alert-success text-center'>
                 Usajili umefanikiwa! <a href='family_tree.php'>Angalia ukoo</a>
               </div>";
     } else {
-        echo "<div class='alert alert-danger text-center'>Kuna tatizo: " . $stmt->error . "</div>";
+        echo "<div class='alert alert-danger text-center'>Kuna tatizo: " . pg_last_error($conn) . "</div>";
     }
-    $stmt->close();
 }
 ?>
 
@@ -309,7 +308,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Init
     window.addEventListener("DOMContentLoaded", () => {
         fillRegions();
-        // Set initial display based on country select
         if (countrySelect.value === "Tanzania") {
             tzFields.style.display = "block";
             otherCountryFields.style.display = "none";
@@ -319,7 +317,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     });
 
-    // Form steps automatic advance logic (optional)
+    // Form steps automatic advance logic
     const steps = document.querySelectorAll(".step");
     let currentStep = 0;
 
@@ -367,7 +365,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
         childrenFields.style.display = hasChildrenCheckbox.checked ? "block" : "none";
     });
-
 </script>
 </body>
 </html>
