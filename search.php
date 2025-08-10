@@ -1,46 +1,41 @@
 <?php
+// search.php - PostgreSQL search for persons
+
 header('Content-Type: application/json; charset=utf-8');
 
-include 'config.php'; // Hapa iwepo maelezo ya DB connection
+$host = 'dpg-d2c7s795pdvs73dcpo6g-a';
+$port = 5432;
+$dbname = 'ukoo';
+$user = 'makomelelo';
+$pass = 'HeONu12TjSP7NJHeXwMnwdOnzarQ3KvH';
 
-// Connect to DB
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(["error" => "Database connection failed"]);
+try {
+    $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+} catch (PDOException $e) {
+    echo json_encode([]);
     exit;
 }
 
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
+
 if (strlen($q) < 2) {
     echo json_encode([]);
     exit;
 }
 
-// Prepare SQL with LIKE wildcard, use prepared statements for security
-$sql = "SELECT id, full_name, photo_url, village, ward, region FROM people WHERE full_name LIKE ? LIMIT 15";
-$stmt = $conn->prepare($sql);
-$searchParam = "%{$q}%";
-$stmt->bind_param("s", $searchParam);
-$stmt->execute();
+// Badilisha jina la jedwali na safu kama ilivyo kwenye database yako
+$sql = "SELECT id, full_name, village, ward, region, photo_url 
+        FROM persons 
+        WHERE full_name ILIKE :search 
+        ORDER BY full_name ASC 
+        LIMIT 20";
 
-$result = $stmt->get_result();
+$stmt = $pdo->prepare($sql);
+$stmt->execute(['search' => "%$q%"]);
 
-$people = [];
-while ($row = $result->fetch_assoc()) {
-    $people[] = [
-        "id" => $row['id'],
-        "full_name" => $row['full_name'],
-        "photo_url" => $row['photo_url'],
-        "village" => $row['village'],
-        "ward" => $row['ward'],
-        "region" => $row['region']
-    ];
-}
+$results = $stmt->fetchAll();
 
-$stmt->close();
-$conn->close();
-
-echo json_encode($people);
-exit;
-?>
+echo json_encode($results);
