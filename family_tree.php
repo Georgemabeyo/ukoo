@@ -14,18 +14,23 @@
     <div id="tree-container" class="tree">
         <?php
         function displayTree($parent_id = null, $conn) {
-            $sql = is_null($parent_id) ? 
-                "SELECT * FROM family_tree WHERE parent_id IS NULL" :
-                "SELECT * FROM family_tree WHERE parent_id = $parent_id";
-            $result = $conn->query($sql);
-            if ($result->num_rows > 0) {
+            if (is_null($parent_id)) {
+                $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL";
+            } else {
+                $parent_id = (int)$parent_id; // sanitize
+                $sql = "SELECT * FROM family_tree WHERE parent_id = $parent_id";
+            }
+
+            $result = pg_query($conn, $sql);
+
+            if ($result && pg_num_rows($result) > 0) {
                 echo "<ul>";
-                while ($row = $result->fetch_assoc()) {
+                while ($row = pg_fetch_assoc($result)) {
                     echo "<li>";
-                    $photo = $row['photo'] ? "uploads/".$row['photo'] : "https://via.placeholder.com/80";
-                    echo "<div class='member' data-id='{$row['id']}'>
-                            <img src='{$photo}' alt='Picha'>
-                            <p>{$row['first_name']} {$row['last_name']}</p>
+                    $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/80";
+                    echo "<div class='member' data-id='" . htmlspecialchars($row['id']) . "'>
+                            <img src='" . $photo . "' alt='Picha'>
+                            <p>" . htmlspecialchars($row['first_name']) . " " . htmlspecialchars($row['last_name']) . "</p>
                           </div>";
                     displayTree($row['id'], $conn);
                     echo "</li>";
@@ -33,11 +38,13 @@
                 echo "</ul>";
             }
         }
+
         displayTree(null, $conn);
         ?>
     </div>
     <div class="text-center mt-4">
         <a href="register.php" class="btn btn-success">Ongeza Mtu Mpya</a>
+        <a href="index.php" class="btn btn-secondary">Rudi Nyumbani</a>
     </div>
 </div>
 
