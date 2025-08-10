@@ -34,6 +34,7 @@
         position: relative;
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         z-index: 10;
+        overflow-x: visible;
     }
     header .logo {
         font-weight: 900;
@@ -41,6 +42,7 @@
         letter-spacing: 3px;
         user-select: none;
         font-family: 'Segoe UI Black', sans-serif;
+        white-space: nowrap;
     }
     nav {
         display: flex;
@@ -50,6 +52,9 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* Firefox */
+        padding-left: 10px;
+        padding-right: 10px;
+        min-width: 0;
     }
     nav::-webkit-scrollbar {
         display: none; /* Chrome, Safari */
@@ -66,6 +71,7 @@
         user-select: none;
         white-space: nowrap;
         box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
+        flex-shrink: 0;
     }
     nav a:hover,
     nav a:focus {
@@ -75,9 +81,9 @@
         box-shadow: 0 0 10px #ffc107;
     }
 
-    /* Hide "Mawasiliano" link */
+    /* Ongeza Contact link ionekane */
     nav a[href="contact.php"] {
-        display: none;
+        display: inline-block;
     }
 
     /* Hamburger menu button */
@@ -165,8 +171,8 @@
         font-size: 3.8rem;
         margin-bottom: 24px;
         font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 5px;
+        text-transform: none;  /* no uppercase */
+        letter-spacing: 2px;
         font-family: 'Segoe UI Black', sans-serif;
         text-shadow: 3px 3px 18px rgba(0,0,0,0.85);
     }
@@ -376,7 +382,7 @@
 </head>
 <body>
 <header>
-    <div class="logo">Ukoo wa Makomelelo</div>
+    <div class="logo" aria-label="Ukoo wa Makomelelo">Ukoo wa Makomelelo</div>
     <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
         <span></span>
         <span></span>
@@ -387,12 +393,12 @@
         <a href="registration.php">Jisajiri</a>
         <a href="family_tree.php">Wanaukoo</a>
         <a href="events.html">Matukio</a>
-        <!-- Mawasiliano yamefichwa kama ulivyoomba -->
+        <a href="contact.php">Mawasiliano</a>
     </nav>
 </header>
 
 <section class="hero" role="banner" aria-label="Hero Section">
-    <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
+    <h1>Karibu kwenye mfumo wa Ukoo wa Makomelelo</h1>
     <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
     <a href="registration.php" class="btn-primary" role="button" aria-label="Jiandikishe sasa">Jiandikishe Sasa</a>
 </section>
@@ -493,15 +499,11 @@
     function showPersonDetails(person) {
         personDetails.style.display = 'block';
         personDetails.innerHTML = `
-            <img src="${person.photo ? person.photo : 'default-avatar.png'}" alt="Picha ya ${person.full_name}" />
+            <img src="${person.photo_url || 'https://via.placeholder.com/130?text=No+Image'}" alt="Picha ya ${person.full_name}" />
             <h2>${person.full_name}</h2>
             <p><strong>Umri:</strong> ${person.age || 'Haijulikani'}</p>
             <p><strong>Mkoa:</strong> ${person.region || 'Haijulikani'}</p>
-            <p><strong>Mji/Kijiji:</strong> ${person.town || 'Haijulikani'}</p>
-            <p><strong>Simu:</strong> ${person.phone || 'Haijulikani'}</p>
-            <p><strong>Barua pepe:</strong> ${person.email || 'Haijulikani'}</p>
-            <p><strong>Hali ya ndoa:</strong> ${person.marital_status || 'Haijulikani'}</p>
-            <p><strong>Watoto:</strong> ${person.children || 'Haijulikani'}</p>
+            <p><strong>Maelezo:</strong> ${person.description || 'Hakuna maelezo zaidi.'}</p>
         `;
     }
 </script>
