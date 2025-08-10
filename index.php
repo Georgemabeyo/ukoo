@@ -1,3 +1,6 @@
+<?php
+// index.php
+?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -147,7 +150,105 @@
         }
     }
 
-    /* Search Styles */
+    .hero {
+        background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
+        height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 25px;
+        color: white;
+        text-shadow: 2px 2px 12px rgba(0,0,0,0.8);
+        flex-direction: column;
+        user-select: none;
+    }
+    .hero h1 {
+        font-size: 3.8rem;
+        margin-bottom: 24px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        font-family: 'Segoe UI Black', sans-serif;
+        text-shadow: 3px 3px 18px rgba(0,0,0,0.85);
+    }
+    .hero p {
+        font-size: 1.6rem;
+        max-width: 650px;
+        margin-bottom: 40px;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    .btn-primary {
+        background: #ffc107;
+        color: #0d47a1;
+        padding: 18px 42px;
+        font-size: 1.3rem;
+        font-weight: 900;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 6px 15px rgba(255, 193, 7, 0.7);
+        transition: background-color 0.35s ease, box-shadow 0.35s ease;
+        user-select: none;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background: #e6b007;
+        box-shadow: 0 8px 20px rgba(230, 176, 7, 0.9);
+        outline: none;
+    }
+
+    main {
+        padding: 50px 25px;
+        max-width: 1200px;
+        margin: auto;
+        flex-grow: 1;
+    }
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+        gap: 40px;
+    }
+    .feature-box {
+        background: white;
+        border-radius: 18px;
+        padding: 35px 30px;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        cursor: default;
+        user-select: none;
+    }
+    .feature-box:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .feature-box h3 {
+        color: #0d47a1;
+        margin-bottom: 22px;
+        font-weight: 900;
+        font-size: 1.9rem;
+        letter-spacing: 0.04em;
+        font-family: 'Segoe UI Black', sans-serif;
+    }
+    .feature-box p {
+        color: #555;
+        font-weight: 600;
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+
+    footer {
+        background: #0d47a1;
+        color: #ffc107;
+        text-align: center;
+        padding: 24px 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        user-select: none;
+        box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
+    }
+
     .search-container {
         max-width: 600px;
         margin: 30px auto 50px;
@@ -236,6 +337,26 @@
     }
 
     @media(max-width: 600px) {
+        .hero h1 {
+            font-size: 2.6rem;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 90vw;
+        }
+        header {
+            padding: 15px 20px;
+            justify-content: space-between;
+        }
+        nav {
+            gap: 18px;
+        }
+        main {
+            padding: 35px 15px;
+        }
+        .feature-box {
+            padding: 25px 20px;
+        }
         #personDetails {
             padding: 25px 15px;
             margin: 25px 15px 0;
@@ -268,6 +389,12 @@
     </nav>
 </header>
 
+<section class="hero" role="banner" aria-label="Hero Section">
+    <h1>Karibu kwenye mfumo wa Ukoo wa Makomelelo</h1>
+    <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
+    <a href="registration.php" class="btn-primary" role="button" aria-label="Jiandikishe sasa">Jiandikishe Sasa</a>
+</section>
+
 <div class="search-container" role="search" aria-label="Tafuta mtu kwa jina">
     <input
         type="text"
@@ -278,22 +405,46 @@
         aria-controls="searchResults"
         aria-haspopup="listbox"
         aria-expanded="false"
-        aria-describedby="searchHelp"
     />
     <div id="searchResults" role="listbox" tabindex="-1" aria-label="Matokeo ya utaftaji"></div>
 </div>
 
 <div id="personDetails" aria-live="polite" aria-atomic="true"></div>
 
+<main>
+    <section class="features" aria-label="Sehemu za huduma kuu">
+        <div class="feature-box" tabindex="0">
+            <h3>Usajili Rahisi</h3>
+            <p>Jaza taarifa zako kwa urahisi, upload picha, na ungana moja kwa moja na ukoo.</p>
+        </div>
+        <div class="feature-box" tabindex="0">
+            <h3>Uchunguzi wa Familia</h3>
+            <p>Angalia uhusiano wa familia zako, talifa na watoto wa mfuasi wako kwa urahisi.</p>
+        </div>
+        <div class="feature-box" tabindex="0">
+            <h3>Usalama wa Taarifa</h3>
+            <p>Taarifa zako zinahifadhiwa kwa usiri mkubwa na usalama wa hali ya juu.</p>
+        </div>
+        <div class="feature-box" tabindex="0">
+            <h3>Muonekano wa Kisasa</h3>
+            <p>Tovuti yetu ni responsive na ina muonekano mzuri kwenye simu, kompyuta, na tablet.</p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    &copy; 2025 Ukoo wa Makomelelo | Haki zote zimehifadhiwa
+</footer>
+
 <script>
-    // Nav toggle
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.getElementById('nav-menu');
 
     menuToggle.addEventListener('click', () => {
-        const isOpen = navMenu.classList.toggle('open');
+        navMenu.classList.toggle('open');
         menuToggle.classList.toggle('active');
-        menuToggle.setAttribute('aria-expanded', isOpen);
+        const expanded = menuToggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+        menuToggle.setAttribute('aria-expanded', expanded);
     });
 
     menuToggle.addEventListener('keydown', (e) => {
@@ -303,23 +454,15 @@
         }
     });
 
-    // Demo data to simulate search results (replace this with fetch from server in your real app)
-    const peopleData = [
-        {id:1, full_name:"Yakobo Makomelelo", village:"Katete", ward:"Kibaha", region:"Pwani", photo_url:"https://randomuser.me/api/portraits/men/75.jpg"},
-        {id:2, full_name:"Maryam Makomelelo", village:"Katete", ward:"Kibaha", region:"Pwani", photo_url:"https://randomuser.me/api/portraits/women/65.jpg"},
-        {id:3, full_name:"Joseph Makomelelo", village:"Katete", ward:"Kibaha", region:"Pwani", photo_url:"https://randomuser.me/api/portraits/men/66.jpg"},
-        {id:4, full_name:"Fatuma Makomelelo", village:"Katete", ward:"Kibaha", region:"Pwani", photo_url:"https://randomuser.me/api/portraits/women/77.jpg"},
-        {id:5, full_name:"David Makomelelo", village:"Katete", ward:"Kibaha", region:"Pwani", photo_url:"https://randomuser.me/api/portraits/men/54.jpg"},
-    ];
-
+    // Search functionality
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const personDetails = document.getElementById('personDetails');
 
-    let currentFocus = -1;
+    let currentFocus = -1; // For keyboard navigation
 
     searchInput.addEventListener('input', () => {
-        const query = searchInput.value.trim().toLowerCase();
+        const query = searchInput.value.trim();
         personDetails.style.display = 'none';
         searchResults.innerHTML = '';
         searchResults.style.display = 'none';
@@ -328,52 +471,57 @@
 
         if (query.length < 2) return;
 
-        // Filter demo data by name match (simulate server search)
-        const filtered = peopleData.filter(p => p.full_name.toLowerCase().includes(query));
-
-        if(filtered.length === 0) {
-            searchResults.innerHTML = `<div class="result-item" role="option" aria-selected="false">Hakuna mtu aliye patikana</div>`;
-            searchResults.style.display = 'block';
-            searchInput.setAttribute('aria-expanded', 'true');
-            return;
-        }
-
-        filtered.forEach(person => {
-            const div = document.createElement('div');
-            div.classList.add('result-item');
-            div.textContent = person.full_name;
-            div.dataset.id = person.id;
-            div.setAttribute('role', 'option');
-            div.setAttribute('tabindex', '-1');
-            div.setAttribute('aria-selected', 'false');
-
-            div.addEventListener('click', () => {
-                showPersonDetails(person);
+        fetch('search.php?q=' + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
                 searchResults.innerHTML = '';
-                searchResults.style.display = 'none';
-                searchInput.value = person.full_name;
-                searchInput.setAttribute('aria-expanded', 'false');
-            });
-
-            div.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    div.click();
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if(div.nextSibling) div.nextSibling.focus();
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if(div.previousSibling) div.previousSibling.focus();
-                    else searchInput.focus();
+                if (!Array.isArray(data) || data.length === 0) {
+                    searchResults.innerHTML = '<div class="result-item" role="option" aria-selected="false">Hakuna mtu aliye patikana</div>';
+                    searchResults.style.display = 'block';
+                    searchInput.setAttribute('aria-expanded', 'true');
+                    return;
                 }
+                data.forEach(person => {
+                    const div = document.createElement('div');
+                    div.classList.add('result-item');
+                    div.textContent = person.full_name;
+                    div.dataset.id = person.id;
+                    div.setAttribute('role', 'option');
+                    div.setAttribute('tabindex', '-1');
+                    div.setAttribute('aria-selected', 'false');
+
+                    div.addEventListener('click', () => {
+                        showPersonDetails(person);
+                        searchResults.innerHTML = '';
+                        searchResults.style.display = 'none';
+                        searchInput.value = person.full_name;
+                        searchInput.setAttribute('aria-expanded', 'false');
+                    });
+
+                    div.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            div.click();
+                        } else if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (div.nextSibling) div.nextSibling.focus();
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (div.previousSibling) div.previousSibling.focus();
+                            else searchInput.focus();
+                        }
+                    });
+
+                    searchResults.appendChild(div);
+                });
+                searchResults.style.display = 'block';
+                searchInput.setAttribute('aria-expanded', 'true');
+            })
+            .catch(() => {
+                searchResults.innerHTML = '<div class="result-item" role="option" aria-selected="false">Tatizo la mtandao. Jaribu tena.</div>';
+                searchResults.style.display = 'block';
+                searchInput.setAttribute('aria-expanded', 'true');
             });
-
-            searchResults.appendChild(div);
-        });
-
-        searchResults.style.display = 'block';
-        searchInput.setAttribute('aria-expanded', 'true');
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -396,7 +544,7 @@
             items[currentFocus].focus();
         } else if (e.key === 'Enter') {
             e.preventDefault();
-            if(currentFocus > -1) {
+            if (currentFocus > -1) {
                 items[currentFocus].click();
             }
         } else if (e.key === 'Escape') {
