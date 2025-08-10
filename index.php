@@ -55,9 +55,14 @@
         padding-left: 10px;
         padding-right: 10px;
         min-width: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        position: static;
+        max-height: none;
+        box-shadow: none;
     }
     nav::-webkit-scrollbar {
-        display: none; /* Chrome, Safari */
+        display: none;
     }
     nav a {
         color: #ffc107;
@@ -80,13 +85,6 @@
         outline: none;
         box-shadow: 0 0 10px #ffc107;
     }
-
-    /* Ongeza Contact link ionekane */
-    nav a[href="contact.php"] {
-        display: inline-block;
-    }
-
-    /* Hamburger menu button */
     .menu-toggle {
         display: none;
         flex-direction: column;
@@ -95,6 +93,7 @@
         height: 28px;
         justify-content: space-between;
         user-select: none;
+        z-index: 99999;
     }
     .menu-toggle span {
         height: 4px;
@@ -113,8 +112,6 @@
     .menu-toggle.active span:nth-child(3) {
         transform: rotate(-45deg) translate(7px, -7px);
     }
-
-    /* Responsive Styles */
     @media(max-width: 768px) {
         nav {
             position: absolute;
@@ -153,7 +150,6 @@
         }
     }
 
-    /* Hero */
     .hero {
         background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
         height: 75vh;
@@ -171,7 +167,6 @@
         font-size: 3.8rem;
         margin-bottom: 24px;
         font-weight: 900;
-        text-transform: none;  /* no uppercase */
         letter-spacing: 2px;
         font-family: 'Segoe UI Black', sans-serif;
         text-shadow: 3px 3px 18px rgba(0,0,0,0.85);
@@ -204,7 +199,6 @@
         outline: none;
     }
 
-    /* Main content */
     main {
         padding: 50px 25px;
         max-width: 1200px;
@@ -244,7 +238,6 @@
         line-height: 1.5;
     }
 
-    /* Footer */
     footer {
         background: #0d47a1;
         color: #ffc107;
@@ -256,7 +249,6 @@
         box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
     }
 
-    /* Search bar */
     .search-container {
         max-width: 600px;
         margin: 30px auto 50px;
@@ -343,7 +335,6 @@
         clear: both;
     }
 
-    /* Responsive typography and layout tweaks */
     @media(max-width: 600px) {
         .hero h1 {
             font-size: 2.6rem;
@@ -501,11 +492,19 @@
         personDetails.innerHTML = `
             <img src="${person.photo_url || 'https://via.placeholder.com/130?text=No+Image'}" alt="Picha ya ${person.full_name}" />
             <h2>${person.full_name}</h2>
-            <p><strong>Umri:</strong> ${person.age || 'Haijulikani'}</p>
+            <p><strong>Kijiji:</strong> ${person.village || 'Haijulikani'}</p>
+            <p><strong>Kata:</strong> ${person.ward || 'Haijulikani'}</p>
             <p><strong>Mkoa:</strong> ${person.region || 'Haijulikani'}</p>
-            <p><strong>Maelezo:</strong> ${person.description || 'Hakuna maelezo zaidi.'}</p>
         `;
     }
+
+    // Optional: Close results if clicking outside search container
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+            searchResults.innerHTML = '';
+        }
+    });
 </script>
+
 </body>
 </html>
