@@ -1,0 +1,61 @@
+<?php
+session_start();
+include 'config.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    $sql = "SELECT id, username, password FROM admins WHERE username = $1";
+    $result = pg_query_params($conn, $sql, [$username]);
+
+    if ($result && pg_num_rows($result) > 0) {
+        $admin = pg_fetch_assoc($result);
+        if (password_verify($password, $admin['password'])) {
+            // Password ni sahihi, anza session
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_username'] = $admin['username'];
+            $_SESSION['admin_id'] = $admin['id'];
+
+            header("Location: admin_dashboard.php");
+            exit;
+        } else {
+            $error = "Username au password si sahihi.";
+        }
+    } else {
+        $error = "Username au password si sahihi.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Login - Ukoo wa Makomelelo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+<div class="container py-5" style="max-width: 400px;">
+    <h2 class="mb-4 text-center">Admin Login</h2>
+
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <form method="post" action="">
+        <div class="mb-3">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Ingia</button>
+    </form>
+</div>
+</body>
+</html>
