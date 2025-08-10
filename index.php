@@ -25,6 +25,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            position: relative;
         }
         header .logo {
             font-weight: 700;
@@ -46,10 +47,70 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-        nav a:hover {
+        nav a:hover,
+        nav a:focus {
             background: #ffc107;
             color: #0d47a1;
+            outline: none;
         }
+
+        /* Hamburger menu button */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            width: 30px;
+            height: 25px;
+            justify-content: space-between;
+        }
+        .menu-toggle span {
+            height: 3px;
+            width: 100%;
+            background: #ffc107;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        /* Toggle active animation */
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Responsive Styles */
+        @media(max-width: 768px) {
+            nav {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #0d47a1;
+                flex-direction: column;
+                width: 220px;
+                padding: 15px 0;
+                border-radius: 0 0 0 10px;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                z-index: 1000;
+            }
+            nav.open {
+                max-height: 300px; /* enough to show all links */
+            }
+            nav a {
+                padding: 12px 20px;
+                font-size: 1.1rem;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
+        /* Hero and rest unchanged */
         .hero {
             background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
             height: 70vh;
@@ -148,7 +209,12 @@
 <body>
     <header>
         <div class="logo">Ukoo wa Makomelelo</div>
-        <nav>
+        <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav id="nav-menu" role="navigation">
             <a href="index.php">Home</a>
             <a href="registration.php">Registration</a>
             <a href="family_tree.php">Family Tree</a>
@@ -183,5 +249,34 @@
     <footer>
         &copy; 2025 Ukoo wa Makomelelo | Haki zote zimehifadhiwa
     </footer>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        // Toggle menu open/close on hamburger click
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('open');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Optional: Close menu when a nav link is clicked (comment this out if you want menu to stay open)
+        /*
+        document.querySelectorAll('#nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('open');
+                menuToggle.classList.remove('active');
+            });
+        });
+        */
+
+        // Accessibility: Allow toggling menu via keyboard (Enter or Space)
+        menuToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                menuToggle.click();
+            }
+        });
+    </script>
 </body>
 </html>
