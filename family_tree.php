@@ -38,7 +38,7 @@
             top: 0;
             left: 12px;
             bottom: 0;
-            border-left: 2px solid #0d6efd; /* Bootstrap primary color */
+            border-left: 2px solid #0d6efd; /* Bootstrap primary blue */
         }
 
         .tree li {
@@ -59,7 +59,7 @@
         .member {
             display: flex;
             align-items: center;
-            background: #e7f1ff; /* light blue */
+            background: #e7f1ff; /* light blue box */
             padding: 0.7rem 1rem;
             border-radius: 10px;
             box-shadow: 0 0 8px rgba(13,110,253,0.15);
@@ -82,21 +82,24 @@
         }
         .member p {
             margin: 0;
-            font-weight: 600;
+            font-weight: 700;
             font-size: clamp(1.1rem, 2vw, 1.3rem);
-            color: #0d6efd;
+            color: #ff8800; /* Orange text */
             user-select: none;
             word-break: break-word;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
         }
 
         h2.text-center {
             font-size: clamp(2rem, 4vw, 2.75rem);
-            font-weight: 700;
+            font-weight: 900;
             margin-bottom: 2.5rem;
             color: #0d6efd;
             user-select: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
+        /* Buttons */
         .btn {
             font-size: 1.1rem;
             font-weight: 600;
@@ -107,6 +110,8 @@
         .btn-success {
             background-color: #0d6efd;
             border-color: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 12px rgba(13,110,253,0.6);
         }
         .btn-success:hover {
             background-color: #084bcc;
@@ -115,13 +120,15 @@
         .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
+            color: white;
+            box-shadow: 0 4px 10px rgba(108,117,125,0.6);
         }
         .btn-secondary:hover {
             background-color: #565e64;
             border-color: #565e64;
         }
 
-        /* Responsive - on small screens */
+        /* Responsive - small screens */
         @media (max-width: 600px) {
             .tree-container {
                 padding: 1rem 1rem;
@@ -151,11 +158,14 @@
         #memberModal .modal-content {
             border-radius: 12px;
             padding: 1rem;
+            background: #f0f7ff;
+            box-shadow: 0 6px 18px rgba(13,110,253,0.25);
         }
         #memberModal .modal-title {
             font-size: clamp(1.3rem, 2.5vw, 1.7rem);
-            font-weight: 700;
+            font-weight: 900;
             color: #0d6efd;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
         #memberDetails {
             font-size: clamp(1rem, 2vw, 1.25rem);
@@ -166,15 +176,15 @@
     </style>
 </head>
 <body>
-<div class="container py-5 tree-container">
+<div class="container py-5 tree-container" role="main" aria-label="Mti wa familia wa Ukoo wa Makomelelo">
     <h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
-    <div id="tree-container" class="tree">
+    <div id="tree-container" class="tree" tabindex="0">
         <?php
         function displayTree($parent_id = null, $conn) {
             if (is_null($parent_id)) {
                 $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY first_name, last_name";
             } else {
-                $parent_id = (int)$parent_id; // sanitize
+                $parent_id = (int)$parent_id;
                 $sql = "SELECT * FROM family_tree WHERE parent_id = $parent_id ORDER BY first_name, last_name";
             }
 
@@ -184,9 +194,9 @@
                 echo "<ul>";
                 while ($row = pg_fetch_assoc($result)) {
                     echo "<li>";
-                    $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/80";
-                    echo "<div class='member' data-id='" . htmlspecialchars($row['id']) . "'>
-                            <img src='" . $photo . "' alt='Picha'>
+                    $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/80?text=No+Image";
+                    echo "<div class='member' data-id='" . htmlspecialchars($row['id']) . "' tabindex='0' role='button' aria-pressed='false'>
+                            <img src='" . $photo . "' alt='Picha ya " . htmlspecialchars($row['first_name']) . " " . htmlspecialchars($row['last_name']) . "'>
                             <p>" . htmlspecialchars($row['first_name']) . " " . htmlspecialchars($row['last_name']) . "</p>
                           </div>";
                     displayTree($row['id'], $conn);
@@ -200,17 +210,17 @@
         ?>
     </div>
     <div class="text-center mt-4">
-        <a href="register.php" class="btn btn-success me-2">Ongeza Mtu Mpya</a>
-        <a href="index.php" class="btn btn-secondary">Rudi Nyumbani</a>
+        <a href="register.php" class="btn btn-success me-2" role="button">Ongeza Mtu Mpya</a>
+        <a href="index.php" class="btn btn-secondary" role="button">Rudi Nyumbani</a>
     </div>
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true" aria-labelledby="memberModalTitle" role="dialog">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Taarifa za Mtu</h5>
+        <h5 class="modal-title" id="memberModalTitle">Taarifa za Mtu</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Funga"></button>
       </div>
       <div class="modal-body" id="memberDetails">
@@ -223,13 +233,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).on('click', '.member', function(){
-    var id = $(this).data('id');
-    $.get('view_member.php', {id: id}, function(data){
-        $('#memberDetails').html(data);
-        var modal = new bootstrap.Modal(document.getElementById('memberModal'));
-        modal.show();
-    });
+$(document).on('click keypress', '.member', function(e){
+    // Allow click or keyboard Enter/Space keys
+    if(e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var pressed = $(this).attr('aria-pressed') === 'true';
+        $(this).attr('aria-pressed', !pressed);
+        $.get('view_member.php', {id: id}, function(data){
+            $('#memberDetails').html(data);
+            var modal = new bootstrap.Modal(document.getElementById('memberModal'));
+            modal.show();
+        });
+    }
 });
 </script>
 </body>
