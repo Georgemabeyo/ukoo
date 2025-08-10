@@ -1,51 +1,111 @@
+<?php
+include 'config.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $first_name      = $_POST['first_name'];
+    $middle_name     = $_POST['middle_name'];
+    $last_name       = $_POST['last_name'];
+    $dob             = $_POST['dob'];
+    $gender          = $_POST['gender'];
+    $marital_status  = $_POST['marital_status'];
+    $has_children    = isset($_POST['has_children']) ? 1 : 0;
+    $children_male   = $_POST['children_male'] ?? 0;
+    $children_female = $_POST['children_female'] ?? 0;
+    $country         = $_POST['country'];
+    $region          = $_POST['region'] ?? '';
+    $district        = $_POST['district'] ?? '';
+    $ward            = $_POST['ward'] ?? '';
+    $village         = $_POST['village'] ?? '';
+    $city            = $_POST['city'] ?? '';
+    $phone           = $_POST['phone'];
+    $email           = $_POST['email'];
+    $password        = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $parent_id       = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
+
+    $photo = '';
+    if (!empty($_FILES['photo']['name'])) {
+        $target_dir = __DIR__ . "/uploads/";
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        $photo = time() . "_" . basename($_FILES["photo"]["name"]);
+        move_uploaded_file($_FILES["photo"]["tmp_name"], $target_dir . $photo);
+    }
+
+    $sql = "INSERT INTO family_tree (
+        first_name, middle_name, last_name, dob, gender, marital_status,
+        has_children, children_male, children_female, country, region, district,
+        ward, village, city, phone, email, password, photo, parent_id
+    ) VALUES (
+        $1, $2, $3, $4, $5, $6,
+        $7, $8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17, $18, $19, $20
+    )";
+
+    $params = [
+        $first_name, $middle_name, $last_name, $dob, $gender, $marital_status,
+        $has_children, $children_male, $children_female, $country, $region, $district,
+        $ward, $village, $city, $phone, $email, $password, $photo, $parent_id
+    ];
+
+    $result = pg_query_params($conn, $sql, $params);
+
+    if ($result) {
+        echo "<div class='alert alert-success text-center'>
+                Usajili umefanikiwa! <a href='family_tree.php'>Angalia ukoo</a>
+              </div>";
+    } else {
+        echo "<div class='alert alert-danger text-center'>Kuna tatizo: " . pg_last_error($conn) . "</div>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="sw">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />  <!-- Muhimu kwa responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Usajili - Ukoo wa Makomelelo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
-        /* Hide steps except active */
         .step { display: none; }
         .step.active { display: block; }
-
-        /* Limit max width to form for big screens and center */
         form {
             max-width: 600px;
             margin: 0 auto;
         }
-
-        /* Bigger inputs on small screens */
         input.form-control, select.form-select {
             font-size: 1.1rem;
             padding: 0.5rem 0.75rem;
         }
-
-        /* Button full width on mobile */
         button[type="submit"] {
             width: 100%;
             font-size: 1.2rem;
             padding: 0.6rem;
         }
-
-        /* Responsive spacing */
         .mb-3 label {
             font-weight: 600;
             font-size: 1.05rem;
         }
-
-        /* Children fields indentation */
         #childrenFields {
             margin-left: 20px;
             border-left: 2px solid #dee2e6;
             padding-left: 15px;
+        }
+        /* Nyumbani button styling */
+        .back-home-btn {
+            margin-bottom: 20px;
+            display: inline-block;
         }
     </style>
 </head>
 <body class="bg-light">
 <div class="container py-5">
     <h2 class="mb-4 text-center">Form ya Usajili wa Ukoo wa Makomelelo</h2>
+    
+    <!-- Button ya kurudi nyumbani -->
+    <a href="index.php" class="btn btn-outline-primary back-home-btn">&larr; Nyumbani</a>
+    
     <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
 
         <!-- Step 1: Majina -->
@@ -178,8 +238,6 @@
 </div>
 
 <script>
-    // Your existing JS for dynamic selects and steps, just keep as is
-
     // Data structure ya mikoa->wilaya->kata->kijiji/mtaa (Mfano tu)
     const data = {
         "Dar es Salaam": {
