@@ -39,7 +39,10 @@
         nav {
             display: flex;
             gap: 25px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* Zuia links kuanguka chini */
+            overflow-x: auto; /* Enable horizontal scroll on small screens */
+            white-space: nowrap; /* Prevent wrapping of links */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
         nav a {
             color: #ffc107;
@@ -49,6 +52,8 @@
             padding: 8px 10px;
             border-radius: 5px;
             transition: background-color 0.3s ease;
+            white-space: nowrap; /* Prevent link text from breaking */
+            display: inline-block;
         }
         nav a:hover,
         nav a:focus {
@@ -57,59 +62,26 @@
             outline: none;
         }
 
-        /* Hamburger menu button */
+        /* Remove hamburger menu on mobile */
         .menu-toggle {
             display: none;
-            flex-direction: column;
-            cursor: pointer;
-            width: 30px;
-            height: 25px;
-            justify-content: space-between;
-        }
-        .menu-toggle span {
-            height: 3px;
-            width: 100%;
-            background: #ffc107;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        /* Toggle active animation */
-        .menu-toggle.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .menu-toggle.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
         }
 
         /* Responsive Styles */
         @media(max-width: 768px) {
             nav {
-                position: absolute;
-                top: 100%;
-                right: 0;
-                background: #0d47a1;
-                flex-direction: column;
-                width: 220px;
-                padding: 15px 0;
-                border-radius: 0 0 0 10px;
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease;
-                z-index: 1000;
-            }
-            nav.open {
-                max-height: 300px; /* enough to show all links */
+                position: static; /* Make nav part of normal flow */
+                max-height: none !important;
+                width: 100%;
+                padding: 10px 0;
+                border-radius: 0;
+                background: transparent;
+                overflow-x: auto;
+                flex-wrap: nowrap;
             }
             nav a {
-                padding: 12px 20px;
+                padding: 10px 15px;
                 font-size: 1.1rem;
-            }
-            .menu-toggle {
-                display: flex;
             }
         }
 
@@ -276,7 +248,7 @@
                 gap: 15px;
             }
             nav {
-                justify-content: center;
+                justify-content: flex-start;
             }
         }
     </style>
@@ -284,11 +256,7 @@
 <body>
     <header>
         <div class="logo">Ukoo wa Makomelelo</div>
-        <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
+        <!-- Hamburger menu removed on purpose -->
         <nav id="nav-menu" role="navigation">
             <a href="index.php">Home</a>
             <a href="registration.php">Registration</a>
@@ -336,23 +304,6 @@
     </footer>
 
     <script>
-        const menuToggle = document.getElementById('menu-toggle');
-        const navMenu = document.getElementById('nav-menu');
-
-        // Toggle menu open/close on hamburger click
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('open');
-            menuToggle.classList.toggle('active');
-        });
-
-        // Accessibility: Allow toggling menu via keyboard (Enter or Space)
-        menuToggle.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                menuToggle.click();
-            }
-        });
-
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
