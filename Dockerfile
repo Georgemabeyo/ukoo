@@ -1,8 +1,9 @@
 # Tumia official PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Install mysqli extension
-RUN docker-php-ext-install mysqli
+# Install PostgreSQL extensions na pia mysqli kama unataka zote
+RUN apt-get update && apt-get install -y libpq-dev \
+    && docker-php-ext-install mysqli pdo pdo_pgsql pgsql
 
 # Copy source code kwenda directory ya Apache
 COPY . /var/www/html/
