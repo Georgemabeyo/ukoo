@@ -140,6 +140,7 @@
         .btn-container {
             margin-top: 2rem;
             text-align: center;
+            padding: 15px 40px;
         }
         .btn-custom {
             display: inline-block;
@@ -265,19 +266,6 @@
 </div>
 
 <!-- Modal for showing member details -->
-<div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true" aria-labelledby="memberModalTitle" role="dialog">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="memberModalTitle">Taarifa za Mtu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Funga"></button>
-      </div>
-      <div class="modal-body" id="memberDetails">
-        <p>Inapakia...</p>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
