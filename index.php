@@ -1,3 +1,6 @@
+<?php
+// index.php
+?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -149,6 +152,7 @@
         .btn-primary:hover {
             background: #e6b007;
         }
+
         main {
             padding: 40px 20px;
             max-width: 1200px;
@@ -189,6 +193,77 @@
             font-size: 0.9rem;
             user-select: none;
         }
+
+        /* Search bar styles */
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto 40px;
+            position: relative;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1.5px solid #0d47a1;
+            outline: none;
+            box-shadow: 0 0 5px rgba(13,71,161,0.4);
+        }
+        #searchResults {
+            position: absolute;
+            top: 48px;
+            width: 100%;
+            background: white;
+            border: 1px solid #0d47a1;
+            border-top: none;
+            max-height: 250px;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 10000;
+        }
+        #searchResults div.result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        #searchResults div.result-item:hover {
+            background: #ffc107;
+            color: #0d47a1;
+        }
+        #personDetails {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #personDetails img {
+            float: left;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 3px solid #0d47a1;
+        }
+        #personDetails h2 {
+            margin-bottom: 8px;
+            color: #0d47a1;
+        }
+        #personDetails p {
+            font-size: 1rem;
+            color: #333;
+            line-height: 1.4;
+        }
+        #personDetails::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
         @media(max-width:600px){
             .hero h1 {
                 font-size: 2.2rem;
@@ -221,11 +296,20 @@
             <a href="contact.php">Contact</a>
         </nav>
     </header>
+
     <section class="hero">
         <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
         <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
         <a href="registration.php" class="btn-primary">Jiandikishe Sasa</a>
     </section>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tafuta mtu kwa jina..." autocomplete="off" />
+        <div id="searchResults"></div>
+    </div>
+
+    <div id="personDetails"></div>
+
     <main>
         <section class="features">
             <div class="feature-box">
@@ -246,6 +330,7 @@
             </div>
         </section>
     </main>
+
     <footer>
         &copy; 2025 Ukoo wa Makomelelo | Haki zote zimehifadhiwa
     </footer>
@@ -260,16 +345,6 @@
             menuToggle.classList.toggle('active');
         });
 
-        // Optional: Close menu when a nav link is clicked (comment this out if you want menu to stay open)
-        /*
-        document.querySelectorAll('#nav-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('open');
-                menuToggle.classList.remove('active');
-            });
-        });
-        */
-
         // Accessibility: Allow toggling menu via keyboard (Enter or Space)
         menuToggle.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -277,6 +352,59 @@
                 menuToggle.click();
             }
         });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const personDetails = document.getElementById('personDetails');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            personDetails.style.display = 'none'; // hide details on new search
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            fetch('search.php?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.length === 0) {
+                        searchResults.innerHTML = '<div class="result-item">Hakuna mtu aliye patikana</div>';
+                        return;
+                    }
+                    data.forEach(person => {
+                        const div = document.createElement('div');
+                        div.classList.add('result-item');
+                        div.textContent = person.full_name;
+                        div.dataset.id = person.id;
+                        div.addEventListener('click', () => {
+                            showPersonDetails(person);
+                            searchResults.innerHTML = '';
+                            searchInput.value = person.full_name;
+                        });
+                        searchResults.appendChild(div);
+                    });
+                })
+                .catch(() => {
+                    searchResults.innerHTML = '<div class="result-item">Tatizo la mtandao. Jaribu tena.</div>';
+                });
+        });
+
+        function showPersonDetails(person) {
+            personDetails.style.display = 'block';
+            personDetails.innerHTML = `
+                <img src="${person.photo ? person.photo : 'default-avatar.png'}" alt="Picha ya ${person.full_name}" />
+                <h2>${person.full_name}</h2>
+                <p><strong>Umri:</strong> ${person.age || 'Haijulikani'}</p>
+                <p><strong>Mkoa:</strong> ${person.region || 'Haijulikani'}</p>
+                <p><strong>Mji/Kijiji:</strong> ${person.town || 'Haijulikani'}</p>
+                <p><strong>Simu:</strong> ${person.phone || 'Haijulikani'}</p>
+                <p><strong>Barua pepe:</strong> ${person.email || 'Haijulikani'}</p>
+                <p><strong>Hali ya ndoa:</strong> ${person.marital_status || 'Haijulikani'}</p>
+                <p><strong>Watoto:</strong> ${person.children || 'Haijulikani'}</p>
+            `;
+        }
     </script>
 </body>
 </html>
