@@ -260,7 +260,7 @@
         ?>
     </div>
     <div class="btn-container">
-        <a href="register.php" class="btn-custom btn-ongeza" role="button" aria-label="Ongeza mtu mpya">Ongeza Mtu Mpya</a>
+        <a href="registration.php" class="btn-custom btn-ongeza" role="button" aria-label="Ongeza mtu mpya">Ongeza Mtu Mpya</a>
         <a href="index.php" class="btn-custom btn-rudi" role="button" aria-label="Rudi nyumbani">Rudi Nyumbani</a>
     </div>
 </div>
