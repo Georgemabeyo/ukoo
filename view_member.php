@@ -1,42 +1,43 @@
 <?php
-include 'config.php';
+// view_member.php
+include 'config.php'; // Hapa kuna DB connection yako
 
-if (!isset($_GET['id'])) {
-    exit("Member ID required");
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    echo "<p style='color:red; text-align:center;'>Hakuna ID iliyotumwa.</p>";
+    exit;
 }
 
-$id = (int)$_GET['id'];
+$member_id = intval($_GET['id']);
 
-$sql = "SELECT * FROM family_tree WHERE id = $id LIMIT 1";
-$result = pg_query($conn, $sql);
+// Pata taarifa za member
+$sql = "SELECT m.id, m.jina, m.simuna, m.picha, m.parent_id, p.jina AS jina_mzazi
+        FROM members m
+        LEFT JOIN members p ON m.parent_id = p.id
+        WHERE m.id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if ($result && pg_num_rows($result) > 0) {
-    $row = pg_fetch_assoc($result);
-    $fullName = htmlspecialchars($row['first_name'] . " " . $row['last_name']);
-    $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/150?text=No+Image";
-    $phone = !empty($row['phone']) ? htmlspecialchars($row['phone']) : 'Hakuna namba';
-    $parent_id = $row['parent_id'];
-
-    // Optional: fetch parent name
-    if ($parent_id) {
-        $pRes = pg_query($conn, "SELECT first_name, last_name FROM family_tree WHERE id = $parent_id LIMIT 1");
-        if ($pRes && pg_num_rows($pRes) > 0) {
-            $pRow = pg_fetch_assoc($pRes);
-            $parentName = htmlspecialchars($pRow['first_name'] . " " . $pRow['last_name']);
-        } else {
-            $parentName = "Hayupo";
-        }
-    } else {
-        $parentName = "Hakuna";
-    }
-
-    echo "<div style='text-align:center;'>";
-    echo "<img src='$photo' alt='Picha ya $fullName' style='width:120px; height:120px; border-radius:50%; border:3px solid #ffc107; margin-bottom:10px;'>";
-    echo "<h3 style='color:#0d47a1;'>$fullName</h3>";
-    echo "<p style='color:#333;'><strong>Namba ya simu:</strong> $phone</p>";
-    echo "<p style='color:#333;'><strong>Mzazi:</strong> $parentName</p>";
-    echo "</div>";
-} else {
-    echo "<p>Mwanaukoo hayupo.</p>";
+if ($result->num_rows === 0) {
+    echo "<p style='color:red; text-align:center;'>Taarifa hazijapatikana.</p>";
+    exit;
 }
+
+$row = $result->fetch_assoc();
+
+// Picha
+$picha = !empty($row['picha']) ? "uploads/" . $row['picha'] : "uploads/default.png";
+
+// Mzazi
+$mzazi = !empty($row['jina_mzazi']) ? $row['jina_mzazi'] : "Hakuna";
+
+// Output HTML
+echo "<div style='text-align:center;'>
+        <img src='" . htmlspecialchars($picha) . "' alt='Picha ya " . htmlspecialchars($row['jina']) . "' 
+             style='width:120px; height:120px; border-radius:50%; border:3px solid #ffc107; margin-bottom:10px;'>
+        <h3 style='color:#0d47a1;'>" . htmlspecialchars($row['jina']) . "</h3>
+        <p style='color:#333;'><strong>Namba ya simu:</strong> " . htmlspecialchars($row['simuna']) . "</p>
+        <p style='color:#333;'><strong>Mzazi:</strong> " . htmlspecialchars($mzazi) . "</p>
+      </div>";
 ?>
