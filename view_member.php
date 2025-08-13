@@ -24,7 +24,7 @@ if ($result && pg_num_rows($result) > 0) {
             $pRow = pg_fetch_assoc($pRes);
             $parentName = htmlspecialchars($pRow['first_name'] . " " . $pRow['last_name']);
         } else {
-            $parentName = "Haipo";
+            $parentName = "Hayupo";
         }
     } else {
         $parentName = "Hakuna";
@@ -37,6 +37,6 @@ if ($result && pg_num_rows($result) > 0) {
     echo "<p style='color:#333;'><strong>Mzazi:</strong> $parentName</p>";
     echo "</div>";
 } else {
-    echo "<p>Member haipo.</p>";
+    echo "<p>Mwanaukoo hayupo.</p>";
 }
 ?>
