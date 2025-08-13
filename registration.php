@@ -23,9 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password        = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $parent_id       = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
 
-    // Calculate child ID if parent_id exists
+    // Calculate child ID
     if($parent_id){
-        // Get last child
         $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id=$1 ORDER BY id DESC LIMIT 1", [$parent_id]);
         if($res_max && pg_num_rows($res_max)>0){
             $row_max = pg_fetch_assoc($res_max);
@@ -39,14 +38,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
         } else {
-            $new_id = (int)($parent_id . '1'); // First child
+            $new_id = (int)($parent_id . '1');
         }
     } else {
-        // If no parent, this is the root founder
         $new_id = 1;
     }
 
-    // Handle photo
+    // Photo
     $photo = '';
     if (!empty($_FILES['photo']['name'])) {
         $target_dir = __DIR__ . "/uploads/";
@@ -82,119 +80,179 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Usajili - Ukoo wa Makomelelo</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usajili Ukoo - Makomelelo</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-body{background:linear-gradient(120deg,#74ebd5 0%,#9face6 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(120deg,#74ebd5 0%,#9face6 100%);padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center;}
 .container{background:#fff;padding:30px 40px;border-radius:15px;max-width:650px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
-h2{text-align:center;color:#0d47a1;margin-bottom:30px;font-weight:900;}
+h2{text-align:center;color:#0d47a1;margin-bottom:25px;font-weight:900;}
+label{font-weight:600;color:#0d47a1;}
 input,select{width:100%;padding:10px;border:2px solid #9face6;border-radius:10px;margin-bottom:15px;font-weight:600;}
-#parentName{font-weight:bold;color:#0d47a1;margin-bottom:10px;}
-#displayChildID{font-weight:bold;color:#0d47a1;margin-bottom:15px;}
+.form-check-label{font-weight:700;color:#0d47a1;}
+.form-check-input{transform:scale(1.2);margin-right:10px;cursor:pointer;}
+#childrenFields{padding-left:15px;border-left:3px solid #9face6;background:#f0f6fc;margin-bottom:15px;}
+.progress-container{width:100%;background:#e1e9f6;border-radius:20px;height:14px;margin-bottom:25px;box-shadow:inset 0 1px 3px rgb(0 0 0 / 0.1);}
+.progress-bar{height:14px;background:#0d47a1;width:0;border-radius:20px;transition:width 0.4s ease;}
+.top-buttons{text-align:center;margin-bottom:20px;}
+.top-buttons .btn-top{display:inline-block;background:#0d47a1;color:#ffeb3b;font-weight:700;padding:10px 20px;border-radius:12px;margin:0 5px;text-decoration:none;box-shadow:0 4px 12px rgba(13,71,161,0.4);}
+.top-buttons .btn-top:hover{background:#074078;box-shadow:0 6px 18px rgba(7,64,120,0.6);}
+.step{display:none;animation:fadeIn 0.6s ease forwards;}
+.step.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.btn-group{display:flex;justify-content:space-between;margin-top:20px;}
+button{padding:12px 25px;font-weight:700;border-radius:12px;border:none;cursor:pointer;flex:1;margin:0 5px;}
+.btn-next{background:#0d47a1;color:#ffeb3b;}
+.btn-next:hover{background:#074078;}
+.btn-prev{background:#9face6;color:#ffeb3b;}
+.btn-prev:hover{background:#7a94c3;}
+.btn-submit{background:#2e7d32;color:#fff;width:100%;margin-top:20px;}
+.btn-submit:hover{background:#1b4f20;}
+@media(max-width:480px){.btn-group{flex-direction:column;} .btn-group button{margin:8px 0;}}
+#parentName,#displayChildID{font-weight:bold;color:#0d47a1;margin-bottom:10px;}
 </style>
 </head>
 <body>
 <div class="container">
+
+<div class="top-buttons">
+<a href="index.php" class="btn-top">Nyumbani</a>
+</div>
+
 <h2>Usajili wa Ukoo wa Makomelelo</h2>
-<form method="post" enctype="multipart/form-data">
 
-<label for="first_name">Jina la Kwanza *</label>
-<input type="text" name="first_name" id="first_name" required>
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
 
-<label for="middle_name">Jina la Kati</label>
-<input type="text" name="middle_name" id="middle_name">
+<form method="post" enctype="multipart/form-data" id="regForm">
 
-<label for="last_name">Jina la Mwisho *</label>
-<input type="text" name="last_name" id="last_name" required>
+<!-- Step 1 -->
+<div class="step active">
+<label>Jina la Kwanza *</label>
+<input type="text" name="first_name" required>
+<label>Jina la Kati</label>
+<input type="text" name="middle_name">
+<label>Jina la Mwisho *</label>
+<input type="text" name="last_name" required>
+</div>
 
-<label for="dob">Tarehe ya Kuzaliwa *</label>
-<input type="date" name="dob" id="dob" required>
-
-<label for="gender">Jinsia *</label>
-<select name="gender" id="gender" required>
+<!-- Step 2 -->
+<div class="step">
+<label>Tarehe ya Kuzaliwa *</label>
+<input type="date" name="dob" required>
+<label>Jinsia *</label>
+<select name="gender" required>
 <option value="" disabled selected>--Chagua--</option>
 <option value="male">Mwanaume</option>
 <option value="female">Mwanamke</option>
 </select>
-
-<label for="marital_status">Hali ya Ndoa *</label>
-<select name="marital_status" id="marital_status" required>
+<label>Hali ya Ndoa *</label>
+<select name="marital_status" required>
 <option value="" disabled selected>--Chagua--</option>
-<option value="single">Hajaoa/Hajaolewa</option>
-<option value="married">Kaoa/Ameolewa</option>
+<option value="single">Sijaoa/Sijaolewa</option>
+<option value="married">Nimeoa/Nimeolewa</option>
 </select>
-
 <div class="form-check">
-<input type="checkbox" id="hasChildren" name="has_children" class="form-check-input">
-<label for="hasChildren" class="form-check-label">Ana Watoto?</label>
+<input type="checkbox" name="has_children" id="hasChildren" class="form-check-input">
+<label class="form-check-label" for="hasChildren">Una Watoto?</label>
 </div>
 <div id="childrenFields" style="display:none;">
-<label for="children_male">Idadi ya Watoto wa Kiume</label>
-<input type="number" name="children_male" id="children_male" min="0" value="0">
-<label for="children_female">Idadi ya Watoto wa Kike</label>
-<input type="number" name="children_female" id="children_female" min="0" value="0">
+<label>Idadi ya Watoto wa Kiume</label>
+<input type="number" name="children_male" min="0" value="0">
+<label>Idadi ya Watoto wa Kike</label>
+<input type="number" name="children_female" min="0" value="0">
+</div>
 </div>
 
-<label for="country">Nchi *</label>
-<select name="country" id="country" required>
-<option value="Tanzania" selected>Tanzania</option>
-<option value="Kenya">Kenya</option>
-<option value="Uganda">Uganda</option>
+<!-- Step 3: Location -->
+<div class="step">
+<label>Nchi</label>
+<select name="country" id="countrySelect" required>
+<option value="Tanzania">Tanzania</option>
 <option value="Other">Nyingine</option>
 </select>
 
-<label for="region">Mkoa</label>
-<input type="text" name="region" id="region">
-<label for="district">Wilaya</label>
-<input type="text" name="district" id="district">
-<label for="ward">Kata</label>
-<input type="text" name="ward" id="ward">
-<label for="village">Kijiji/Mtaa</label>
-<input type="text" name="village" id="village">
-<label for="city">Mji/Jiji</label>
-<input type="text" name="city" id="city">
+<label>Mkoa</label>
+<select name="region" id="regionSelect" required></select>
+<label>Wilaya</label>
+<select name="districtSelect" id="districtSelect" required></select>
+<label>Kata</label>
+<select name="wardSelect" id="wardSelect" required></select>
+<label>Kijiji/Mtaa</label>
+<select name="villageSelect" id="villageSelect" required></select>
+</div>
 
-<label for="phone">Namba ya Simu *</label>
-<input type="text" name="phone" id="phone" required>
+<!-- Step 4 -->
+<div class="step">
+<label>Namba ya Simu *</label>
+<input type="text" name="phone" required>
+<label>Email *</label>
+<input type="email" name="email" required>
+<label>Password *</label>
+<input type="password" name="password" required>
+</div>
 
-<label for="email">Email *</label>
-<input type="email" name="email" id="email" required>
-
-<label for="password">Password *</label>
-<input type="password" name="password" id="password" required>
-
-<label for="parent_id">ID ya Mzazi</label>
-<input type="number" id="parent_id" name="parent_id" placeholder="Andika ID ya mzazi">
-
+<!-- Step 5 -->
+<div class="step">
+<label>ID ya Mzazi (Parent ID)</label>
+<input type="number" name="parent_id" id="parent_id">
 <div id="parentName"></div>
 <div id="displayChildID">ID ya mtoto itakuwa: <span id="childID">1</span></div>
+<label>Picha</label>
+<input type="file" name="photo" accept="image/*">
+</div>
 
-<label for="photo">Picha</label>
-<input type="file" name="photo" id="photo" accept="image/*">
+<div class="btn-group">
+<button type="button" id="prevBtn" class="btn-prev" disabled>&larr; Nyuma</button>
+<button type="button" id="nextBtn" class="btn-next">Mbele &rarr;</button>
+</div>
+<button type="submit" class="btn-submit" style="display:none;">Sajili</button>
 
-<button type="submit" class="btn btn-success">Sajili</button>
 </form>
 </div>
 
 <script>
-$('#hasChildren').change(function(){
-    $('#childrenFields').toggle(this.checked);
-});
+// Multi-step
+let currentStep = 0;
+const steps = $(".step"), progressBar = $("#progressBar");
+function showStep(n){
+    steps.removeClass("active").eq(n).addClass("active");
+    $("#prevBtn").prop("disabled", n===0);
+    if(n===steps.length-1){$("#nextBtn").hide();$(".btn-submit").show();}
+    else{$("#nextBtn").show();$(".btn-submit").hide();}
+    progressBar.css("width",((n+1)/steps.length*100)+"%");
+}
+$("#nextBtn").click(function(){ if(validateStep()) {currentStep++; if(currentStep>=steps.length) currentStep=steps.length-1; showStep(currentStep);} });
+$("#prevBtn").click(function(){currentStep--; if(currentStep<0) currentStep=0; showStep(currentStep);});
+function validateStep(){
+    let valid = true;
+    steps.eq(currentStep).find("input,select").each(function(){ if($(this).prop("required") && $(this).val()===""){ alert("Tafadhali jaza "+$(this).prev("label").text()); valid=false; return false;} });
+    return valid;
+}
 
-// AJAX: show parent name and next child ID
-$('#parent_id').on('input', function(){
-    let parent_id = $(this).val();
-    if(parent_id===''){ $('#parentName').text(''); $('#childID').text('1'); return; }
-    $.post('get_parent_info.php', {parent_id: parent_id}, function(data){
-        try{
-            let obj = JSON.parse(data);
-            if(obj.error){ $('#parentName').text(obj.error); $('#childID').text('Error'); }
-            else{ $('#parentName').text('Mzazi: '+obj.name); $('#childID').text(obj.next_child_id); }
-        }catch(e){ $('#parentName').text('Tatizo la server'); $('#childID').text('Error'); }
-    });
+// Children toggle
+$("#hasChildren").change(function(){ $("#childrenFields").toggle(this.checked); });
+
+// Location dropdowns sample (replace with actual data)
+const locData = {
+"Dar es Salaam":{"Ilala":["Upanga","Kariakoo"],"Kinondoni":["Magomeni","Kigogo"]},
+"Dodoma":{"Dodoma Urban":["Hombolo","Tambukareli"],"Bahi":["Bahi","Chali"]}
+};
+function fillRegions(){let r=$("#regionSelect"); r.html('<option value="">--Chagua Mkoa--</option>'); for(let k in locData) r.append(`<option value="${k}">${k}</option>`);}
+function fillDistricts(){let reg=$("#regionSelect").val(); let d=$("#districtSelect"); d.html('<option value="">--Chagua Wilaya--</option>'); if(reg&&locData[reg]){for(let w in locData[reg]) d.append(`<option value="${w}">${w}</option>`);}} 
+function fillWard(){let reg=$("#regionSelect").val(), dis=$("#districtSelect").val(); let w=$("#wardSelect"); w.html('<option value="">--Chagua Kata--</option>'); if(reg&&dis&&locData[reg][dis]){locData[reg][dis].forEach(function(val){w.append(`<option value="${val}">${val}</option>`);});}}
+$("#regionSelect").change(function(){fillDistricts();fillWard();$("#villageSelect").html('<option value="">--Chagua Kijiji/Mtaa--</option>');});
+$("#districtSelect").change(fillWard);
+fillRegions();
+
+// AJAX Parent info
+$("#parent_id").on("input",function(){
+let pid=$(this).val();
+if(pid===''){ $("#parentName").text(''); $("#childID").text('1'); return; }
+$.post('get_parent_info.php',{parent_id:pid},function(data){
+try{let obj=JSON.parse(data); if(obj.error){$("#parentName").text(obj.error);$("#childID").text('Error');} else {$("#parentName").text('Mzazi: '+obj.name);$("#childID").text(obj.next_child_id);}}catch(e){$("#parentName").text('Tatizo la server');$("#childID").text('Error');}
+});
 });
 </script>
 </body>
