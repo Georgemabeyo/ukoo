@@ -9,30 +9,29 @@
 body {
     background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #222;
-    user-select: none;
-    padding-bottom: 50px;
     margin: 0;
+    padding-bottom: 80px;
+    color: #222;
 }
 .tree-container {
-    max-width: 900px;
-    margin: 2rem auto 3rem;
+    max-width: 960px;
+    margin: 2rem auto;
     background: #fff;
-    padding: 2rem 2rem 3rem;
+    padding: 2rem;
     border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 h2.text-center {
     font-size: clamp(1.8rem, 4vw, 2.6rem);
     font-weight: 900;
     margin-bottom: 2rem;
     color: #ffc107;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     text-align: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 .tree, .tree ul {
     list-style: none;
-    padding-left: 1.5rem;
+    padding-left: 1rem;
     margin: 0;
     position: relative;
 }
@@ -40,22 +39,22 @@ h2.text-center {
     content: '';
     position: absolute;
     top: 0;
-    left: 15px;
+    left: 25px;
     bottom: 0;
-    border-left: 2px solid #ffc107;
+    border-left: 2px solid #ffc107aa;
 }
 .tree li {
     position: relative;
-    padding-left: 42px;
-    margin-bottom: 1rem;
+    padding-left: 50px;
+    margin-bottom: 1.5rem;
 }
 .tree li::before {
     content: '';
     position: absolute;
-    top: 1.25rem;
+    top: 1.5rem;
     left: 0;
-    width: 38px;
-    border-top: 2px solid #ffc107;
+    width: 45px;
+    border-top: 2px solid #ffc107aa;
     border-radius: 3px;
 }
 /* Member block */
@@ -63,42 +62,42 @@ h2.text-center {
     display: flex;
     align-items: center;
     background: #0d47a1;
-    padding: 0.45rem 1rem;
+    padding: 0.5rem 1rem;
     border-radius: 12px;
-    box-shadow: 0 0 8px rgba(255,193,7,0.6);
+    box-shadow: 0 4px 12px rgba(13,71,161,0.4);
     cursor: pointer;
-    transition: box-shadow 0.3s ease;
-    position: relative;
-    user-select: text;
+    transition: transform 0.2s, box-shadow 0.3s;
+    word-wrap: break-word;
 }
 .member:hover {
-    box-shadow: 0 0 14px rgba(255,193,7,0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255,193,7,0.7);
 }
 .member img {
-    width: 54px;
-    height: 54px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     border-radius: 50%;
     margin-right: 1rem;
     border: 3px solid #ffc107;
-    box-shadow: 0 0 6px rgba(255,193,7,0.8);
+    flex-shrink: 0;
 }
 .member p {
     margin: 0;
     font-weight: 700;
-    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    font-size: clamp(0.95rem, 1.5vw, 1.2rem);
     color: #ffc107;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     flex-grow: 1;
 }
 .view-children-btn {
     flex-shrink: 0;
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     color: #ffc107;
     background: #0d47a1;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border: none;
     display: flex;
     align-items: center;
@@ -106,16 +105,56 @@ h2.text-center {
     cursor: pointer;
     box-shadow: 0 0 6px rgba(255,193,7,0.6);
     margin-left: 8px;
-    transition: transform 0.25s ease, box-shadow 0.3s ease;
+    transition: transform 0.25s, box-shadow 0.3s;
 }
 .view-children-btn:hover {
-    transform: scale(1.15);
-    box-shadow: 0 0 14px rgba(255,193,7,0.8);
+    transform: scale(1.2);
+    box-shadow: 0 0 14px rgba(255,193,7,0.9);
 }
 .children-list {
     margin-top: 0.5rem;
-    margin-left: 70px;
+    margin-left: 80px;
     display: none;
+}
+
+/* Buttons below tree */
+.btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+.btn-custom {
+    padding: 0.8rem 2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #ffeb3b;
+    background: #0d47a1;
+    box-shadow: 0 4px 12px rgba(13,71,161,0.4);
+    transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
+}
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13,71,161,0.6);
+    background: #074078;
+}
+
+/* Responsive tweaks */
+@media(max-width:768px){
+    .tree li::before {width: 35px;}
+    .tree ul::before {left:20px;}
+    .tree li {padding-left:40px;}
+    .member img {width:50px; height:50px;}
+}
+@media(max-width:480px){
+    .tree li {padding-left:35px;}
+    .tree ul::before {left:15px;}
+    .member img {width:45px; height:45px;}
+    .member p {font-size: clamp(0.85rem, 2.5vw, 1rem);}
+    .view-children-btn {width:28px; height:28px; font-size:1rem;}
 }
 </style>
 </head>
@@ -154,15 +193,14 @@ displayTree(null, $conn);
 ?>
 </div>
 <div class="btn-container">
-    <a href="registration.php" class="btn-custom btn-ongeza">Ongeza Mtu Mpya</a>
-    <a href="index.php" class="btn-custom btn-rudi">Rudi Nyumbani</a>
+    <a href="registration.php" class="btn-custom">Ongeza Mtu Mpya</a>
+    <a href="index.php" class="btn-custom">Rudi Nyumbani</a>
 </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Toggle children list on clicking member block
     $(document).on('click', '.member', function(e){
         if($(e.target).hasClass('view-children-btn')) return;
         const id = $(this).data('id');
@@ -181,14 +219,11 @@ $(document).ready(function() {
         }
     });
 
-    // View info button - show modal
     $(document).on('click', '.view-children-btn', function(e){
-        e.stopPropagation(); // prevent opening children
+        e.stopPropagation();
         const parentId = $(this).data('parent');
         $.get('view_member.php', {id: parentId}, function(data){
-            $('#memberDetails').html(data);
-            const modal = new bootstrap.Modal(document.getElementById('memberModal'));
-            modal.show();
+            alert(data); // or modal logic
         });
     });
 });
