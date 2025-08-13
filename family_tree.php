@@ -7,7 +7,7 @@
     <title>Ukoo wa Makomelelo</title>
     <style>
         body {
-            background: #0d47a1; /* deep blue background like index */
+            background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #222;
             user-select: none;
