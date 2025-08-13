@@ -108,7 +108,6 @@
 
     /* Hero and main wrapper */
     .hero {
-        background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
         height: 70vh;
         width: 100%;
         max-width: 1200px;
@@ -119,7 +118,7 @@
         justify-content: center;
         text-align: center;
         padding: 0 20px;
-        color: white;
+        color: gray;
         text-shadow: 1px 1px 8px rgba(0,0,0,0.7);
         flex-direction: column;
         user-select: none;
