@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
 body{font-family:'Segoe UI',sans-serif;background:linear-gradient(120deg,#74ebd5 0%,#9face6 100%);padding:20px;min-height:100vh;display:flex;justify-content:center;align-items:center;}
-.container{background:#fff;padding:30px 40px;border-radius:15px;max-width:650px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
+.container{background:#fff;padding:30px 40px;border-radius:15px;max-width:700px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
 h2{text-align:center;color:#0d47a1;margin-bottom:25px;font-weight:900;}
 label{font-weight:600;color:#0d47a1;}
 input,select{width:100%;padding:10px;border:2px solid #9face6;border-radius:10px;margin-bottom:15px;font-weight:600;}
@@ -234,16 +234,48 @@ function validateStep(){
 // Children toggle
 $("#hasChildren").change(function(){ $("#childrenFields").toggle(this.checked); });
 
-// Location dropdowns sample (replace with actual data)
+// Location dropdowns sample (Tanzania data)
 const locData = {
-"Dar es Salaam":{"Ilala":["Upanga","Kariakoo"],"Kinondoni":["Magomeni","Kigogo"]},
-"Dodoma":{"Dodoma Urban":["Hombolo","Tambukareli"],"Bahi":["Bahi","Chali"]}
+    "Dar es Salaam": {
+        "Ilala": {
+            "Upanga": ["Msasani","Jangwani"],
+            "Kariakoo": ["Mwenge","Mchafukoge"]
+        },
+        "Kinondoni": {
+            "Magomeni": ["Kigogo","Makumbusho"],
+            "Kigogo": ["Mikocheni","Mchikichini"]
+        }
+    },
+    "Dodoma": {
+        "Dodoma Urban": {
+            "Hombolo": ["Hombolo A","Hombolo B"],
+            "Tambukareli": ["Tambukareli 1","Tambukareli 2"]
+        },
+        "Bahi": {
+            "Bahi": ["Chali","Zanka"],
+            "Chali": ["Bahi C","Bahi D"]
+        }
+    },
+    "Arusha": {
+        "Arusha Urban": {
+            "Olasiti": ["Mbaa","Kati"],
+            "Sekei": ["Sekei A","Sekei B"]
+        },
+        "Meru": {
+            "Nkwarre": ["Village 1","Village 2"],
+            "Makiba": ["Village 3","Village 4"]
+        }
+    }
 };
-function fillRegions(){let r=$("#regionSelect"); r.html('<option value="">--Chagua Mkoa--</option>'); for(let k in locData) r.append(`<option value="${k}">${k}</option>`);}
-function fillDistricts(){let reg=$("#regionSelect").val(); let d=$("#districtSelect"); d.html('<option value="">--Chagua Wilaya--</option>'); if(reg&&locData[reg]){for(let w in locData[reg]) d.append(`<option value="${w}">${w}</option>`);}} 
-function fillWard(){let reg=$("#regionSelect").val(), dis=$("#districtSelect").val(); let w=$("#wardSelect"); w.html('<option value="">--Chagua Kata--</option>'); if(reg&&dis&&locData[reg][dis]){locData[reg][dis].forEach(function(val){w.append(`<option value="${val}">${val}</option>`);});}}
-$("#regionSelect").change(function(){fillDistricts();fillWard();$("#villageSelect").html('<option value="">--Chagua Kijiji/Mtaa--</option>');});
+
+// Fill Regions
+function fillRegions(){let r=$("#regionSelect");r.html('<option value="">--Chagua Mkoa--</option>');for(let region in locData) r.append(`<option value="${region}">${region}</option>`);}
+function fillDistricts(){let reg=$("#regionSelect").val();let d=$("#districtSelect");d.html('<option value="">--Chagua Wilaya--</option>');if(reg&&locData[reg]){for(let district in locData[reg]) d.append(`<option value="${district}">${district}</option>`);} fillWard();}
+function fillWard(){let reg=$("#regionSelect").val(),dis=$("#districtSelect").val();let w=$("#wardSelect");w.html('<option value="">--Chagua Kata--</option>');if(reg&&dis&&locData[reg][dis]){for(let ward in locData[reg][dis]) w.append(`<option value="${ward}">${ward}</option>`);} fillVillage();}
+function fillVillage(){let reg=$("#regionSelect").val(),dis=$("#districtSelect").val(),ward=$("#wardSelect").val();let v=$("#villageSelect");v.html('<option value="">--Chagua Kijiji/Mtaa--</option>');if(reg&&dis&&ward&&locData[reg][dis][ward]){locData[reg][dis][ward].forEach(function(vi){v.append(`<option value="${vi}">${vi}</option>`);});}}
+$("#regionSelect").change(function(){fillDistricts();$("#villageSelect").html('<option value="">--Chagua Kijiji/Mtaa--</option>');});
 $("#districtSelect").change(fillWard);
+$("#wardSelect").change(fillVillage);
 fillRegions();
 
 // AJAX Parent info
