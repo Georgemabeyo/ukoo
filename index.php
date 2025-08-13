@@ -114,6 +114,7 @@
         max-width: 1200px;
         border-radius: 15px;
         display: flex;
+        filter: brightness(0.6);
         align-items: center;
         justify-content: center;
         text-align: center;
