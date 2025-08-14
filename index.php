@@ -118,7 +118,7 @@
         justify-content: center;
         text-align: center;
         padding: 0 20px;
-        color: gray;
+        color: white;
         text-shadow: 1px 1px 8px rgba(0,0,0,0.7);
         flex-direction: column;
         user-select: none;
