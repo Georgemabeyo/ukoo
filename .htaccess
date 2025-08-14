@@ -4,5 +4,15 @@ DirectoryIndex index.php index.html
 # Zuia directory listing
 Options -Indexes
 
-# Ruhusu mod_rewrite ikiwa utahitaji baadaye
+# Ruhusu mod_rewrite
 RewriteEngine On
+
+# Ikiwa URL haina extension, ijaribu kuongeza .php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Ruta vitu vyote visivyopatikana kwenye index.php (ikiwa ni SPA au custom routing)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
