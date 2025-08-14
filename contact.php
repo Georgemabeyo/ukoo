@@ -244,10 +244,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <span></span>
     </div>
     <nav id="nav-menu" role="navigation">
-        <a href="index.php">Home</a>
-        <a href="registration.php">Registration</a>
-        <a href="family_tree.php">Family Tree</a>
-        <a href="contact.php">Contact</a>
+        <a href="index.php">Nyumbani</a>
+        <a href="registration.php">Jisajiri</a>
+        <a href="family_tree.php">Ukoo</a>
+        <a href="contact.php">Mawasiliano</a>
     </nav>
 </header>
 
