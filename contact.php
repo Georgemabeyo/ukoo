@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="index.php">Nyumbani</a>
         <a href="registration.php">Jisajiri</a>
         <a href="family_tree.php">Ukoo</a>
-        <a href="contact.php">Mawasiliano</a>
+        <a href="events.html">Matukio</a>
     </nav>
 </header>
 
