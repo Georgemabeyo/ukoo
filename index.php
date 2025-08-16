@@ -138,25 +138,28 @@
         letter-spacing: 0.5px;
     }
     .btn-primary {
-        background: #ffc107;
-        color: #0d47a1;
-        padding: 14px 28px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color 0.3s ease;
-        user-select: none;
-        box-shadow: 0 5px 15px rgba(255,193,7,0.6);
-    }
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background: #e6b007;
-        outline: none;
-        box-shadow: 0 7px 22px rgba(230,176,7,0.8);
-    }
+    background: #ffc107;        /* warm yellow */
+    color: #0d1b3a;             /* darker navy blue for better readability */
+    padding: 12px 26px;         /* slightly smaller for balance */
+    font-size: 1rem;            
+    font-weight: 600;            /* softer than 700 */
+    border: none;
+    border-radius: 8px;          /* a bit rounder for modern look */
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    user-select: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* softer shadow */
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: #ffb300;         /* slightly darker yellow for hover */
+    color: #0d1b3a;              /* keep text readable */
+    outline: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
 
     main {
         background: white;
