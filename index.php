@@ -89,7 +89,7 @@
         user-select: none;
         z-index: 1600;
     }
-    .menu-toggle span {
+    .enu-toggle span {
         height: 3px;
         width: 100%;
         background: #ffc107;
