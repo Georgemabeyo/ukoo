@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Usajili Ukoo - Makomelelo</title>
-<link rel="stylesheet" href="assets/css/style.css" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
@@ -170,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="assets/js/scripts.js"></script>
+<script src="scripts.js"></script>
 <script>
 // Custom scripts for multi-step form and AJAX parent info already in scripts.js
 $(document).ready(function() {
