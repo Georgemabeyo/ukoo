@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 // Password ya admin
 $ADMIN_PASS = 'Makomelelo';
 
@@ -18,16 +17,55 @@ if (!isset($_SESSION['is_admin'])) {
     }
 }
 
-// Funguo za kusoma na kuandika data JSON
+// Funzioni za kusoma na kuandika JSON
 function read_data($file) {
     if (!file_exists($file)) return [];
     $json = file_get_contents($file);
     $data = json_decode($json, true);
     return is_array($data) ? $data : [];
 }
-
 function write_data($file, $data) {
     file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
+}
+
+// Funzione ya kupunguza picha ukubwa
+function resizeImage($fileTmpPath, $targetPath, $newWidth = 600, $newHeight = 400) {
+    $sourceProperties = getimagesize($fileTmpPath);
+    $imageType = $sourceProperties[2];
+
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            $resourceType = imagecreatefromjpeg($fileTmpPath);
+            break;
+        case IMAGETYPE_PNG:
+            $resourceType = imagecreatefrompng($fileTmpPath);
+            break;
+        case IMAGETYPE_GIF:
+            $resourceType = imagecreatefromgif($fileTmpPath);
+            break;
+        default:
+            return false; // Haiwezi kubadilika ukubwa
+    }
+
+    $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $sourceProperties[0], $sourceProperties);
+
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            imagejpeg($imageLayer, $targetPath);
+            break;
+        case IMAGETYPE_PNG:
+            imagepng($imageLayer, $targetPath);
+            break;
+        case IMAGETYPE_GIF:
+            imagegif($imageLayer, $targetPath);
+            break;
+    }
+
+    imagedestroy($resourceType);
+    imagedestroy($imageLayer);
+
+    return true;
 }
 
 // Hifadhi success message
@@ -37,16 +75,18 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
     $title = trim($_POST['title']);
     $desc = trim($_POST['desc']);
-
     $img_name = '';
-    // Upload picha
+
+    // Upload picha na resize
     if (isset($_FILES['photo']) && $_FILES['photo']['size'] > 0) {
         $upload_dir = 'uploads/';
         if (!file_exists($upload_dir)) mkdir($upload_dir, 0777, true);
-        $img_name = time() . '_' . basename($_FILES['photo']['name']);
+        $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        $img_name = time() . '_' . uniqid() . '.' . $ext;
         $target_path = $upload_dir . $img_name;
-        if (!move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
-            $message = "Upload ya picha haikufanikiwa.";
+
+        if (!resizeImage($_FILES['photo']['tmp_name'], $target_path)) {
+            $message = "Upload ya picha haikufanikiwa au aina yake haitegemeliwi.";
             $img_name = '';
         }
     }
@@ -80,7 +120,6 @@ if (isset($_GET['delete'])) {
 // Pakua data za sasa
 $events = read_data('events.json');
 ?>
-
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -102,25 +141,19 @@ a.delete-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
-
 <h1>Admin Panel - Taarifa</h1>
 <?php if ($message): ?>
   <p class="message"><?= htmlspecialchars($message) ?></p>
 <?php endif; ?>
-
 <form method="post" enctype="multipart/form-data">
     <label>Kichwa cha Taarifa:</label>
     <input type="text" name="title" required />
-
     <label>Maelezo:</label>
     <textarea name="desc" rows="4" required></textarea>
-
     <label>Upload Picha (hiari):</label>
     <input type="file" name="photo" accept="image/*" />
-
     <button type="submit" name="submit_admin">Andika Taarifa</button>
 </form>
-
 <h2>Taarifa Zilizopo</h2>
 <?php if (count($events) > 0): ?>
     <?php foreach ($events as $entry): ?>
@@ -136,6 +169,5 @@ a.delete-link:hover { text-decoration: underline; }
 <?php else: ?>
   <p>Hakuna taarifa za kuonyesha.</p>
 <?php endif; ?>
-
 </body>
 </html>
