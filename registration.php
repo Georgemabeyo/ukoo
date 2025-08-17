@@ -24,31 +24,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password        = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $parent_id       = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
-    // Calculate new child id (same logic as before)...
+    // Automatic ID generation without manual child id input
     if ($parent_id) {
-    // Pata mtoto wa mwisho wa mzazi huyu
-    $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
-    if ($res_max && pg_num_rows($res_max) > 0) {
-        $row_max = pg_fetch_assoc($res_max);
-        $last_child_id = (int)$row_max['id'];
-        $parent_digits = (string)$parent_id;
-        // Tenga sehemu ya mtoto kutoka kwenye ID ya mwisho
-        $last_digits = substr($last_child_id, strlen($parent_digits));
-        $next_digit = (int)$last_digits + 1;
-        if ($next_digit > 999) {
-            echo "<div class='alert alert-danger text-center'>Mzazi tayari ana watoto 999</div>";
-            exit;
+        // Find last child id of parent
+        $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
+        if ($res_max && pg_num_rows($res_max) > 0) {
+            $row_max = pg_fetch_assoc($res_max);
+            $last_child_id = (int)$row_max['id'];
+            $parent_digits = (string)$parent_id;
+            $last_digits = substr($last_child_id, strlen($parent_digits));
+            $next_digit = (int)$last_digits + 1;
+            if ($next_digit > 999) {
+                echo "<div class='alert alert-danger text-center'>Mzazi tayari ana watoto 999</div>";
+                exit;
+            }
+            $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
+        } else {
+            $new_id = (int)($parent_id . '1');
         }
-        // Jenga ID mpya kwa kunakili mzazi na kuongeza namba mpya ya mtoto
-        $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
     } else {
-        // Haja bado mtoto yeyote, anza na 1
-        $new_id = (int)($parent_id . '1');
+        // Root ID
+        $new_id = 1;
     }
-} else {
-    // Hauna mzazi, mtu huyu ana ID ya 1
-    $new_id = 1;
-}
 
     // Photo upload
     $photo = '';
@@ -72,9 +69,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $has_children, $children_male, $children_female, $country, $region, $district,
         $ward, $village, $city, $phone, $email, $password, $photo, $parent_id
     ];
+
     $result = pg_query_params($conn, $sql, $params);
     if ($result) {
-        $message = "Usajili umefanikiwa! <a href='family_tree.php'>Angalia ukoo</a>";
+        header("Location: register_success.php?id=$new_id");
+        exit();
     } else {
         $message = "Tatizo limejitokeza: " . pg_last_error($conn);
     }
@@ -90,15 +89,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
-
 <div class="container">
   <h2>Usajili wa Ukoo wa Makomelelo</h2>
   <?php if($message): ?>
     <div class="alert"><?= $message ?></div>
   <?php endif; ?>
-  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-  <form method="post" enctype="multipart/form-data" id="regForm" novalidate>
 
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <form method="post" enctype="multipart/form-data" id="regForm" novalidate>
+    <!-- Step 1 -->
     <div class="step active">
       <label>Jina la Kwanza *</label>
       <input type="text" name="first_name" required>
@@ -108,6 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="text" name="last_name" required>
     </div>
 
+    <!-- Step 2 -->
     <div class="step">
       <label>Tarehe ya Kuzaliwa *</label>
       <input type="date" name="dob" required>
@@ -135,6 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
     </div>
 
+    <!-- Step 3 -->
     <div class="step">
       <label>Nchi *</label>
       <select name="country" id="countrySelect" required>
@@ -149,18 +151,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <select name="wardSelect" id="wardSelect" required></select>
       <label>Kijiji/Mtaa *</label>
       <select name="villageSelect" id="villageSelect" required></select>
-    </div>
-
-    <div class="step">
       <label>Namba ya Simu *</label>
       <input type="text" name="phone" required>
       <label>Email *</label>
       <input type="email" name="email" required>
       <label>Password *</label>
       <input type="password" name="password" required>
-    </div>
-
-    <div class="step">
       <label>ID ya Mzazi (Parent ID)</label>
       <input type="number" name="parent_id" id="parent_id">
       <div id="parentName"></div>
@@ -173,14 +169,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <button type="button" id="prevBtn" class="btn-prev" disabled>&larr; Nyuma</button>
       <button type="button" id="nextBtn" class="btn-next">Mbele &rarr;</button>
     </div>
-    <button type="submit" class="btn-submit" style="display:none">Sajili</button>
+    <button type="submit" class="btn-submit" style="display:none;">Sajili</button>
   </form>
 </div>
 
 <?php include 'footer.php'; ?>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-// Multi-step form logic
+// Multi-step form logic with dark mode input color fix
 $(function () {
     let currentStep = 0;
     const steps = $(".step");
@@ -192,7 +189,7 @@ $(function () {
     function showStep(n) {
         steps.removeClass("active").eq(n).addClass("active");
         prevBtn.prop("disabled", n === 0);
-        if (n === steps.length -1) {
+        if (n === steps.length - 1) {
             nextBtn.hide();
             submitBtn.show();
         } else {
@@ -233,14 +230,13 @@ $(function () {
 
     showStep(currentStep);
 
-    // Show/hide children fields on checkbox toggle
-    $("#hasChildren").change(function() {
+    $("#hasChildren").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
 
-    // Locations cascading dropdowns data loading from JSON
+    // Populate Tanzania locations dynamically
     let locData = {};
-    $.getJSON('tanzania_locations.json', function(data) {
+    $.getJSON('tanzania_locations.json', function (data) {
         locData = data;
         populateRegions();
     });
@@ -248,34 +244,37 @@ $(function () {
     function populateRegions() {
         let reg = $("#regionSelect");
         reg.html('<option value="">--Chagua Mkoa--</option>');
-        $.each(locData, function(key) {
+        $.each(locData, function (key) {
             reg.append($('<option></option>').attr("value", key).text(key));
         });
         populateDistricts();
     }
+
     function populateDistricts() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect");
         dis.html('<option value="">--Chagua Wilaya--</option>');
         if (locData[reg]) {
-            $.each(locData[reg], function(key) {
+            $.each(locData[reg], function (key) {
                 dis.append($('<option></option>').attr("value", key).text(key));
             });
         }
         populateWards();
     }
+
     function populateWards() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
         let ward = $("#wardSelect");
         ward.html('<option value="">--Chagua Kata--</option>');
         if (locData[reg] && locData[reg][dis]) {
-            $.each(locData[reg][dis], function(key) {
+            $.each(locData[reg][dis], function (key) {
                 ward.append($('<option></option>').attr("value", key).text(key));
             });
         }
         populateVillages();
     }
+
     function populateVillages() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -283,7 +282,7 @@ $(function () {
         let vil = $("#villageSelect");
         vil.html('<option value="">--Chagua Kijiji/Mtaa--</option>');
         if (locData[reg] && locData[reg][dis] && locData[reg][dis][ward]) {
-            $.each(locData[reg][dis][ward], function(i, village) {
+            $.each(locData[reg][dis][ward], function (i, village) {
                 vil.append($('<option></option>').attr("value", village).text(village));
             });
         }
@@ -293,15 +292,15 @@ $(function () {
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
 
-    // AJAX to get parent info
-    $("#parent_id").on("input", function() {
+    // AJAX parent info loader
+    $("#parent_id").on("input", function () {
         let pid = $(this).val();
         if (pid === '') {
             $("#parentName").text('');
             $("#childID").text('1');
             return;
         }
-        $.post('get_parent_info.php', { parent_id: pid }, function(data) {
+        $.post('get_parent_info.php', { parent_id: pid }, function (data) {
             try {
                 let obj = JSON.parse(data);
                 if (obj.error) {
