@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('toggleTheme');
   const navToggleBtn = document.querySelector('.nav-toggle');
@@ -127,8 +128,16 @@ $(document).on('click', '.view-children-btn', function(e){
     e.stopPropagation();
     const parentId = $(this).data('parent');
     $.get('view_member.php', {id: parentId}, function(data){
-        // Display in modal instead of alert (implement modal in HTML)
-        alert(data);
+        // Okoa data kwenye modal-content moja kwa moja
+        $('#modal-content').html(data);
+        // Fanya modal na overlay ionekane
+        $('#modal-overlay, #member-modal').fadeIn(200);
     });
+});
+
+// Fungua modal kwa kitufe cha kufunga au click overlay
+$('#close-modal, #modal-overlay').on('click', function(){
+    $('#modal-content').html('');
+    $('#modal-overlay, #member-modal').fadeOut(200);
 });
 
