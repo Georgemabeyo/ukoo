@@ -25,7 +25,7 @@ header {
     position:relative; z-index:1000;
 }
 .logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
-.nav-links { display:flex; gap:20px; }
+.nav-links { display:flex; gap:20px; align-items:center; }
 .nav-links a { color:#ffc107; font-weight:600; padding:8px 12px; border-radius:6px; transition:0.3s; }
 .nav-links a:hover { background:#ffc107; color:#0d47a1; }
 
@@ -84,7 +84,7 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
 </head>
 <body class="light-mode">
 <header>
-    <div class="logo" id="logoIcon">☀️</div>
+    <div class="logo">Ukoo wa Makomelelo</div>
     <button class="nav-toggle" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
     </button>
@@ -99,7 +99,7 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
         <?php else: ?>
         <a href="login.php">Ingia</a>
         <?php endif; ?>
-        <span id="toggleTheme" style="cursor:pointer;">🌓</span>
+        <span id="toggleTheme" style="cursor:pointer; font-weight:700;">Dark Mode</span>
     </nav>
 </header>
 
@@ -135,13 +135,18 @@ toggleBtn.addEventListener('click', ()=>{
     navLinks.classList.toggle('show');
 });
 
-// Theme toggle with icon
+// Theme toggle with text
 const themeToggle = document.getElementById('toggleTheme');
-const logoIcon = document.getElementById('logoIcon');
 themeToggle.addEventListener('click', ()=>{
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode');
-    logoIcon.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
+    if(document.body.classList.contains('light-mode')){
+        document.body.classList.remove('light-mode');
+        document.body.classList.add('dark-mode');
+        themeToggle.textContent='Light Mode';
+    }else{
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        themeToggle.textContent='Dark Mode';
+    }
 });
 
 // Search functionality
