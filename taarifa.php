@@ -34,7 +34,13 @@ function write_data($file, $data) {
 // Funzione ya kupunguza picha ukubwa
 function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
     $sourceProperties = getimagesize($fileTmpPath);
-    $imageType = $sourceProperties[2];
+    if ($sourceProperties === false) {
+        return false; // fail kupata habari za picha
+    }
+    $src_width = $sourceProperties[0];
+    $src_height = $sourceProperties;
+    $imageType = $sourceProperties;
+
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             $resourceType = imagecreatefromjpeg($fileTmpPath);
@@ -46,10 +52,12 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             $resourceType = imagecreatefromgif($fileTmpPath);
             break;
         default:
-            return false; // Haiwezi kubadilika ukubwa
+            return false;
     }
+
     $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
-    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $sourceProperties, $sourceProperties);
+    imagecopyresampled($imageLayer, $resourceType, 0,0,0,0, $newWidth, $newHeight, $src_width, $src_height);
+
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             imagejpeg($imageLayer, $targetPath);
@@ -61,8 +69,10 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             imagegif($imageLayer, $targetPath);
             break;
     }
+
     imagedestroy($resourceType);
     imagedestroy($imageLayer);
+
     return true;
 }
 // Hifadhi success message
@@ -89,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
     if ($title !== '') {
         $file = 'events.json';
         $entries = read_data($file);
-        $timeNow = date('c');  // ISO 8601 timestamp
+        $timeNow = date('c');
         $entries[] = [
             'id' => time(),
             'title' => $title,
@@ -97,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
             'photo' => $img_name,
             'created_at' => $timeNow,
         ];
-        // Pangilia entries kulingana na created_at kutoka mpya hadi ya zamani
         usort($entries, function($a, $b) {
             return strtotime($b['created_at']) <=> strtotime($a['created_at']);
         });
