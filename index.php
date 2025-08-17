@@ -33,9 +33,10 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
   <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
   
   <form method="GET" action="index.php" style="margin:20px auto; max-width:400px; display:flex;">
-    <input type="search" name="search" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Tafuta familia..." style="flex-grow:1; padding:10px; border-radius:8px 0 0 8px; border:2px solid #ffc107;">
-    <button type="submit" class="btn-primary" style="border-radius:0 8px 8px 0;">Tafuta</button>
-  </form>
+  <input type="search" name="search" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Tafuta familia..." 
+         style="flex-grow:1; padding:10px; border-radius:8px 0 0 8px; border:2px solid #ffc107; font-size:1rem; height:40px;">
+  <button type="submit" class="btn-primary" style="border-radius:0 8px 8px 0; flex-shrink:0; padding:0 20px; font-size:1rem; height:40px;">Tafuta</button>
+</form>
 
   <a href="registration.php" class="btn-primary">Jiandikishe Sasa</a>
 </section>
