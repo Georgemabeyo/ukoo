@@ -63,6 +63,7 @@ function displayTree($conn, $parent_id = null) {
 <?php include 'footer.php'; ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="jquery-3.6.0.min.js"></script>
 <script src="scripts.js"></script>
 <script>
 // Keyboard accessibility and children toggle
