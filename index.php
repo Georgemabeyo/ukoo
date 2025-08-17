@@ -80,6 +80,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 </div>
 
 <?php include 'footer.php'; ?>
+<script src="jquery-3.6.0.min.js"></script>
 <script src="scripts.js"></script>
 </body>
 </html>
