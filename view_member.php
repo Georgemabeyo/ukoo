@@ -1,5 +1,4 @@
 <?php
-// view_member.php
 include 'config.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -9,9 +8,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $member_id = (int)$_GET['id'];
 
-$sql = "SELECT m.id, m.jina, m.simuna, m.picha, m.parent_id, p.jina AS jina_mzazi
-        FROM members m
-        LEFT JOIN members p ON m.parent_id = p.id
+$sql = "SELECT m.id, m.first_name AS jina, m.phone AS simuna, m.photo AS picha, m.parent_id, 
+        p.first_name || ' ' || p.last_name AS jina_mzazi
+        FROM family_tree m
+        LEFT JOIN family_tree p ON m.parent_id = p.id
         WHERE m.id = $1";
 
 $result = pg_query_params($conn, $sql, [$member_id]);
