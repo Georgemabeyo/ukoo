@@ -35,12 +35,11 @@ function write_data($file, $data) {
 function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
     $sourceProperties = getimagesize($fileTmpPath);
     if ($sourceProperties === false) {
-        return false; // fail kupata habari za picha
+        return false;
     }
     $src_width = $sourceProperties[0];
     $src_height = $sourceProperties;
     $imageType = $sourceProperties;
-
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             $resourceType = imagecreatefromjpeg($fileTmpPath);
@@ -54,10 +53,8 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
         default:
             return false;
     }
-
     $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
-    imagecopyresampled($imageLayer, $resourceType, 0,0,0,0, $newWidth, $newHeight, $src_width, $src_height);
-
+    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $src_width, $src_height);
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             imagejpeg($imageLayer, $targetPath);
@@ -69,12 +66,13 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             imagegif($imageLayer, $targetPath);
             break;
     }
-
     imagedestroy($resourceType);
     imagedestroy($imageLayer);
-
     return true;
 }
+// Prevent caching
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 // Hifadhi success message
 $message = '';
 // Fomu ya kuongeza ujumbe mpya
@@ -125,9 +123,6 @@ if (isset($_GET['delete'])) {
     header("Location: taarifa.php?updated=1");
     exit;
 }
-// Prevent caching
-header("Cache-Control: no-cache, must-revalidate");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 // Pakua data za sasa
 $events = read_data('events.json');
 ?>
@@ -171,10 +166,12 @@ a.delete-link:hover { text-decoration: underline; }
         <div class="entry">
           <a href="?delete=<?= $entry['id'] ?>" class="delete-link" onclick="return confirm('Una uhakika unataka kufuta?')">Futa</a>
           <strong><?= htmlspecialchars($entry['title']) ?></strong>
-          <p><em>Imeandikwa: <?= date('j F Y, H:i', strtotime($entry['created_at'] ?? '')) ?></em></p>
+          <p><em>Imeandikwa: <?= htmlspecialchars(date('j F Y, H:i', strtotime($entry['created_at'] ?? ''))) ?></em></p>
           <p><?= nl2br(htmlspecialchars($entry['desc'])) ?></p>
-          <?php if ($entry['photo']): ?>
-            <img src="uploads/<?= htmlspecialchars($entry['photo']) ?>" alt="Taarifa Picha" />
+          <?php if (!empty($entry['photo']) && file_exists('uploads/' . $entry['photo'])): ?>
+            <img src="uploads/<?= htmlspecialchars($entry['photo']) ?>" alt="Taarifa Picha" class="upload-img" />
+          <?php else: ?>
+            <p><em>Hakuna picha imepakiwa.</em></p>
           <?php endif; ?>
         </div>
     <?php endforeach; ?>
