@@ -1,4 +1,14 @@
 <?php
+session_start();
+
+$file = 'events.json';
+$events = [];
+if (file_exists($file)) {
+    $json = file_get_contents($file);
+    $events = json_decode($json, true);
+    if (!is_array($events)) $events = [];
+}
+
 $isLoggedIn = isset($_SESSION['user_id']);
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
@@ -11,41 +21,33 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
-
 <?php include 'header.php'; ?>
 
 <section class="events-container container">
-    <article class="event-card">
-        <img src="https://images.unsplash.com/photo-1468071174046-657d9d351a40?auto=format&fit=crop&w=600&q=80" alt="Mkutano Mkuu" class="event-image" />
-        <div class="event-content">
-            <h2 class="event-title">Mkutano Mkuu wa Ukoo January 2026</h2>
-            <time datetime="2026-01-15" class="event-date">January 15, 2026</time>
-            <p class="event-description">Tukio hili linaangazia umuhimu wa kujua asili na kuendeleza urithi wa ukoo.</p>
-            <a href="#" class="btn-readmore">Soma Zaidi</a>
-        </div>
-    </article>
-    <article class="event-card">
-        <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80" alt="Michango" class="event-image" />
-        <div class="event-content">
-            <h2 class="event-title">Michango Mbalimbali ya Wanaukoo</h2>
-            <time datetime="2025-08-14" class="event-date">Endelevu (Inatokea)</time>
-            <p class="event-description">Wanaukoo wote mnaombwa kujitahidi na kuhamasika zaidi katika michango mbalimbali.</p>
-            <a href="#" class="btn-readmore">Soma Zaidi</a>
-        </div>
-    </article>
-    <article class="event-card">
-        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Mkutano Mkuu Familia" class="event-image" />
-        <div class="event-content">
-            <h2 class="event-title">Mkutano Mkuu wa Familia 2025</h2>
-            <time datetime="2025-01-02" class="event-date">January 1, 2025</time>
-            <p class="event-description">Familia ya Makomelelo ilikusanyika kusherehekea urithi na historia yao.</p>
-            <a href="#" class="btn-readmore">Soma Zaidi</a>
-        </div>
-    </article>
+    <?php if (count($events) > 0): ?>
+        <?php foreach ($events as $event): ?>
+            <article class="event-card">
+                <?php if (!empty($event['photo'])): ?>
+                  <img src="uploads/<?= htmlspecialchars($event['photo']) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="event-image" />
+                <?php else: ?>
+                  <img src="https://via.placeholder.com/600x400?text=No+Image" alt="Hakuna Picha" class="event-image" />
+                <?php endif; ?>
+                <div class="event-content">
+                    <h2 class="event-title"><?= htmlspecialchars($event['title']) ?></h2>
+                    <time datetime="<?= htmlspecialchars($event['date'] ?? '') ?>" class="event-date">
+                        <?= !empty($event['date']) ? date('F j, Y', strtotime($event['date'])) : 'Tarehe haijajulikana' ?>
+                    </time>
+                    <p class="event-description"><?= nl2br(htmlspecialchars($event['desc'])) ?></p>
+                    <a href="<?= htmlspecialchars($event['read_more_link'] ?? '#') ?>" class="btn-readmore">Soma Zaidi</a>
+                </div>
+            </article>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>Hakuna matukio yaliyopo kwa sasa.</p>
+    <?php endif; ?>
 </section>
 
 <?php include 'footer.php'; ?>
-
 <script src="scripts.js"></script>
 </body>
 </html>
