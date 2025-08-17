@@ -1,8 +1,3 @@
-<?php
-session_start();
-$isLoggedIn = isset($_SESSION['user_id']);
-$currentPage = basename($_SERVER['PHP_SELF']);
-?>
 <header>
   <div class="logo">Ukoo wa Makomelelo</div>
   <button class="nav-toggle" aria-label="Toggle navigation">
