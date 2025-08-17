@@ -10,33 +10,26 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <title>Ukoo wa Makomelelo | Karibu</title>
 <style>
 /* Global */
-body, html {
-    margin:0; padding:0;
-    font-family: 'Segoe UI', sans-serif;
-    transition: background 0.3s,color 0.3s;
-}
+body, html { margin:0; padding:0; font-family:'Segoe UI', sans-serif; transition: background 0.3s,color 0.3s;}
 a { text-decoration:none; }
 
 /* Light/Dark Mode */
 body.light-mode { background:#f0f4f8; color:#222; }
 body.dark-mode { background:#1e293b; color:#f8fafc; }
 
-/* Navbar */
+/* Header */
 header {
     display:flex; justify-content:space-between; align-items:center;
-    padding:15px 25px;
+    padding:15px 25px; border-radius:0 0 15px 15px;
     background:linear-gradient(90deg,#0d47a1,#1976d2);
-    border-radius:0 0 15px 15px;
-    position:relative;
-    z-index:1000;
+    position:relative; z-index:1000;
 }
 .logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
-.nav-links {
-    display:flex; gap:20px;
-}
+.nav-links { display:flex; gap:20px; }
 .nav-links a { color:#ffc107; font-weight:600; padding:8px 12px; border-radius:6px; transition:0.3s; }
 .nav-links a:hover { background:#ffc107; color:#0d47a1; }
 
+/* Toggle button */
 .nav-toggle {
     display:none; flex-direction:column; justify-content:space-between;
     width:30px; height:24px; background:transparent; border:none; cursor:pointer;
@@ -44,7 +37,6 @@ header {
 .nav-toggle span {
     display:block; height:3px; background:#ffc107; border-radius:2px; transition:all 0.4s;
 }
-/* X animation */
 .nav-toggle.active span:nth-child(1){ transform:rotate(45deg) translate(5px,5px);}
 .nav-toggle.active span:nth-child(2){ opacity:0; }
 .nav-toggle.active span:nth-child(3){ transform:rotate(-45deg) translate(5px,-5px); }
@@ -55,10 +47,7 @@ header {
 }
 .hero h1 { font-size:2.8rem; font-weight:900; margin-bottom:20px; }
 .hero p { font-size:1.2rem; margin-bottom:30px; }
-.btn-primary {
-    background:#facc15; color:#1e3a8a; padding:12px 26px; font-weight:700; border-radius:10px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:all 0.3s;
-}
+.btn-primary { background:#facc15; color:#1e3a8a; padding:12px 26px; font-weight:700; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:all 0.3s;}
 .btn-primary:hover { background:#eab308; color:#1e3a8a; }
 
 /* Features */
@@ -95,7 +84,7 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
 </head>
 <body class="light-mode">
 <header>
-    <div class="logo">Ukoo wa Makomelelo</div>
+    <div class="logo" id="logoIcon">☀️</div>
     <button class="nav-toggle" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
     </button>
@@ -146,13 +135,13 @@ toggleBtn.addEventListener('click', ()=>{
     navLinks.classList.toggle('show');
 });
 
-// Theme toggle
+// Theme toggle with icon
 const themeToggle = document.getElementById('toggleTheme');
+const logoIcon = document.getElementById('logoIcon');
 themeToggle.addEventListener('click', ()=>{
     document.body.classList.toggle('dark-mode');
     document.body.classList.toggle('light-mode');
-    // hide logo text in dark mode
-    document.querySelector('.logo').style.color = document.body.classList.contains('dark-mode')?'transparent':'#ffc107';
+    logoIcon.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
 });
 
 // Search functionality
