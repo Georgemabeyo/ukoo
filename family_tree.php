@@ -11,10 +11,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
 <style>
-/* Global */
 body, html {
-    margin:0; padding:0; font-family:'Segoe UI', sans-serif;
-    transition: background 0.3s,color 0.3s;
+    margin:0; padding:0;
+    font-family:'Segoe UI', sans-serif;
+    transition: background 0.3s, color 0.3s;
 }
 body.light-mode {
     background:#f0f4f8;
@@ -24,9 +24,12 @@ body.dark-mode {
     background:#1e293b;
     color:#f8fafc;
 }
+
 /* Header/Navbar */
 header {
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
     padding:15px 25px;
     border-radius:0 0 15px 15px;
     background:linear-gradient(90deg,#0d47a1,#1976d2);
@@ -49,12 +52,14 @@ header {
     padding:8px 12px;
     border-radius:6px;
     transition:0.3s;
+    text-decoration:none; /* no underline */
 }
 .nav-links a:hover,
 .nav-links a.active {
     background:#ffc107;
     color:#0d47a1;
 }
+
 /* Toggle button for mobile */
 .nav-toggle {
     display:none;
@@ -83,6 +88,7 @@ header {
 .nav-toggle.active span:nth-child(3){
     transform:rotate(-45deg) translate(5px,-5px);
 }
+
 /* Tree Container */
 .tree-container {
     max-width: 850px;
@@ -97,6 +103,7 @@ body.dark-mode .tree-container {
     background:#334155;
     color:#f8fafc;
 }
+
 /* Title */
 h2.text-center {
     font-size:clamp(1.6rem,4vw,2.4rem);
@@ -106,6 +113,7 @@ h2.text-center {
     text-align:center;
     text-shadow:1px 1px 2px rgba(0,0,0,0.2);
 }
+
 /* Tree Styles */
 .tree, .tree ul {
     list-style:none;
@@ -123,8 +131,8 @@ h2.text-center {
 }
 .tree li {
     position:relative;
-    padding-left:34px;  /* kidogo kidogo kupunguzwa dari 40 */
-    margin-bottom:0.9rem; /* kidogo kidogo kupunguzwa */
+    padding-left:34px;
+    margin-bottom:0.9rem;
 }
 .tree li::before {
     content:'';
@@ -135,12 +143,13 @@ h2.text-center {
     border-top:2px solid #ffc107cc;
     border-radius:3px;
 }
+
 /* Member box */
 .member {
     display:flex;
     align-items:center;
     background:#0d47a1;
-    padding:0.35rem 0.75rem; /* kupunguzwa padding */
+    padding:0.35rem 0.75rem;
     border-radius:10px;
     box-shadow:0 3px 8px rgba(13,71,161,0.4);
     cursor:pointer;
@@ -152,8 +161,8 @@ h2.text-center {
     box-shadow:0 5px 12px rgba(255,193,7,0.7);
 }
 .member img {
-    width:44px;             /* kidogo kupunguzwa */
-    height:44px;            /* kidogo kupunguzwa */
+    width:44px;
+    height:44px;
     object-fit:cover;
     border-radius:50%;
     margin-right:0.5rem;
@@ -167,6 +176,7 @@ h2.text-center {
     color:#ffc107;
     flex-grow:1;
 }
+
 /* View children button (info icon) */
 .view-children-btn {
     flex-shrink:0;
@@ -197,6 +207,7 @@ h2.text-center {
     padding-left:1.5rem;
     display:none;
 }
+
 /* Buttons container */
 .btn-container {
     display:flex;
@@ -221,6 +232,7 @@ h2.text-center {
     box-shadow:0 5px 12px rgba(13,71,161,0.6);
     background:#074078;
 }
+
 /* Footer */
 footer {
     text-align:center;
@@ -230,8 +242,9 @@ footer {
     color:#facc15;
     margin-top:50px;
 }
+
 /* Responsive */
-@media(max-width:768px){
+@media(max-width:768px) {
     .nav-links {
         flex-direction:column;
         position:absolute;
@@ -265,7 +278,7 @@ footer {
         height:38px;
     }
 }
-@media(max-width:480px){
+@media(max-width:480px) {
     .tree li {
         padding-left:24px;
     }
@@ -288,16 +301,17 @@ footer {
 </style>
 </head>
 <body class="light-mode">
+
 <header>
     <div class="logo">Ukoo wa Makomelelo</div>
     <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
     <nav class="nav-links">
-        <a href="index.php" class="<?= $currentPage=='index.php'?'active':'' ?>">Nyumbani</a>
-        <a href="registration.php" class="<?= $currentPage=='registration.php'?'active':'' ?>">Jisajiri</a>
-        <a href="family_tree.php" class="<?= $currentPage=='family_tree.php'?'active':'' ?>">Ukoo</a>
-        <a href="events.php" class="<?= $currentPage=='events.php'?'active':'' ?>">Matukio</a>
-        <a href="contact.php" class="<?= $currentPage=='contact.php'?'active':'' ?>">Mawasiliano</a>
-        <?php if($isLoggedIn): ?>
+        <a href="index.php" class="<?= $currentPage=='index.php' ? 'active' : '' ?>">Nyumbani</a>
+        <a href="registration.php" class="<?= $currentPage=='registration.php' ? 'active' : '' ?>">Jisajiri</a>
+        <a href="family_tree.php" class="<?= $currentPage=='family_tree.php' ? 'active' : '' ?>">Ukoo</a>
+        <a href="events.php" class="<?= $currentPage=='events.php' ? 'active' : '' ?>">Matukio</a>
+        <a href="contact.php" class="<?= $currentPage=='contact.php' ? 'active' : '' ?>">Mawasiliano</a>
+        <?php if ($isLoggedIn): ?>
         <a href="logout.php">Toka</a>
         <?php else: ?>
         <a href="login.php">Ingia</a>
@@ -305,57 +319,72 @@ footer {
         <span id="toggleTheme" style="cursor:pointer; font-weight:700;">Dark Mode</span>
     </nav>
 </header>
+
 <div class="container tree-container">
-<h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
-<div id="tree-container" class="tree">
-<?php
-function displayTree($parent_id = null, $conn) {
-    if (!$conn) { echo "<p style='color:red;'>Database connection failed!</p>"; return; }
-    if (is_null($parent_id)) {
-        $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY first_name,last_name";
-        $params = [];
-    } else {
-        $sql = "SELECT * FROM family_tree WHERE parent_id=$1 ORDER BY first_name,last_name";
-        $params = [$parent_id];
-    }
-
-    $result = pg_query_params($conn, $sql, $params);
-    if ($result && pg_num_rows($result) > 0) {
-        echo "<ul>";
-        while ($row = pg_fetch_assoc($result)) {
-            $id = (int)$row['id'];
-            $fullName = htmlspecialchars($row['first_name'] . " " . $row['last_name']);
-            $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/60?text=No+Image";
-
-            echo "<li>";
-            echo "<div class='member' data-id='$id'>";
-            echo "<img src='$photo' alt='Picha ya $fullName'>";
-            echo "<p class='member-name'>$fullName</p>";
-            echo "<button class='view-children-btn' data-parent='$id' title='Ona taarifa'>i</button>";
-            echo "</div>";
-            echo "<div class='children-list' id='children-$id'></div>";
-            echo "</li>";
+    <h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
+    <div id="tree-container" class="tree">
+    <?php
+    function displayTree($parent_id = null, $conn) {
+        if (!$conn) {
+            echo "<p style='color:red;'>Database connection failed!</p>";
+            return;
         }
-        echo "</ul>";
-    } elseif ($result === false) {
-        echo "<p style='color:red;'>Tatizo la ku-query database: " . pg_last_error($conn) . "</p>";
+        if (is_null($parent_id)) {
+            $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY first_name,last_name";
+            $params = [];
+        } else {
+            $sql = "SELECT * FROM family_tree WHERE parent_id=$1 ORDER BY first_name,last_name";
+            $params = [$parent_id];
+        }
+
+        $result = pg_query_params($conn, $sql, $params);
+        if ($result && pg_num_rows($result) > 0) {
+            echo "<ul>";
+            while ($row = pg_fetch_assoc($result)) {
+                $id = (int)$row['id'];
+                $fullName = htmlspecialchars($row['first_name'] . " " . $row['last_name']);
+                $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/60?text=No+Image";
+
+                echo "<li>";
+                echo "<div class='member' data-id='$id'>";
+                echo "<img src='$photo' alt='Picha ya $fullName'>";
+                echo "<p class='member-name'>$fullName</p>";
+                echo "<button class='view-children-btn' data-parent='$id' title='Ona taarifa'>i</button>";
+                echo "</div>";
+                echo "<div class='children-list' id='children-$id'></div>";
+                echo "</li>";
+            }
+            echo "</ul>";
+        } elseif ($result === false) {
+            echo "<p style='color:red;'>Tatizo la ku-query database: " . pg_last_error($conn) . "</p>";
+        }
     }
-}
-displayTree(null, $conn);
-?>
-<div class="btn-container">
-    <a href="registration.php" class="btn-custom">Ongeza Mtu Mpya</a>
-    <a href="index.php" class="btn-custom">Rudi Nyumbani</a>
+    displayTree(null, $conn);
+    ?>
+    <div class="btn-container">
+        <a href="registration.php" class="btn-custom">Ongeza Mtu Mpya</a>
+        <a href="index.php" class="btn-custom">Rudi Nyumbani</a>
+    </div>
 </div>
-</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-// Navbar toggle
+// Navbar toggle (hamburger) toggle nav display
 const toggleBtn = document.querySelector('.nav-toggle');
 const navLinks = document.querySelector('.nav-links');
 toggleBtn.addEventListener('click', () => {
     toggleBtn.classList.toggle('active');
     navLinks.classList.toggle('show');
+});
+
+// Close nav if click outside nav-links when nav is open
+document.addEventListener('click', (e) => {
+    if (!navLinks.contains(e.target) && !toggleBtn.contains(e.target)) {
+        if (navLinks.classList.contains('show')) {
+            navLinks.classList.remove('show');
+            toggleBtn.classList.remove('active');
+        }
+    }
 });
 
 // Theme toggle with localStorage persistence
@@ -389,6 +418,7 @@ themeToggle.addEventListener('click', () => {
 // Tree children toggle
 $(document).ready(function () {
     $(document).on('click', '.member', function (e) {
+        // Ignore if clicked on the info button
         if ($(e.target).hasClass('view-children-btn')) return;
         const id = $(this).data('id');
         const container = $('#children-' + id);
@@ -405,11 +435,12 @@ $(document).ready(function () {
             }
         }
     });
+
     $(document).on('click', '.view-children-btn', function (e) {
         e.stopPropagation();
         const parentId = $(this).data('parent');
         $.get('view_member.php', { id: parentId }, function (data) {
-            alert(data); // Badilisha modal kama unataka
+            alert(data); // You can replace this with a modal
         });
     });
 });
