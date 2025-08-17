@@ -27,7 +27,7 @@ if (strlen($q) < 2) {
 }
 
 // Badilisha jina la jedwali na safu kama ilivyo kwenye database yako
-$sql = "SELECT id, full_name, village, ward, region, photo_url 
+$sql = "SELECT id, full_name, village, ward, region, photo_url, parent_id 
         FROM persons 
         WHERE full_name ILIKE :search 
         ORDER BY full_name ASC 
@@ -39,3 +39,5 @@ $stmt->execute(['search' => "%$q%"]);
 $results = $stmt->fetchAll();
 
 echo json_encode($results);
+
+?>
