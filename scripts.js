@@ -99,3 +99,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+$(document).on('click keypress', '.member', function(e) {
+    if(e.type === 'keypress' && ![13,32].includes(e.which)) return;
+    if($(e.target).hasClass('view-children-btn')) return;
+    const id = $(this).data('id');
+    const container = $('#children-' + id);
+    if(container.is(':visible')){
+        container.slideUp(200);
+        $(this).attr('aria-expanded', 'false');
+        container.attr('aria-hidden', 'true');
+    } else {
+        if(container.children().length === 0){
+            $.get('load_children.php', {parent_id: id}, function(data){
+                container.html(data).slideDown(200);
+                $(this).attr('aria-expanded', 'true');
+                container.attr('aria-hidden', 'false');
+            }.bind(this));
+        } else {
+            container.slideDown(200);
+            $(this).attr('aria-expanded', 'true');
+            container.attr('aria-hidden', 'false');
+        }
+    }
+});
+
+$(document).on('click', '.view-children-btn', function(e){
+    e.stopPropagation();
+    const parentId = $(this).data('parent');
+    $.get('view_member.php', {id: parentId}, function(data){
+        // Display in modal instead of alert (implement modal in HTML)
+        alert(data);
+    });
+});
+
