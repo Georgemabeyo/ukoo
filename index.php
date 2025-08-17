@@ -8,260 +8,154 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ukoo wa Makomelelo | Karibu</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-/* Global resets */
+/* Global */
 body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background 0.3s, color 0.3s;
+    margin:0; padding:0;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background 0.3s,color 0.3s;
 }
+a { text-decoration:none; }
 
-/* Light / Dark mode classes */
-body.light-mode {
-    background: #f0f4f8;
-    color: #222;
-}
-body.dark-mode {
-    background: #1e293b;
-    color: #f8fafc;
-}
+/* Light/Dark Mode */
+body.light-mode { background:#f0f4f8; color:#222; }
+body.dark-mode { background:#1e293b; color:#f8fafc; }
 
 /* Navbar */
-.navbar {
-    padding: 1rem 2rem;
-    border-radius: 12px;
+header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 25px;
+    background:linear-gradient(90deg,#0d47a1,#1976d2);
+    border-radius:0 0 15px 15px;
+    position:relative;
+    z-index:1000;
 }
-.navbar .navbar-brand {
-    font-weight: 700;
-    font-size: 1.8rem;
-    color: #facc15;
-    transition: color 0.3s;
+.logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
+.nav-links {
+    display:flex; gap:20px;
 }
-.navbar.light-mode .navbar-brand { color: #1e3a8a; }
-.navbar-dark-mode .navbar-brand { color: #facc15; }
+.nav-links a { color:#ffc107; font-weight:600; padding:8px 12px; border-radius:6px; transition:0.3s; }
+.nav-links a:hover { background:#ffc107; color:#0d47a1; }
 
-.navbar-nav .nav-link {
-    font-weight: 600;
-    transition: all 0.3s;
+.nav-toggle {
+    display:none; flex-direction:column; justify-content:space-between;
+    width:30px; height:24px; background:transparent; border:none; cursor:pointer;
 }
-.navbar-nav .nav-link:hover {
-    color: #facc15 !important;
+.nav-toggle span {
+    display:block; height:3px; background:#ffc107; border-radius:2px; transition:all 0.4s;
 }
-.navbar.light-mode .nav-link { color: #1e3a8a !important; }
-.navbar.dark-mode .nav-link { color: #facc15 !important; }
+/* X animation */
+.nav-toggle.active span:nth-child(1){ transform:rotate(45deg) translate(5px,5px);}
+.nav-toggle.active span:nth-child(2){ opacity:0; }
+.nav-toggle.active span:nth-child(3){ transform:rotate(-45deg) translate(5px,-5px); }
 
-.navbar-toggler {
-    border: none;
+/* Hero */
+.hero { text-align:center; margin:20px auto; padding:60px 20px; border-radius:15px;
+    background: linear-gradient(120deg,#2563eb,#3b82f6); color:#fff; box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
-.navbar-toggler-icon {
-    background-color: #facc15;
-    width: 30px;
-    height: 3px;
-    display: block;
-    position: relative;
-}
-.navbar-toggler-icon::before,
-.navbar-toggler-icon::after {
-    content: '';
-    background-color: #facc15;
-    width: 30px;
-    height: 3px;
-    position: absolute;
-    left: 0;
-    transition: 0.3s;
-}
-.navbar-toggler-icon::before { top: -10px; }
-.navbar-toggler-icon::after { top: 10px; }
-
-/* Hero Section */
-.hero {
-    background: linear-gradient(120deg,#2563eb,#3b82f6);
-    color: #fff;
-    border-radius: 15px;
-    padding: 60px 20px;
-    text-align: center;
-    margin-top: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-.hero h1 {
-    font-size: 2.8rem;
-    font-weight: 900;
-}
-.hero p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-}
+.hero h1 { font-size:2.8rem; font-weight:900; margin-bottom:20px; }
+.hero p { font-size:1.2rem; margin-bottom:30px; }
 .btn-primary {
-    background-color: #facc15;
-    color: #1e3a8a;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 12px 26px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: all 0.3s;
+    background:#facc15; color:#1e3a8a; padding:12px 26px; font-weight:700; border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:all 0.3s;
 }
-.btn-primary:hover {
-    background-color: #eab308;
-    color: #1e3a8a;
-}
+.btn-primary:hover { background:#eab308; color:#1e3a8a; }
 
-/* Features section */
-.features {
-    margin-top: 40px;
-}
-.feature-box {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.feature-box:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-body.dark-mode .feature-box {
-    background-color: #334155;
-    color: #f8fafc;
-}
+/* Features */
+.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin:40px 0; padding:0 10px; }
+.feature-box { background:#fff; border-radius:15px; padding:25px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:0.3s; }
+.feature-box:hover { transform:translateY(-8px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
+body.dark-mode .feature-box { background:#334155; color:#f8fafc; }
 
-/* Search bar */
-#searchInput {
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 10px;
-    border: 2px solid #1e3a8a;
-    outline: none;
-    margin-bottom: 10px;
-    transition: all 0.3s;
-}
-#searchInput:focus {
-    border-color: #facc15;
-    box-shadow: 0 0 10px #facc15;
-}
-#searchResults {
-    position: absolute;
-    background-color: #fff;
-    border-radius: 0 0 12px 12px;
-    width: 100%;
-    max-height: 300px;
-    overflow-y: auto;
-    display: none;
-    z-index: 2000;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-#searchResults .result-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: all 0.25s;
-}
-#searchResults .result-item:hover {
-    background-color: #facc15;
-    color: #1e3a8a;
-}
-body.dark-mode #searchResults {
-    background-color: #475569;
-}
-body.dark-mode #searchResults .result-item:hover {
-    background-color: #facc15;
-    color: #1e3a8a;
-}
+/* Search */
+#searchInput { width:100%; padding:12px 20px; border-radius:10px; border:2px solid #1e3a8a; outline:none; margin-bottom:10px; transition:all 0.3s;}
+#searchInput:focus { border-color:#facc15; box-shadow:0 0 10px #facc15; }
+#searchResults { position:absolute; width:100%; max-height:300px; overflow-y:auto; background:#fff; border-radius:0 0 12px 12px; display:none; z-index:2000; box-shadow:0 6px 16px rgba(0,0,0,0.2);}
+#searchResults .result-item { padding:10px 15px; cursor:pointer; transition:0.25s;}
+#searchResults .result-item:hover { background:#facc15; color:#1e3a8a; }
+body.dark-mode #searchResults { background:#475569; }
+body.dark-mode #searchResults .result-item:hover { background:#facc15; color:#1e3a8a; }
 
-/* Person Details */
-#personDetails {
-    display: none;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-}
-#personDetails img {
-    float: left;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin-right: 20px;
-    object-fit: cover;
-}
+#personDetails { display:none; margin-top:20px; padding:20px; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.1); }
+#personDetails img { float:left; width:120px; height:120px; border-radius:50%; margin-right:20px; object-fit:cover; }
 
 /* Footer */
-footer {
-    text-align: center;
-    padding: 20px 10px;
-    border-radius: 15px;
-    background-color: #2563eb;
-    color: #facc15;
-    margin-top: 50px;
-}
+footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb; color:#facc15; margin-top:50px; }
 
 /* Responsive */
-@media(max-width: 768px){
-    .hero h1 { font-size: 2rem; }
-    .hero p { font-size: 1rem; }
+@media(max-width:768px){
+    .hero h1{ font-size:2rem;} .hero p{ font-size:1rem; }
+    .nav-links { flex-direction:column; position:absolute; top:100%; right:20px; background:linear-gradient(180deg,#0d47a1,#1976d2);
+        border-radius:10px; overflow:hidden; max-height:0; transition:max-height 0.35s ease, box-shadow 0.35s;
+    }
+    .nav-links.show { max-height:500px; box-shadow:0 8px 16px rgba(0,0,0,0.3);}
+    .nav-toggle { display:flex;}
 }
 </style>
 </head>
 <body class="light-mode">
-
-<nav class="navbar navbar-expand-lg navbar-light">
-  <div class="container">
-    <a class="navbar-brand" href="#">Ukoo wa Makomelelo</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-      <span class="navbar-toggler-icon"></span>
+<header>
+    <div class="logo">Ukoo wa Makomelelo</div>
+    <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
     </button>
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="index.php">Nyumbani</a></li>
-        <li class="nav-item"><a class="nav-link" href="registration.php">Jisajiri</a></li>
-        <li class="nav-item"><a class="nav-link" href="family_tree.php">Ukoo</a></li>
-        <li class="nav-item"><a class="nav-link" href="events.html">Matukio</a></li>
-        <li class="nav-item"><a class="nav-link" href="contact.php">Mawasiliano</a></li>
+    <nav class="nav-links">
+        <a href="index.php">Nyumbani</a>
+        <a href="registration.php">Jisajiri</a>
+        <a href="family_tree.php">Ukoo</a>
+        <a href="events.html">Matukio</a>
+        <a href="contact.php">Mawasiliano</a>
         <?php if($isLoggedIn): ?>
-        <li class="nav-item"><a class="nav-link" href="logout.php">Toka</a></li>
+        <a href="logout.php">Toka</a>
         <?php else: ?>
-        <li class="nav-item"><a class="nav-link" href="login.php">Ingia</a></li>
+        <a href="login.php">Ingia</a>
         <?php endif; ?>
-        <li class="nav-item"><span class="nav-link" id="toggleTheme">🌓</span></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+        <span id="toggleTheme" style="cursor:pointer;">🌓</span>
+    </nav>
+</header>
 
 <section class="hero">
     <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
     <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
-    <a href="registration.php" class="btn btn-primary">Jiandikishe Sasa</a>
+    <a href="registration.php" class="btn-primary">Jiandikishe Sasa</a>
 </section>
 
-<div class="container mt-4 position-relative">
+<div class="container position-relative" style="max-width:600px;">
     <input type="text" id="searchInput" placeholder="Tafuta mtu kwa jina...">
     <div id="searchResults"></div>
     <div id="personDetails"></div>
 </div>
 
-<div class="container features">
-    <div class="row g-4">
-        <div class="col-md-3"><div class="feature-box"><h3>Usajili Rahisi</h3><p>Jaza taarifa zako kwa urahisi, upload picha, na ungana moja kwa moja na ukoo.</p></div></div>
-        <div class="col-md-3"><div class="feature-box"><h3>Uchunguzi wa Familia</h3><p>Angalia uhusiano wa familia zako, talifa na watoto wa mfuasi wako kwa urahisi.</p></div></div>
-        <div class="col-md-3"><div class="feature-box"><h3>Usalama wa Taarifa</h3><p>Taarifa zako zinahifadhiwa kwa usiri mkubwa na usalama wa hali ya juu.</p></div></div>
-        <div class="col-md-3"><div class="feature-box"><h3>Muonekano wa Kisasa</h3><p>Tovuti yetu ni responsive na ina muonekano mzuri kwenye simu, kompyuta, na tablet.</p></div></div>
-    </div>
+<div class="features">
+    <div class="feature-box"><h3>Usajili Rahisi</h3><p>Jaza taarifa zako kwa urahisi, upload picha, na ungana moja kwa moja na ukoo.</p></div>
+    <div class="feature-box"><h3>Uchunguzi wa Familia</h3><p>Angalia uhusiano wa familia zako, talifa na watoto wa mfuasi wako kwa urahisi.</p></div>
+    <div class="feature-box"><h3>Usalama wa Taarifa</h3><p>Taarifa zako zinahifadhiwa kwa usiri mkubwa na usalama wa hali ya juu.</p></div>
+    <div class="feature-box"><h3>Muonekano wa Kisasa</h3><p>Tovuti yetu ni responsive na ina muonekano mzuri kwenye simu, kompyuta, na tablet.</p></div>
 </div>
 
 <footer>
     &copy; 2025 Ukoo wa Makomelelo | Haki zote zimehifadhiwa
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const toggleTheme = document.getElementById('toggleTheme');
-toggleTheme.addEventListener('click', ()=>{
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode');
+// Navbar toggle
+const toggleBtn = document.querySelector('.nav-toggle');
+const navLinks = document.querySelector('.nav-links');
+toggleBtn.addEventListener('click', ()=>{
+    toggleBtn.classList.toggle('active');
+    navLinks.classList.toggle('show');
 });
 
+// Theme toggle
+const themeToggle = document.getElementById('toggleTheme');
+themeToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('light-mode');
+    // hide logo text in dark mode
+    document.querySelector('.logo').style.color = document.body.classList.contains('dark-mode')?'transparent':'#ffc107';
+});
+
+// Search functionality
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 const personDetails = document.getElementById('personDetails');
@@ -271,45 +165,40 @@ searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim();
     personDetails.style.display = 'none';
     searchResults.innerHTML = '';
-    if(query.length < 2){
-        searchResults.style.display = 'none';
-        return;
-    }
+    if(query.length < 2){ searchResults.style.display='none'; return; }
+
     fetch('search.php?q=' + encodeURIComponent(query))
     .then(res => res.json())
-    .then(data => {
+    .then(data=>{
         results = data;
-        if(results.length === 0){
-            searchResults.innerHTML = '<div class="result-item">Hakuna mtu aliye patikana</div>';
-            searchResults.style.display = 'block';
-            return;
+        if(results.length===0){
+            searchResults.innerHTML='<div class="result-item">Hakuna mtu aliye patikana</div>';
+            searchResults.style.display='block'; return;
         }
         results.forEach((person)=>{
-            const div = document.createElement('div');
-            div.classList.add('result-item');
-            div.textContent = person.full_name;
+            const div=document.createElement('div');
+            div.classList.add('result-item'); div.textContent=person.full_name;
             div.addEventListener('click', ()=>{
-                personDetails.style.display = 'block';
-                personDetails.innerHTML = `
-                    <img src="${person.photo_url || 'default-avatar.png'}" alt="${person.full_name}">
-                    <h2>${person.full_name}</h2>
-                    <p><strong>Umri:</strong> ${person.age || 'Haijulikani'}</p>
-                    <p><strong>Mkoa:</strong> ${person.region || 'Haijulikani'}</p>
-                    <p><strong>Kijiji/Mji:</strong> ${person.village || 'Haijulikani'}</p>
-                    <p><strong>Simu:</strong> ${person.phone || 'Haijulikani'}</p>
-                    <p><strong>Barua pepe:</strong> ${person.email || 'Haijulikani'}</p>
-                    <p><strong>Hali ya ndoa:</strong> ${person.marital_status || 'Haijulikani'}</p>
-                    <p><strong>Watoto:</strong> ${person.children || 'Haijulikani'}</p>
-                `;
-                searchResults.style.display = 'none';
-                searchInput.value = person.full_name;
+                personDetails.style.display='block';
+                personDetails.innerHTML=`
+                <img src="${person.photo_url||'default-avatar.png'}" alt="${person.full_name}">
+                <h2>${person.full_name}</h2>
+                <p><strong>Umri:</strong> ${person.age||'Haijulikani'}</p>
+                <p><strong>Mkoa:</strong> ${person.region||'Haijulikani'}</p>
+                <p><strong>Kijiji/Mji:</strong> ${person.village||'Haijulikani'}</p>
+                <p><strong>Simu:</strong> ${person.phone||'Haijulikani'}</p>
+                <p><strong>Barua pepe:</strong> ${person.email||'Haijulikani'}</p>
+                <p><strong>Hali ya ndoa:</strong> ${person.marital_status||'Haijulikani'}</p>
+                <p><strong>Watoto:</strong> ${person.children||'Haijulikani'}</p>`;
+                searchResults.style.display='none';
+                searchInput.value=person.full_name;
             });
             searchResults.appendChild(div);
         });
-        searchResults.style.display = 'block';
+        searchResults.style.display='block';
     }).catch(()=>{
-        searchResults.innerHTML = '<div class="result-item">Tatizo la mtandao. Jaribu tena.</div>';
-        searchResults.style.display = 'block';
+        searchResults.innerHTML='<div class="result-item">Tatizo la mtandao. Jaribu tena.</div>';
+        searchResults.style.display='block';
     });
 });
 </script>
