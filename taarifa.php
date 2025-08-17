@@ -29,7 +29,7 @@ function write_data($file, $data) {
 }
 
 // Funzione ya kupunguza picha ukubwa
-function resizeImage($fileTmpPath, $targetPath, $newWidth = 600, $newHeight = 400) {
+function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
     $sourceProperties = getimagesize($fileTmpPath);
     $imageType = $sourceProperties[2];
 
