@@ -10,7 +10,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
-<link rel="stylesheet" href="assets/css/style.css" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
@@ -62,7 +62,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="assets/js/scripts.js"></script>
+<script src="scripts.js"></script>
 <script>
 // Accessibility: toggle aria-expanded and aria-hidden on keyboard and click
 $(document).on('click keypress', '.member', function(e) {
