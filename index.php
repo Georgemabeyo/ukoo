@@ -22,7 +22,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ukoo wa Makomelelo | Karibu</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
 
@@ -79,6 +79,6 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 </div>
 
 <?php include 'footer.php'; ?>
-<script src="assets/js/scripts.js"></script>
+<script src="scripts.js"></script>
 </body>
 </html>
