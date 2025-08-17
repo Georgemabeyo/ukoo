@@ -1,6 +1,7 @@
 <?php
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']);
+$currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
 <html lang="sw">
@@ -12,6 +13,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <style>
 /* Global */
 body, html { margin:0; padding:0; font-family:'Segoe UI', sans-serif; transition: background 0.3s,color 0.3s; }
+a { text-decoration:none; }
 
 /* Light/Dark Mode */
 body.light-mode { background:#f0f4f8; color:#222; }
@@ -26,7 +28,7 @@ header {
 .logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
 .nav-links { display:flex; gap:15px; align-items:center; flex-wrap:wrap; }
 .nav-links a { color:#ffc107; font-weight:600; padding:8px 12px; border-radius:6px; transition:0.3s; }
-.nav-links a:hover { background:#ffc107; color:#0d47a1; }
+.nav-links a:hover, .nav-links a.active { background:#ffc107; color:#0d47a1; }
 
 .nav-toggle {
     display:none; flex-direction:column; justify-content:space-between;
@@ -85,11 +87,11 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
         <span></span><span></span><span></span>
     </button>
     <nav class="nav-links">
-        <a href="index.php">Nyumbani</a>
-        <a href="registration.php">Jisajiri</a>
-        <a href="family_tree.php">Ukoo</a>
-        <a href="events.php">Matukio</a>
-        <a href="contact.php">Mawasiliano</a>
+        <a href="index.php" class="<?= $currentPage=='index.php'?'active':'' ?>">Nyumbani</a>
+        <a href="registration.php" class="<?= $currentPage=='registration.php'?'active':'' ?>">Jisajiri</a>
+        <a href="family_tree.php" class="<?= $currentPage=='family_tree.php'?'active':'' ?>">Ukoo</a>
+        <a href="events.php" class="<?= $currentPage=='events.php'?'active':'' ?>">Matukio</a>
+        <a href="contact.php" class="<?= $currentPage=='contact.php'?'active':'' ?>">Mawasiliano</a>
         <?php if($isLoggedIn): ?>
         <a href="logout.php">Toka</a>
         <?php else: ?>
@@ -142,15 +144,19 @@ toggleBtn.addEventListener('click', ()=>{ toggleBtn.classList.toggle('active'); 
 // Theme toggle with persistence
 const themeToggle = document.getElementById('toggleTheme');
 const storedTheme = localStorage.getItem('theme');
-if(storedTheme){ document.body.classList.add(storedTheme); themeToggle.textContent = storedTheme==='dark-mode'?'Light Mode':'Dark Mode'; }
-else{ document.body.classList.add('light-mode'); themeToggle.textContent='Dark Mode'; }
-
+if(storedTheme){ 
+    document.body.classList.add(storedTheme); 
+    themeToggle.textContent = storedTheme==='dark-mode'?'Light Mode':'Dark Mode'; 
+} else { 
+    document.body.classList.add('light-mode'); 
+    themeToggle.textContent='Dark Mode'; 
+}
 themeToggle.addEventListener('click', ()=>{
     if(document.body.classList.contains('light-mode')){
         document.body.classList.replace('light-mode','dark-mode');
         themeToggle.textContent='Light Mode';
         localStorage.setItem('theme','dark-mode');
-    }else{
+    } else {
         document.body.classList.replace('dark-mode','light-mode');
         themeToggle.textContent='Dark Mode';
         localStorage.setItem('theme','light-mode');
