@@ -124,67 +124,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Usajili Ukoo - Makomelelo</title>
-<style>
-  body.light-mode {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 0; padding: 0;
-  }
-  .container {
-      max-width: 600px;
-      background: white;
-      margin: 40px auto;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  label {
-      display: inline-block;
-      margin-bottom: 5px;
-      font-weight: bold;
-  }
-  input[type="text"], input[type="email"], input[type="password"],
-  input[type="date"], select, input[type="number"], input[type="file"] {
-      width: 100%;
-      padding: 8px 10px;
-      margin-bottom: 15px;
-      box-sizing: border-box;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-  }
-  .btn-submit {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1.1rem;
-  }
-  .btn-submit:hover {
-      background: #0056b3;
-  }
-  .alert {
-      background: #f8d7da;
-      padding: 10px 15px;
-      border-radius: 5px;
-      color: #721c24;
-      margin-bottom: 15px;
-      font-weight: 600;
-  }
-  .form-inline {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .form-check {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-</style>
+<link rel="stylesheet" href="style.css" />
+
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
