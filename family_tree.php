@@ -60,7 +60,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 <script>
