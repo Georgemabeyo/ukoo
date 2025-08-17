@@ -2,7 +2,6 @@
 include 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     $first_name      = $_POST['first_name'];
     $middle_name     = $_POST['middle_name'];
     $last_name       = $_POST['last_name'];
@@ -44,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $new_id = 1;
     }
 
-    // Photo
+    // Photo upload
     $photo = '';
     if (!empty($_FILES['photo']['name'])) {
         $target_dir = __DIR__ . "/uploads/";
@@ -80,23 +79,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Usajili Ukoo - Makomelelo</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
 :root{
-  --primary:#0d47a1;
-  --secondary:#9face6;
-  --accent:#ffeb3b;
-  --bg:linear-gradient(120deg,#74ebd5 0%,#9face6 100%);
+  --primary:#1a237e;      /* Dark blue */
+  --secondary:#7986cb;    /* Soft blue */
+  --accent:#ffc107;       /* Amber */
+  --bg:linear-gradient(135deg,#e3f2fd 0%,#c5cae9 100%);
 }
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);padding:20px;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-.navbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:var(--primary);border-radius:12px;width:100%;max-width:900px;margin-bottom:20px;}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:var(--primary);border-radius:12px;width:100%;max-width:900px;margin-bottom:20px;position:relative;}
 .navbar a{color:var(--accent);text-decoration:none;font-weight:700;margin:0 10px;transition:color 0.3s;}
 .navbar a:hover{color:#fff;}
-.navbar .nav-right button{padding:6px 12px;border:none;border-radius:8px;background:var(--accent);color:var(--primary);font-weight:700;cursor:pointer;}
+.navbar .nav-right button{
+    padding:8px 12px;
+    border:none;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--primary);
+    font-weight:700;
+    cursor:pointer;
+    position:relative;
+    transition: transform 0.3s ease;
+}
+.navbar .nav-right button.active::before{
+    content: "✖";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.nav-left{display:flex;gap:15px;}
+.nav-left.show{display:flex; flex-direction:column; position:absolute; top:60px; left:0; width:100%; background:var(--primary); padding:10px 0; border-radius:0;}
 .container{background:#fff;padding:30px 40px;border-radius:15px;max-width:700px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
 h2{text-align:center;color:var(--primary);margin-bottom:25px;font-weight:900;}
 label{font-weight:600;color:var(--primary);}
@@ -111,13 +129,16 @@ input,select{width:100%;padding:10px;border:2px solid var(--secondary);border-ra
 @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 .btn-group{display:flex;justify-content:space-between;margin-top:20px;}
 button{padding:12px 25px;font-weight:700;border-radius:12px;border:none;cursor:pointer;flex:1;margin:0 5px;}
-.btn-next{background:var(--primary);color:var(--accent);}
-.btn-next:hover{background:#074078;}
-.btn-prev{background:var(--secondary);color:var(--accent);}
-.btn-prev:hover{background:#7a94c3;}
-.btn-submit{background:#2e7d32;color:#fff;width:100%;margin-top:20px;}
-.btn-submit:hover{background:#1b4f20;}
-@media(max-width:480px){.btn-group{flex-direction:column;} .btn-group button{margin:8px 0;}}
+.btn-next{background:var(--primary);color:#fff;}
+.btn-next:hover{background:#0d1b66;}
+.btn-prev{background:var(--secondary);color:#fff;}
+.btn-prev:hover{background:#5c6bc0;}
+.btn-submit{background:#1b5e20;color:#fff;width:100%;margin-top:20px;}
+.btn-submit:hover{background:#143d12;}
+@media(max-width:768px){
+  .nav-left{display:none;}
+  .nav-left.show{display:flex;flex-direction:column;gap:10px;padding:10px;}
+}
 #parentName,#displayChildID{font-weight:bold;color:var(--primary);margin-bottom:10px;}
 </style>
 </head>
@@ -133,7 +154,7 @@ button{padding:12px 25px;font-weight:700;border-radius:12px;border:none;cursor:p
     <a href="contact.php">Mawasiliano</a>
   </div>
   <div class="nav-right">
-    <button id="navToggle" class="mode-toggle">Menu</button>
+    <button id="navToggle"></button>
   </div>
 </nav>
 
@@ -180,7 +201,7 @@ button{padding:12px 25px;font-weight:700;border-radius:12px;border:none;cursor:p
 </div>
 </div>
 
-<!-- Step 3: Location -->
+<!-- Step 3 -->
 <div class="step">
 <label>Nchi</label>
 <select name="country" id="countrySelect" required>
@@ -271,9 +292,10 @@ try{
 });
 });
 
-// Navbar toggle for small screens
+// Navbar toggle
 $("#navToggle").click(function(){
-  $(".nav-left").slideToggle();
+  $(this).toggleClass("active");
+  $(".nav-left").toggleClass("show");
 });
 </script>
 </body>
