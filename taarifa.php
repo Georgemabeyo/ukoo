@@ -17,7 +17,7 @@ if (!isset($_SESSION['is_admin'])) {
     }
 }
 
-// Funzioni za kusoma na kuandika JSON
+// Funguo za kusoma na kuandika data JSON
 function read_data($file) {
     if (!file_exists($file)) return [];
     $json = file_get_contents($file);
@@ -94,11 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
     if ($title !== '') {
         $file = 'events.json';
         $entries = read_data($file);
+        $timeNow = date('c');  // ISO 8601 timestamp
         $entries[] = [
             'id' => time(),
             'title' => $title,
             'desc' => $desc,
-            'photo' => $img_name
+            'photo' => $img_name,
+            'created_at' => $timeNow
         ];
         write_data($file, $entries);
         $message = "Taarifa imeandikwa kwa mafanikio!";
@@ -160,6 +162,7 @@ a.delete-link:hover { text-decoration: underline; }
         <div class="entry">
           <a href="?delete=<?= $entry['id'] ?>" class="delete-link" onclick="return confirm('Una uhakika unataka kufuta?')">Futa</a>
           <strong><?= htmlspecialchars($entry['title']) ?></strong>
+          <p><em>Imeandikwa: <?= date('j F Y, H:i', strtotime($entry['created_at'] ?? '')) ?></em></p>
           <p><?= nl2br(htmlspecialchars($entry['desc'])) ?></p>
           <?php if ($entry['photo']): ?>
             <img src="uploads/<?= htmlspecialchars($entry['photo']) ?>" alt="Taarifa Picha" />
