@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="light-mode">
-<?php include 'includes/header.php'; ?>
+<?php include 'header.php'; ?>
 
 <div class="container">
   <h2>Usajili wa Ukoo wa Makomelelo</h2>
@@ -168,7 +168,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </form>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 <script>
