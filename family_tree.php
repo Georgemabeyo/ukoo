@@ -1,8 +1,6 @@
 <?php
 include 'config.php';
 session_start();
-$isLoggedIn = isset($_SESSION['user_id']);
-$currentPage = basename($_SERVER['PHP_SELF']);
 
 function displayTree($conn, $parent_id = null) {
     if (!$conn) {
@@ -59,7 +57,7 @@ function displayTree($conn, $parent_id = null) {
     </div>
 </div>
 
-<!-- Modal Structure -->
+<!-- Modal na overlay -->
 <div id="modal-overlay" style="display:none; position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;"></div>
 <div id="member-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translateX(-50%);background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.5);max-width:400px;z-index:1000;">
     <button id="close-modal" style="float:right;cursor:pointer;">X</button>
@@ -70,10 +68,9 @@ function displayTree($conn, $parent_id = null) {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="scripts.js"></script>
 <script>
-// Keyboard accessibility and children toggle
 $(document).on('click keypress', '.member', function(e) {
-    if(e.type === 'keypress' && ![13,32].includes(e.which)) return; // Only Enter or Space keys
-    if($(e.target).hasClass('view-children-btn')) return; // Skip if info button clicked
+    if(e.type === 'keypress' && ![13,32].includes(e.which)) return;
+    if($(e.target).hasClass('view-children-btn')) return;
     const id = $(this).data('id');
     const container = $('#children-' + id);
     if(container.is(':visible')){
@@ -94,8 +91,6 @@ $(document).on('click keypress', '.member', function(e) {
         }
     }
 });
-
-// View member info with modal display
 $(document).on('click', '.view-children-btn', function(e){
     e.stopPropagation();
     const parentId = $(this).data('parent');
