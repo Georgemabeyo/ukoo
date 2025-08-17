@@ -13,7 +13,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="light-mode">
-<?php include 'includes/header.php'; ?>
+<?php include 'header.php'; ?>
 
 <div class="container tree-container">
     <h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
