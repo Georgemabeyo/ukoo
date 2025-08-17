@@ -23,7 +23,13 @@ function read_data($file) {
     return is_array($data) ? $data : [];
 }
 function write_data($file, $data) {
-    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
+    $fp = fopen($file, 'w');
+    if (flock($fp, LOCK_EX)) {
+        fwrite($fp, json_encode($data, JSON_PRETTY_PRINT));
+        fflush($fp);
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
 }
 // Funzione ya kupunguza picha ukubwa
 function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
@@ -69,7 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
     // Upload picha na resize
     if (isset($_FILES['photo']) && $_FILES['photo']['size'] > 0) {
         $upload_dir = 'uploads/';
-        if (!file_exists($upload_dir)) mkdir($upload_dir, 0777, true);
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
         $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
         $img_name = time() . '_' . uniqid() . '.' . $ext;
         $target_path = $upload_dir . $img_name;
@@ -105,9 +113,12 @@ if (isset($_GET['delete'])) {
     $entries = read_data('events.json');
     $entries = array_filter($entries, fn($e) => $e['id'] !== $delete_id);
     write_data('events.json', array_values($entries));
-    header("Location: taarifa.php");
+    header("Location: taarifa.php?updated=1");
     exit;
 }
+// Prevent caching
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 // Pakua data za sasa
 $events = read_data('events.json');
 ?>
