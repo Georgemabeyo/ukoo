@@ -1,5 +1,4 @@
 <?php
-// Handle form submission
 $messageSent = false;
 $error = '';
 
@@ -9,13 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    // Simple validation
     if (!$name || !$email || !$subject || !$message) {
         $error = 'Tafadhali jaza fomu yote.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Tafadhali tumia anwani ya barua pepe sahihi.';
     } else {
-        $to = 'admin@ukoo.com';  
+        $to = 'admin@ukoo.com';
         $headers = "From: $name <$email>\r\nReply-To: $email\r\n";
         $mailSubject = "Ujumbe kutoka kwa $name: $subject";
         $mailBody = "Ujumbe:\n$message\n\nKutoka: $name\nEmail: $email";
@@ -28,125 +26,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="sw">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ukoo wa Makomelelo | Contact</title>
+<title>Ukoo wa Makomelelo | Mawasiliano</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-/* Reset & body */
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(120deg, #74ebd5 0%, #9face6 100%); color:#333; line-height:1.6; }
+body { font-family:'Segoe UI', sans-serif; transition: background 0.3s, color 0.3s; }
+body.light-mode { background:#f0f4f8; color:#222; }
+body.dark-mode { background:#1e293b; color:#f8fafc; }
 
-/* Header */
 header {
-    background: #0d47a1;
-    color: #ffc107;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    position: relative;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 25px; background:#0d47a1; border-radius:0 0 12px 12px;
 }
-header .logo { font-weight:700; font-size:1.8rem; cursor:default; }
+header .logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
 
-/* Nav */
-nav { display:flex; gap:25px; flex-wrap:wrap; transition:max-height 0.3s ease; }
-nav a { color:#ffc107; text-decoration:none; font-weight:600; font-size:1rem; padding:8px 10px; border-radius:5px; transition:background-color 0.3s ease; }
-nav a:hover, nav a:focus { background:#ffc107; color:#0d47a1; outline:none; }
+.nav-links { display:flex; gap:20px; align-items:center; }
+.nav-links a { color:#ffc107; font-weight:600; text-decoration:none; transition:0.3s; }
+.nav-links a:hover { color:#0d47a1; background:#ffc107; border-radius:5px; padding:5px 10px; }
 
-/* Hamburger */
-.menu-toggle {
-    display:none;
-    flex-direction: column;
-    cursor: pointer;
-    width:30px;
-    height:25px;
-    justify-content:space-between;
+.nav-toggle {
+    display:none; flex-direction:column; justify-content:space-between;
+    width:30px; height:25px; background:transparent; border:none; cursor:pointer;
 }
-.menu-toggle span {
-    height:3px; width:100%; background:#ffc107; border-radius:3px; transition: all 0.3s ease;
+.nav-toggle span {
+    display:block; height:3px; background:#ffc107; border-radius:2px; transition:0.3s;
 }
-.menu-toggle.active span:nth-child(1){ transform: rotate(45deg) translate(5px,5px);}
-.menu-toggle.active span:nth-child(2){ opacity:0; }
-.menu-toggle.active span:nth-child(3){ transform: rotate(-45deg) translate(6px,-6px); }
+.nav-toggle.active span:nth-child(1){ transform:rotate(45deg) translate(5px,5px);}
+.nav-toggle.active span:nth-child(2){ opacity:0;}
+.nav-toggle.active span:nth-child(3){ transform:rotate(-45deg) translate(5px,-5px);}
 
-/* Main content */
-main {
-    max-width: 600px;
-    margin: 40px auto;
-    background: white;
-    padding: 30px 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-h1 { color:#0d47a1; margin-bottom:25px; text-align:center; }
-label { display:block; font-weight:600; margin:15px 0 6px; color:#0d47a1; }
-input[type="text"], input[type="email"], textarea {
-    width:100%; padding:12px 15px; border:2px solid #0d47a1; border-radius:8px; font-size:1rem; resize:vertical; transition:border-color 0.3s ease;
-}
-input:focus, textarea:focus { border-color:#ffc107; outline:none; }
-textarea { min-height:120px; }
-button {
-    margin-top:25px; width:100%; background:#ffc107; color:#0d47a1; font-weight:700; font-size:1.1rem;
-    padding:14px 0; border:none; border-radius:8px; cursor:pointer; transition:background-color 0.3s ease;
-}
+/* Form */
+main { max-width:600px; margin:40px auto; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); background:white; transition:background 0.3s, color 0.3s; }
+body.dark-mode main { background:#334155; color:#f8fafc; }
+h1 { text-align:center; margin-bottom:25px; color:#0d47a1; }
+body.dark-mode h1 { color:#facc15; }
+label { font-weight:600; margin-top:15px; display:block; }
+input, textarea { width:100%; padding:12px 15px; margin-bottom:10px; border-radius:8px; border:2px solid #0d47a1; transition:0.3s; }
+input:focus, textarea:focus { outline:none; border-color:#facc15; }
+button { width:100%; padding:14px; font-weight:700; border-radius:8px; border:none; background:#ffc107; color:#0d47a1; transition:0.3s; }
 button:hover { background:#e6b007; }
 
 /* Messages */
-.message { margin-top:20px; padding:15px; border-radius:8px; font-weight:600; text-align:center; }
+.message { margin-top:20px; padding:15px; border-radius:8px; text-align:center; font-weight:600; }
 .message.success { background:#d4edda; color:#155724; }
 .message.error { background:#f8d7da; color:#721c24; }
 
 /* Footer */
-footer { background:#0d47a1; color:#ffc107; text-align:center; padding:20px 10px; margin-top:50px; font-size:0.9rem; user-select:none; }
+footer { text-align:center; padding:20px 10px; background:#0d47a1; color:#ffc107; margin-top:50px; border-radius:12px; }
 
-/* Responsive nav */
+/* Responsive */
 @media(max-width:768px){
-    nav {
-        position:absolute;
-        top:60px; left:0;
-        background:#0d47a1;
-        flex-direction:column;
-        width:100%;
-        max-height:0;
-        overflow:hidden;
-        border-radius:0 0 10px 10px;
-    }
-    nav.open { max-height:300px; }
-    nav a { padding:12px 20px; font-size:1.1rem; }
-    .menu-toggle { display:flex; }
-}
-@media(max-width:600px){
-    main { margin:20px 10px; padding:20px 25px; }
+    .nav-links { flex-direction:column; position:absolute; top:60px; right:20px; background:#0d47a1; border-radius:10px; overflow:hidden; max-height:0; transition:max-height 0.35s ease; }
+    .nav-links.show { max-height:300px; }
+    .nav-toggle { display:flex; }
 }
 </style>
 </head>
-<body>
+<body class="light-mode">
+
 <header>
     <div class="logo">Ukoo wa Makomelelo</div>
-    <div class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" role="button" tabindex="0">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
-    <nav id="nav-menu" role="navigation">
+    <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links">
         <a href="index.php">Nyumbani</a>
         <a href="registration.php">Jisajiri</a>
         <a href="family_tree.php">Ukoo</a>
         <a href="events.html">Matukio</a>
+        <span id="toggleTheme" style="cursor:pointer; font-weight:700;">Dark Mode</span>
     </nav>
 </header>
 
 <main>
 <h1>Wasiliana Nasi</h1>
+
 <?php if ($messageSent): ?>
-    <div class="message success">Ujumbe wako umetumwa kwa mafanikio! Tutawasiliana nawe hivi karibuni.</div>
+<div class="message success">Ujumbe wako umetumwa kwa mafanikio! Tutawasiliana nawe hivi karibuni.</div>
 <?php elseif ($error): ?>
-    <div class="message error"><?= htmlspecialchars($error) ?></div>
+<div class="message error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
 <form method="POST" action="contact.php" novalidate>
@@ -171,17 +133,23 @@ footer { background:#0d47a1; color:#ffc107; text-align:center; padding:20px 10px
 </footer>
 
 <script>
-const menuToggle = document.getElementById('menu-toggle');
-const navMenu = document.getElementById('nav-menu');
-
-menuToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('open');
-    menuToggle.classList.toggle('active');
+// Navbar toggle
+const navToggle = document.querySelector('.nav-toggle');
+const navLinks = document.querySelector('.nav-links');
+navToggle.addEventListener('click', ()=>{
+    navToggle.classList.toggle('active');
+    navLinks.classList.toggle('show');
 });
-menuToggle.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        menuToggle.click();
+
+// Dark/Light mode toggle
+const themeToggle = document.getElementById('toggleTheme');
+themeToggle.addEventListener('click', ()=>{
+    if(document.body.classList.contains('light-mode')){
+        document.body.classList.replace('light-mode','dark-mode');
+        themeToggle.textContent='Light Mode';
+    } else {
+        document.body.classList.replace('dark-mode','light-mode');
+        themeToggle.textContent='Dark Mode';
     }
 });
 </script>
