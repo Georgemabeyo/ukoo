@@ -56,18 +56,6 @@ header {
 .feature-box:hover { transform:translateY(-8px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
 body.dark-mode .feature-box { background:#334155; color:#f8fafc; }
 
-/* Search */
-#searchInput { width:100%; padding:12px 20px; border-radius:10px; border:2px solid #1e3a8a; outline:none; margin-bottom:10px; transition:all 0.3s;}
-#searchInput:focus { border-color:#facc15; box-shadow:0 0 10px #facc15; }
-#searchResults { position:absolute; width:100%; max-height:300px; overflow-y:auto; background:#fff; border-radius:0 0 12px 12px; display:none; z-index:2000; box-shadow:0 6px 16px rgba(0,0,0,0.2);}
-#searchResults .result-item { padding:10px 15px; cursor:pointer; transition:0.25s;}
-#searchResults .result-item:hover { background:#facc15; color:#1e3a8a; }
-body.dark-mode #searchResults { background:#475569; }
-body.dark-mode #searchResults .result-item:hover { background:#facc15; color:#1e3a8a; }
-
-#personDetails { display:none; margin-top:20px; padding:20px; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.1); }
-#personDetails img { float:left; width:120px; height:120px; border-radius:50%; margin-right:20px; object-fit:cover; }
-
 /* Footer */
 footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb; color:#facc15; margin-top:50px; }
 
@@ -92,7 +80,7 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
         <a href="index.php">Nyumbani</a>
         <a href="registration.php">Jisajiri</a>
         <a href="family_tree.php">Ukoo</a>
-        <a href="events.html">Matukio</a>
+        <a href="events.php">Matukio</a>
         <a href="contact.php">Mawasiliano</a>
         <?php if($isLoggedIn): ?>
         <a href="logout.php">Toka</a>
@@ -109,12 +97,6 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
     <a href="registration.php" class="btn-primary">Jiandikishe Sasa</a>
 </section>
 
-<div class="container position-relative" style="max-width:600px;">
-    <input type="text" id="searchInput" placeholder="Tafuta mtu kwa jina...">
-    <div id="searchResults"></div>
-    <div id="personDetails"></div>
-</div>
-
 <div class="features">
     <div class="feature-box"><h3>Usajili Rahisi</h3><p>Jaza taarifa zako kwa urahisi, upload picha, na ungana moja kwa moja na ukoo.</p></div>
     <div class="feature-box"><h3>Uchunguzi wa Familia</h3><p>Angalia uhusiano wa familia zako, talifa na watoto wa mfuasi wako kwa urahisi.</p></div>
@@ -127,6 +109,19 @@ footer { text-align:center; padding:20px; border-radius:15px; background:#2563eb
 </footer>
 
 <script>
+// Set mode from localStorage on page load
+document.addEventListener('DOMContentLoaded', ()=>{
+    const savedMode = localStorage.getItem('theme');
+    const themeToggle = document.getElementById('toggleTheme');
+    if(savedMode==='dark'){
+        document.body.classList.replace('light-mode','dark-mode');
+        themeToggle.textContent='Light Mode';
+    }else{
+        document.body.classList.replace('dark-mode','light-mode');
+        themeToggle.textContent='Dark Mode';
+    }
+});
+
 // Navbar toggle
 const toggleBtn = document.querySelector('.nav-toggle');
 const navLinks = document.querySelector('.nav-links');
@@ -135,65 +130,18 @@ toggleBtn.addEventListener('click', ()=>{
     navLinks.classList.toggle('show');
 });
 
-// Theme toggle with text
+// Theme toggle with saving in localStorage
 const themeToggle = document.getElementById('toggleTheme');
 themeToggle.addEventListener('click', ()=>{
     if(document.body.classList.contains('light-mode')){
-        document.body.classList.remove('light-mode');
-        document.body.classList.add('dark-mode');
+        document.body.classList.replace('light-mode','dark-mode');
+        localStorage.setItem('theme','dark');
         themeToggle.textContent='Light Mode';
     }else{
-        document.body.classList.remove('dark-mode');
-        document.body.classList.add('light-mode');
+        document.body.classList.replace('dark-mode','light-mode');
+        localStorage.setItem('theme','light');
         themeToggle.textContent='Dark Mode';
     }
-});
-
-// Search functionality
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
-const personDetails = document.getElementById('personDetails');
-let results = [];
-
-searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim();
-    personDetails.style.display = 'none';
-    searchResults.innerHTML = '';
-    if(query.length < 2){ searchResults.style.display='none'; return; }
-
-    fetch('search.php?q=' + encodeURIComponent(query))
-    .then(res => res.json())
-    .then(data=>{
-        results = data;
-        if(results.length===0){
-            searchResults.innerHTML='<div class="result-item">Hakuna mtu aliye patikana</div>';
-            searchResults.style.display='block'; return;
-        }
-        results.forEach((person)=>{
-            const div=document.createElement('div');
-            div.classList.add('result-item'); div.textContent=person.full_name;
-            div.addEventListener('click', ()=>{
-                personDetails.style.display='block';
-                personDetails.innerHTML=`
-                <img src="${person.photo_url||'default-avatar.png'}" alt="${person.full_name}">
-                <h2>${person.full_name}</h2>
-                <p><strong>Umri:</strong> ${person.age||'Haijulikani'}</p>
-                <p><strong>Mkoa:</strong> ${person.region||'Haijulikani'}</p>
-                <p><strong>Kijiji/Mji:</strong> ${person.village||'Haijulikani'}</p>
-                <p><strong>Simu:</strong> ${person.phone||'Haijulikani'}</p>
-                <p><strong>Barua pepe:</strong> ${person.email||'Haijulikani'}</p>
-                <p><strong>Hali ya ndoa:</strong> ${person.marital_status||'Haijulikani'}</p>
-                <p><strong>Watoto:</strong> ${person.children||'Haijulikani'}</p>`;
-                searchResults.style.display='none';
-                searchInput.value=person.full_name;
-            });
-            searchResults.appendChild(div);
-        });
-        searchResults.style.display='block';
-    }).catch(()=>{
-        searchResults.innerHTML='<div class="result-item">Tatizo la mtandao. Jaribu tena.</div>';
-        searchResults.style.display='block';
-    });
 });
 </script>
 </body>
