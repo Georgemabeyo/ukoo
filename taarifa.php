@@ -49,7 +49,7 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             return false; // Haiwezi kubadilika ukubwa
     }
     $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
-    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $sourceProperties[0], $sourceProperties);
+    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $sourceProperties, $sourceProperties);
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             imagejpeg($imageLayer, $targetPath);
