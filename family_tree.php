@@ -1,13 +1,36 @@
-<?php include 'config.php'; ?>  
+<?php
+include 'config.php';
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+$currentPage = basename($_SERVER['PHP_SELF']);
+?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ukoo wa Makomelelo</title>
+<title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
 <style>
-body { background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding-bottom:80px; color:#222; }
-.tree-container { max-width:960px; margin:2rem auto; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15); }
+body { background: linear-gradient(120deg, #74ebd5 0%, #9face6 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding-bottom:80px; color:#222; transition: background 0.3s,color 0.3s; }
+body.dark-mode { background:#1e293b; color:#f8fafc; }
+header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 25px; border-radius:0 0 15px 15px;
+    background:linear-gradient(90deg,#0d47a1,#1976d2); position:relative; z-index:1000;
+}
+.logo { font-size:1.8rem; font-weight:700; color:#ffc107; }
+.nav-links { display:flex; gap:15px; align-items:center; flex-wrap:wrap; }
+.nav-links a { color:#ffc107; font-weight:600; padding:8px 12px; border-radius:6px; transition:0.3s; }
+.nav-links a:hover, .nav-links a.active { background:#ffc107; color:#0d47a1; }
+.nav-toggle { display:none; flex-direction:column; justify-content:space-between; width:30px; height:24px; background:transparent; border:none; cursor:pointer; }
+.nav-toggle span { display:block; height:3px; background:#ffc107; border-radius:2px; transition:all 0.4s; }
+.nav-toggle.active span:nth-child(1){ transform:rotate(45deg) translate(5px,5px);}
+.nav-toggle.active span:nth-child(2){ opacity:0; }
+.nav-toggle.active span:nth-child(3){ transform:rotate(-45deg) translate(5px,-5px); }
+
+/* Tree */
+.tree-container { max-width:960px; margin:2rem auto; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15); transition: background 0.3s, color 0.3s; }
+body.dark-mode .tree-container { background:#334155; color:#f8fafc; }
 h2.text-center { font-size:clamp(1.6rem, 4vw, 2.4rem); font-weight:900; margin-bottom:1.5rem; color:#ffc107; text-align:center; text-shadow:1px 1px 2px rgba(0,0,0,0.2); }
 .tree, .tree ul { list-style:none; padding-left:1rem; margin:0; position:relative; }
 .tree ul::before { content:''; position:absolute; top:0; left:20px; bottom:0; border-left:2px solid #ffc107aa; }
@@ -27,7 +50,26 @@ h2.text-center { font-size:clamp(1.6rem, 4vw, 2.4rem); font-weight:900; margin-b
 @media(max-width:480px){ .tree li{padding-left:28px;} .tree ul::before{left:12px;} .member img{width:38px;height:38px;} .member p{font-size:clamp(0.85rem,2.5vw,1rem);} .view-children-btn{width:24px;height:24px;font-size:0.9rem;} }
 </style>
 </head>
-<body>
+<body class="light-mode">
+
+<header>
+    <div class="logo">Ukoo wa Makomelelo</div>
+    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <nav class="nav-links">
+        <a href="index.php" class="<?= $currentPage=='index.php'?'active':'' ?>">Nyumbani</a>
+        <a href="registration.php" class="<?= $currentPage=='registration.php'?'active':'' ?>">Jisajiri</a>
+        <a href="family_tree.php" class="<?= $currentPage=='family_tree.php'?'active':'' ?>">Ukoo</a>
+        <a href="events.php" class="<?= $currentPage=='events.php'?'active':'' ?>">Matukio</a>
+        <a href="contact.php" class="<?= $currentPage=='contact.php'?'active':'' ?>">Mawasiliano</a>
+        <?php if($isLoggedIn): ?>
+        <a href="logout.php">Toka</a>
+        <?php else: ?>
+        <a href="login.php">Ingia</a>
+        <?php endif; ?>
+        <span id="toggleTheme" style="cursor:pointer;font-weight:700;">Dark Mode</span>
+    </nav>
+</header>
+
 <div class="container tree-container">
 <h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
 <div id="tree-container" class="tree">
@@ -37,14 +79,11 @@ function displayTree($parent_id = null, $conn) {
         echo "<p style='color:red;'>Database connection failed!</p>";
         return;
     }
-    if (is_null($parent_id)) {
-        $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY first_name, last_name";
-    } else {
-        $parent_id = (int)$parent_id;
-        $sql = "SELECT * FROM family_tree WHERE parent_id = $parent_id ORDER BY first_name, last_name";
-    }
+    $sql = is_null($parent_id)
+        ? "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY first_name, last_name"
+        : "SELECT * FROM family_tree WHERE parent_id = ".(int)$parent_id." ORDER BY first_name, last_name";
 
-    $result = @pg_query($conn, $sql); // suppress warning
+    $result = @pg_query($conn, $sql);
     if ($result && pg_num_rows($result) > 0) {
         echo "<ul>";
         while ($row = pg_fetch_assoc($result)) {
@@ -78,6 +117,34 @@ displayTree(null, $conn);
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+// Navbar toggle
+const toggleBtn = document.querySelector('.nav-toggle');
+const navLinks = document.querySelector('.nav-links');
+toggleBtn.addEventListener('click', ()=>{ toggleBtn.classList.toggle('active'); navLinks.classList.toggle('show'); });
+
+// Theme toggle with persistence
+const themeToggle = document.getElementById('toggleTheme');
+const storedTheme = localStorage.getItem('theme');
+if(storedTheme){ 
+    document.body.classList.add(storedTheme); 
+    themeToggle.textContent = storedTheme==='dark-mode'?'Light Mode':'Dark Mode'; 
+} else { 
+    document.body.classList.add('light-mode'); 
+    themeToggle.textContent='Dark Mode'; 
+}
+themeToggle.addEventListener('click', ()=>{
+    if(document.body.classList.contains('light-mode')){
+        document.body.classList.replace('light-mode','dark-mode');
+        themeToggle.textContent='Light Mode';
+        localStorage.setItem('theme','dark-mode');
+    } else {
+        document.body.classList.replace('dark-mode','light-mode');
+        themeToggle.textContent='Dark Mode';
+        localStorage.setItem('theme','light-mode');
+    }
+});
+
+// Tree children toggle
 $(document).ready(function(){
     $(document).on('click', '.member', function(e){
         if($(e.target).hasClass('view-children-btn')) return;
@@ -101,7 +168,7 @@ $(document).ready(function(){
         e.stopPropagation();
         const parentId = $(this).data('parent');
         $.get('view_member.php', {id:parentId}, function(data){
-            alert(data); // unaweza badilisha na modal popup ikiwa unataka
+            alert(data);
         });
     });
 });
