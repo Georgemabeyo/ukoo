@@ -19,9 +19,18 @@ header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 15px 25px; border-radius: 8px; margin-bottom: 30px;
     background-color: #0d47a1; color: #ffc107;
+    flex-wrap: wrap;
 }
 header h1 { font-size:1.8rem; font-weight:700; letter-spacing:2px; user-select:none; margin:0; }
-header a, #toggleTheme { font-weight:700; cursor:pointer; }
+
+.nav-links a {
+    font-weight:700; color:#ffc107; margin-left:15px; text-decoration:none;
+}
+.nav-links a:hover { color:#facc15; }
+
+#toggleTheme {
+    cursor:pointer; font-weight:700; margin-left:15px;
+}
 
 .btn-back {
     background-color: #ffc107; color:#0d47a1; padding:10px 20px;
@@ -56,23 +65,29 @@ body.dark-mode .event-description { color:#f1f5f9; }
 }
 .btn-readmore:hover, .btn-readmore:focus { background-color:#084298; color:#ffc107; outline:none; }
 
-/* Dark mode overrides for buttons */
 body.dark-mode .btn-back { background:#facc15; color:#1e3a8a; }
 body.dark-mode .btn-readmore { background:#2563eb; color:#facc15; }
 body.dark-mode .btn-readmore:hover { background:#1e40af; }
 
 @media(max-width:600px){
-    header { flex-direction: column; gap:15px; text-align:center; }
-    .btn-back { width:100%; max-width:200px; }
+    header { flex-direction: column; text-align:center; gap:10px; }
+    .nav-links { display:flex; flex-direction:column; gap:8px; }
+    #toggleTheme { margin-left:0; }
 }
 </style>
 </head>
 <body class="light-mode">
 
-<header class="d-flex flex-wrap justify-content-between align-items-center">
-    <h1>Matukio ya Ukoo wa Makomelelo</h1>
-    <div class="d-flex gap-2 align-items-center flex-wrap">
-        <a href="index.php" class="btn-back" aria-label="Rudi Nyumbani">← Kurudi Nyumbani</a>
+<header>
+    <h1>Ukoo wa Makomelelo</h1>
+    <div class="d-flex align-items-center flex-wrap">
+        <a href="index.php" class="btn-back">← Kurudi Nyumbani</a>
+        <nav class="nav-links">
+            <a href="index.php">Nyumbani</a>
+            <a href="registration.php">Jisajiri</a>
+            <a href="family_tree.php">Ukoo</a>
+            <a href="events.php">Matukio</a>
+        </nav>
         <span id="toggleTheme">Dark Mode</span>
     </div>
 </header>
@@ -112,29 +127,26 @@ body.dark-mode .btn-readmore:hover { background:#1e40af; }
             <a href="event_detail_1.html" class="btn-readmore">Soma Zaidi</a>
         </div>
     </article>
-    <article class="event-card">
-        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Tukio la Pili" class="event-image" />
-        <div class="event-content">
-            <h2 class="event-title">Msiba wa ndugu Vitalis Benedictor February 2025</h2>
-            <time datetime="2025-02-17" class="event-date">February 16, 2025 (Iliyopita)</time>
-            <p class="event-description">
-                Msiba wa ndugu Vitalis Benedictor ulifanyika mwezi February na mazishi yalikuwa morogoro lakini baada ya msiba kulikuwa na shigasho kilichofanyika kule Buswelu Mwanza kwa ndugu Yohana Makomelelo.
-            </p>
-            <a href="event_detail_2.html" class="btn-readmore">Soma Zaidi</a>
-        </div>
-    </article>
 </section>
 
 <script>
-// Dark/Light mode toggle
+// Load theme from localStorage
 const themeToggle = document.getElementById('toggleTheme');
+if(localStorage.getItem('theme') === 'dark'){
+    document.body.classList.replace('light-mode','dark-mode');
+    themeToggle.textContent = 'Light Mode';
+}
+
+// Toggle theme and save preference
 themeToggle.addEventListener('click', ()=>{
     if(document.body.classList.contains('light-mode')){
         document.body.classList.replace('light-mode','dark-mode');
         themeToggle.textContent='Light Mode';
+        localStorage.setItem('theme','dark');
     } else {
         document.body.classList.replace('dark-mode','light-mode');
         themeToggle.textContent='Dark Mode';
+        localStorage.setItem('theme','light');
     }
 });
 </script>
