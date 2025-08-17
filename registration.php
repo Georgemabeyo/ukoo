@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 include 'config.php';
 $isLoggedIn = isset($_SESSION['user_id']);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
