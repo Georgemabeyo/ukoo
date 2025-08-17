@@ -87,9 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
             'title' => $title,
             'desc' => $desc,
             'photo' => $img_name,
-            'created_at' => $timeNow
+            'created_at' => $timeNow,
         ];
-        // Pangilia entries kulingana na created_at, mpya juu
+        // Pangilia entries kulingana na created_at kutoka mpya hadi ya zamani
         usort($entries, function($a, $b) {
             return strtotime($b['created_at']) <=> strtotime($a['created_at']);
         });
