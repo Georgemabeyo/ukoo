@@ -26,7 +26,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 </head>
 <body class="light-mode">
 
-<?php include 'includes/header.php'; ?>
+<?php include 'header.php'; ?>
 
 <section class="hero container">
   <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
@@ -78,7 +78,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
   </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'footer.php'; ?>
 <script src="assets/js/scripts.js"></script>
 </body>
 </html>
