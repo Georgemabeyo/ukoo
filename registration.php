@@ -318,6 +318,7 @@ $(function () {
     });
 });
 </script>
+<script src="jquery-3.6.0.min.js"></script>
 <script src="scripts.js"></script>
 </body>
 </html>
