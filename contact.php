@@ -1,7 +1,7 @@
 <?php
 $messageSent = false;
 $error = '';
-session_start();
+
 $isLoggedIn = isset($_SESSION['user_id']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
