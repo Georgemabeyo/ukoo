@@ -2,7 +2,6 @@
 session_start();
 // Password ya admin
 $ADMIN_PASS = 'Makomelelo';
-
 // Kuingia admin
 if (!isset($_SESSION['is_admin'])) {
     if (isset($_POST['pass']) && $_POST['pass'] === $ADMIN_PASS) {
@@ -16,7 +15,6 @@ if (!isset($_SESSION['is_admin'])) {
         exit;
     }
 }
-
 // Funguo za kusoma na kuandika data JSON
 function read_data($file) {
     if (!file_exists($file)) return [];
@@ -27,12 +25,10 @@ function read_data($file) {
 function write_data($file, $data) {
     file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
 }
-
 // Funzione ya kupunguza picha ukubwa
 function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
     $sourceProperties = getimagesize($fileTmpPath);
     $imageType = $sourceProperties[2];
-
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             $resourceType = imagecreatefromjpeg($fileTmpPath);
@@ -46,10 +42,8 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
         default:
             return false; // Haiwezi kubadilika ukubwa
     }
-
     $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
     imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $sourceProperties[0], $sourceProperties);
-
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             imagejpeg($imageLayer, $targetPath);
@@ -61,22 +55,17 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             imagegif($imageLayer, $targetPath);
             break;
     }
-
     imagedestroy($resourceType);
     imagedestroy($imageLayer);
-
     return true;
 }
-
 // Hifadhi success message
 $message = '';
-
 // Fomu ya kuongeza ujumbe mpya
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
     $title = trim($_POST['title']);
     $desc = trim($_POST['desc']);
     $img_name = '';
-
     // Upload picha na resize
     if (isset($_FILES['photo']) && $_FILES['photo']['size'] > 0) {
         $upload_dir = 'uploads/';
@@ -84,13 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
         $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
         $img_name = time() . '_' . uniqid() . '.' . $ext;
         $target_path = $upload_dir . $img_name;
-
         if (!resizeImage($_FILES['photo']['tmp_name'], $target_path)) {
             $message = "Upload ya picha haikufanikiwa au aina yake haitegemeliwi.";
             $img_name = '';
         }
     }
-
     if ($title !== '') {
         $file = 'events.json';
         $entries = read_data($file);
@@ -102,13 +89,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
             'photo' => $img_name,
             'created_at' => $timeNow
         ];
+        // Pangilia entries kulingana na created_at, mpya juu
+        usort($entries, function($a, $b) {
+            return strtotime($b['created_at']) <=> strtotime($a['created_at']);
+        });
         write_data($file, $entries);
         $message = "Taarifa imeandikwa kwa mafanikio!";
     } else {
         $message = "Jaza kichwa cha taarifa.";
     }
 }
-
 // Kufuta taarifa
 if (isset($_GET['delete'])) {
     $delete_id = (int)$_GET['delete'];
@@ -118,7 +108,6 @@ if (isset($_GET['delete'])) {
     header("Location: taarifa.php");
     exit;
 }
-
 // Pakua data za sasa
 $events = read_data('events.json');
 ?>
