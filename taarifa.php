@@ -1,9 +1,8 @@
 <?php
-include 'config.php'; // Hii ni ku-connect database $conn
+include 'config.php';
 session_start();
 
 $isLoggedIn = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
-
 $ADMIN_PASS = 'Makomelelo';
 
 if (!$isLoggedIn) {
@@ -17,17 +16,21 @@ if (!$isLoggedIn) {
             <input type="password" name="pass" placeholder="Password" required autofocus />
             <button type="submit">Login</button>
         </form>
-        <?php exit;
+        <?php
+        exit;
     }
 }
 
 $message = '';
+
+// Futa mtu
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $res = pg_query_params($conn, "DELETE FROM family_tree WHERE id = $1", [$id]);
     $message = $res ? "Mtu amefutwa kwa mafanikio." : "Imeshindikana kufuta mtu: " . pg_last_error($conn);
 }
 
+// Toggle admin rights
 if (isset($_GET['toggle_admin'])) {
     $id = (int)$_GET['toggle_admin'];
     $result = pg_query_params($conn, "SELECT is_admin FROM family_tree WHERE id = $1", [$id]);
@@ -54,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $gender = $_POST['gender'] ?? null;
     $is_admin = isset($_POST['is_admin']);
 
-    if ($first_name === '' || $last_name === '') {
+    // Tumia == badala ya = kwa condition hapa chini
+    if ($first_name == '' || $last_name == '') {
         $message = "Jaza majina ya kwanza na ya mwisho.";
     } else {
         $res = pg_query_params($conn, "UPDATE family_tree SET first_name=$1, middle_name=$2, last_name=$3, dob=$4, gender=$5, is_admin=$6 WHERE id=$7",
@@ -81,7 +85,6 @@ if ($result) {
 
 include 'header.php';
 ?>
-
 <div class="container my-5">
     <h1>Family Tree Admin Panel</h1>
     <?php if ($message): ?>
@@ -90,7 +93,6 @@ include 'header.php';
     <div class="mb-3">
         <a href="registration.php" class="btn btn-success">Sajili Mtu Mpya</a>
     </div>
-
     <?php if ($editEntry): ?>
     <form method="post" class="mb-4">
         <input type="hidden" name="edit_id" value="<?= htmlspecialchars($editEntry['id']) ?>">
@@ -126,7 +128,6 @@ include 'header.php';
         <a href="taarifa.php" class="btn btn-secondary ms-2">Ongeza Mtu Mpya</a>
     </form>
     <?php endif; ?>
-
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
@@ -159,5 +160,4 @@ include 'header.php';
         </tbody>
     </table>
 </div>
-
 <?php include 'footer.php'; ?>
