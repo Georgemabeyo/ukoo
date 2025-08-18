@@ -236,7 +236,7 @@ $(function () {
 
     // Populate Tanzania locations dynamically
     let locData = {};
-    $.getJSON('tanzania_locations.json', function (data) {
+    $.getJSON('tanzania_mikoa.json', function (data) {
         locData = data;
         populateRegions();
     });
