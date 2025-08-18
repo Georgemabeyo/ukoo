@@ -1,29 +1,31 @@
 <?php
-include 'config.php';
+include 'config.php'; // Unganisha DB connection $conn hapa
 session_start();
 
+// Define login status variable
 $isLoggedIn = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
 $ADMIN_PASS = 'Makomelelo';
 
+// Admin login check
 if (!$isLoggedIn) {
     if (isset($_POST['pass']) && $_POST['pass'] === $ADMIN_PASS) {
         $_SESSION['is_admin'] = true;
         $isLoggedIn = true;
     } else {
         ?>
-        <form method="post" style="max-width:300px;margin:50px auto;">
-            <h3>Admin Login</h3>
-            <input type="password" name="pass" placeholder="Password" required autofocus />
-            <button type="submit">Login</button>
+        <form method="post" class="mx-auto mt-5" style="max-width:300px;">
+            <h3 class="mb-3">Admin Login</h3>
+            <input type="password" name="pass" class="form-control mb-3" placeholder="Password" required autofocus />
+            <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
-        <?php
-        exit;
+        <?php exit;
     }
 }
 
+// Initialize message
 $message = '';
 
-// Futa mtu
+// Delete entry
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $res = pg_query_params($conn, "DELETE FROM family_tree WHERE id = $1", [$id]);
@@ -41,6 +43,7 @@ if (isset($_GET['toggle_admin'])) {
     }
 }
 
+// Load entry for editing
 $editEntry = null;
 if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
@@ -48,6 +51,7 @@ if (isset($_GET['edit'])) {
     $editEntry = pg_fetch_assoc($result);
 }
 
+// Process update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $id = (int)$_POST['edit_id'];
     $first_name = trim($_POST['first_name'] ?? '');
@@ -57,12 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $gender = $_POST['gender'] ?? null;
     $is_admin = isset($_POST['is_admin']);
 
-    // Tumia == badala ya = kwa condition hapa chini
     if ($first_name == '' || $last_name == '') {
         $message = "Jaza majina ya kwanza na ya mwisho.";
     } else {
         $res = pg_query_params($conn, "UPDATE family_tree SET first_name=$1, middle_name=$2, last_name=$3, dob=$4, gender=$5, is_admin=$6 WHERE id=$7",
             [$first_name, $middle_name, $last_name, $dob, $gender, $is_admin, $id]);
+
         if ($res) {
             $message = "Mabadiliko yametunzwa.";
             $result = pg_query_params($conn, "SELECT * FROM family_tree WHERE id = $1", [$id]);
@@ -73,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     }
 }
 
+// Fetch all people
 $result = pg_query($conn, "SELECT * FROM family_tree ORDER BY first_name, last_name");
 $people = [];
 if ($result) {
@@ -83,16 +88,29 @@ if ($result) {
     $message = "Tatizo kuchukua data: " . pg_last_error($conn);
 }
 
-include 'header.php';
 ?>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Family Tree Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+<?php include 'header.php'; ?>
+
 <div class="container my-5">
     <h1>Family Tree Admin Panel</h1>
     <?php if ($message): ?>
         <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
+
     <div class="mb-3">
         <a href="registration.php" class="btn btn-success">Sajili Mtu Mpya</a>
     </div>
+
     <?php if ($editEntry): ?>
     <form method="post" class="mb-4">
         <input type="hidden" name="edit_id" value="<?= htmlspecialchars($editEntry['id']) ?>">
@@ -128,6 +146,7 @@ include 'header.php';
         <a href="taarifa.php" class="btn btn-secondary ms-2">Ongeza Mtu Mpya</a>
     </form>
     <?php endif; ?>
+
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
@@ -160,4 +179,9 @@ include 'header.php';
         </tbody>
     </table>
 </div>
+
 <?php include 'footer.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
