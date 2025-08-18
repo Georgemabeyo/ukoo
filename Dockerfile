@@ -1,14 +1,16 @@
 # Tumia official PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Install dependencies za GD na PostgreSQL extensions, pia mysqli kama unahitaji
+# Install dependencies za GD, PostgreSQL, zip extension na mysqli
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libfreetype6-dev \
     libjpeg-dev \
     libpng-dev \
+    libzip-dev \
+    unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mysqli pdo pdo_pgsql pgsql
+    && docker-php-ext-install gd mysqli pdo pdo_pgsql pgsql zip
 
 # Copy source code kwenda directory ya Apache
 COPY . /var/www/html/
