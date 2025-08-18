@@ -51,21 +51,21 @@ function loadCSVfromZip($zipPath) {
 
         // Build locations hierarchical array
         foreach ($region as $regionRow) {
-            $region = trim($regionRow['Region'] ?? $regionRow[0]);
+            $region = trim($regionRow['region'] ?? $regionRow[0]);
             if ($region) $locations[$region] = [];
         }
         foreach ($district as $distRow) {
-            $region = trim($distRow['Region'] ?? $distRow);
-            $district = trim($distRow['District'] ?? $distRow);
+            $region = trim($distRow['region'] ?? $distRow[0]);
+            $district = trim($distRow['district'] ?? $distRow[1]);
             if ($region && $district) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 $locations[$region][$district] = [];
             }
         }
         foreach ($ward as $wardRow) {
-            $region = trim($wardRow['Region'] ?? $wardRow);
-            $district = trim($wardRow['District'] ?? $wardRow);
-            $ward = trim($wardRow['Ward'] ?? $wardRow);
+            $region = trim($wardRow['region'] ?? $wardRow[0]);
+            $district = trim($wardRow['district'] ?? $wardRow[1]);
+            $ward = trim($wardRow['ward'] ?? $wardRow[2]);
             if ($region && $district && $ward) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
@@ -73,10 +73,10 @@ function loadCSVfromZip($zipPath) {
             }
         }
         foreach ($village as $villageRow) {
-            $region = trim($villageRow['Region'] ?? $villageRow[0]);
-            $district = trim($villageRow['District'] ?? $villageRow);
-            $ward = trim($villageRow['Ward'] ?? $villageRow);
-            $village = trim($villageRow['Village'] ?? $villageRow);
+            $region = trim($villageRow['region'] ?? $villageRow[0]);
+            $district = trim($villageRow['district'] ?? $villageRow[1]);
+            $ward = trim($villageRow['ward'] ?? $villageRow[2]);
+            $village = trim($villageRow['street'] ?? $villageRow['places'] ?? $villageRow[3] ?? '');
             if ($region && $district && $ward && $village) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
@@ -103,7 +103,7 @@ function getCSVContentsFromZip($zip, $filename) {
             $headers = $row;
         } else {
             if(count($headers) == count($row)){
-                $csv[] = array_combine($headers, $row);
+                $csv[] = array_combine(array_map('strtolower', $headers), $row);
             }
         }
         $rowIndex++;
@@ -118,20 +118,20 @@ try {
     $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
 }
 
-$district = [];
-$ward = [];
-$village = [];
+$districts = [];
+$wards = [];
+$villages = [];
 
 if (isset($_POST['region']) && isset($locations[$_POST['region']])) {
-    $district = $locations[$_POST['region']];
+    $districts = $locations[$_POST['region']];
 }
 
 if (isset($_POST['districtSelect']) && isset($districts[$_POST['districtSelect']])) {
-    $ward = $district[$_POST['districtSelect']];
+    $wards = $districts[$_POST['districtSelect']];
 }
 
 if (isset($_POST['wardSelect']) && isset($wards[$_POST['wardSelect']])) {
-    $village = $wards[$_POST['wardSelect']];
+    $villages = $wards[$_POST['wardSelect']];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -270,7 +270,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="regionSelect">Mkoa *</label>
     <select id="regionSelect" name="region" required>
       <option value="">--Chagua Mkoa--</option>
-      <?php foreach ($locations ?? [] as $region => $district): ?>
+      <?php foreach ($locations ?? [] as $region => $districts): ?>
         <option value="<?= htmlspecialchars($region) ?>"><?= htmlspecialchars($region) ?></option>
       <?php endforeach; ?>
     </select>
