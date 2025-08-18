@@ -34,27 +34,27 @@ function loadCSVfromZip($zipPath) {
     $locations = [];
     $zip = new ZipArchive();
     if ($zip->open($zipPath) === TRUE) {
-        $regions = $districts = $wards = $villages = [];
+        $region = $district = $ward = $village = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $filename = $zip->getNameIndex($i);
-            if (strpos($filename, 'regions.csv') !== false) {
-                $regions = getCSVContentsFromZip($zip, $filename);
-            } elseif (strpos($filename, 'districts.csv') !== false) {
-                $districts = getCSVContentsFromZip($zip, $filename);
-            } elseif (strpos($filename, 'wards.csv') !== false) {
-                $wards = getCSVContentsFromZip($zip, $filename);
-            } elseif (strpos($filename, 'villages.csv') !== false) {
-                $villages = getCSVContentsFromZip($zip, $filename);
+            if (strpos($filename, 'region.csv') !== false) {
+                $region = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'district.csv') !== false) {
+                $district = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'ward.csv') !== false) {
+                $ward = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'village.csv') !== false) {
+                $village = getCSVContentsFromZip($zip, $filename);
             }
         }
         $zip->close();
 
         // Build locations hierarchical array
-        foreach ($regions as $regionRow) {
+        foreach ($region as $regionRow) {
             $region = trim($regionRow['Region'] ?? $regionRow[0]);
             if ($region) $locations[$region] = [];
         }
-        foreach ($districts as $distRow) {
+        foreach ($district as $distRow) {
             $region = trim($distRow['Region'] ?? $distRow);
             $district = trim($distRow['District'] ?? $distRow);
             if ($region && $district) {
@@ -62,7 +62,7 @@ function loadCSVfromZip($zipPath) {
                 $locations[$region][$district] = [];
             }
         }
-        foreach ($wards as $wardRow) {
+        foreach ($ward as $wardRow) {
             $region = trim($wardRow['Region'] ?? $wardRow);
             $district = trim($wardRow['District'] ?? $wardRow);
             $ward = trim($wardRow['Ward'] ?? $wardRow);
@@ -72,7 +72,7 @@ function loadCSVfromZip($zipPath) {
                 $locations[$region][$district][$ward] = [];
             }
         }
-        foreach ($villages as $villageRow) {
+        foreach ($village as $villageRow) {
             $region = trim($villageRow['Region'] ?? $villageRow[0]);
             $district = trim($villageRow['District'] ?? $villageRow);
             $ward = trim($villageRow['Ward'] ?? $villageRow);
@@ -118,20 +118,20 @@ try {
     $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
 }
 
-$districts = [];
-$wards = [];
-$villages = [];
+$district = [];
+$ward = [];
+$village = [];
 
 if (isset($_POST['region']) && isset($locations[$_POST['region']])) {
-    $districts = $locations[$_POST['region']];
+    $district = $locations[$_POST['region']];
 }
 
 if (isset($_POST['districtSelect']) && isset($districts[$_POST['districtSelect']])) {
-    $wards = $districts[$_POST['districtSelect']];
+    $ward = $district[$_POST['districtSelect']];
 }
 
 if (isset($_POST['wardSelect']) && isset($wards[$_POST['wardSelect']])) {
-    $villages = $wards[$_POST['wardSelect']];
+    $village = $wards[$_POST['wardSelect']];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -270,7 +270,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="regionSelect">Mkoa *</label>
     <select id="regionSelect" name="region" required>
       <option value="">--Chagua Mkoa--</option>
-      <?php foreach ($locations ?? [] as $region => $districts): ?>
+      <?php foreach ($locations ?? [] as $region => $district): ?>
         <option value="<?= htmlspecialchars($region) ?>"><?= htmlspecialchars($region) ?></option>
       <?php endforeach; ?>
     </select>
