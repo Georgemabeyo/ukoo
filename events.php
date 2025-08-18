@@ -1,76 +1,55 @@
 <?php
 session_start();
 $dataFile = __DIR__ . '/events.json';
-$message = '';
 
-// Soma data zote zilizopo
+$events = [];
 if (file_exists($dataFile)) {
     $json = file_get_contents($dataFile);
     $events = json_decode($json, true);
     if (!is_array($events)) {
         $events = [];
     }
-} else {
-    $events = [];
 }
+$isLoggedIn = isset($_SESSION['user_id']); // Kama unataka kutumia login status kwa ajili ya UI
 
-// Ongeza taarifa mpya baada ya POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title'] ?? '');
-    $date = trim($_POST['date'] ?? '');
-    $desc = trim($_POST['desc'] ?? '');
-    $photo = trim($_POST['photo'] ?? '');
-    $read_more_link = trim($_POST['read_more_link'] ?? '#');
-
-    // Validation ya msingi: tumia == si =
-    if ($title == '' || $date == '') {
-        $message = "Tafadhali jaza vichwa muhimu kama Title na Date.";
-    } else {
-        $newEvent = [
-            'id' => time(),
-            'title' => $title,
-            'date' => $date,
-            'desc' => $desc,
-            'photo' => $photo,
-            'read_more_link' => $read_more_link
-        ];
-        $events[] = $newEvent;
-        if (file_put_contents($dataFile, json_encode($events, JSON_PRETTY_PRINT))) {
-            $message = "Taarifa mpya imeongezwa kikamilifu.";
-        } else {
-            $message = "Imeshindikana kuhifadhi taarifa mpya.";
-        }
-    }
-}
+include 'header.php'; // Ikiwa unatumia header na unahitaji isome variable hii
 ?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ongeza Taarifa Mpya</title>
+<title>Matukio | Ukoo wa Makomelelo</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
-<?php include 'header.php'; ?>
-
-<div class="container">
-  <h1>Ongeza Taarifa Mpya</h1>
-  <?php if ($message): ?>
-    <p style="color:green;"><?= htmlspecialchars($message) ?></p>
-  <?php endif; ?>
-  <form method="post" action="taarifa.php">
-    <label>Title*:<br><input type="text" name="title" value="<?=htmlspecialchars($_POST['title'] ?? '')?>" required></label><br><br>
-    <label>Date*:<br><input type="date" name="date" value="<?=htmlspecialchars($_POST['date'] ?? '')?>" required></label><br><br>
-    <label>Description:<br><textarea name="desc"><?=htmlspecialchars($_POST['desc'] ?? '')?></textarea></label><br><br>
-    <label>Photo URL:<br><input type="url" name="photo" value="<?=htmlspecialchars($_POST['photo'] ?? '')?>"></label><br><br>
-    <label>Read More Link:<br><input type="url" name="read_more_link" value="<?=htmlspecialchars($_POST['read_more_link'] ?? '#')?>"></label><br><br>
-    <button type="submit">Ongeza Taarifa</button>
-  </form>
-</div>
-
+<section class="events-container container">
+    <h1>Matukio ya Ukoo</h1>
+    <?php if (count($events) > 0): ?>
+        <?php foreach ($events as $event): ?>
+            <article class="event-card">
+                <?php if (!empty($event['photo']) && file_exists('uploads/' . $event['photo'])): ?>
+                    <img src="uploads/<?= htmlspecialchars($event['photo']) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="event-image" />
+                <?php else: ?>
+                    <img src="https://via.placeholder.com/600x400?text=No+Image" alt="Hakuna Picha" class="event-image" />
+                <?php endif; ?>
+                <div class="event-content">
+                    <h2 class="event-title"><?= htmlspecialchars($event['title']) ?></h2>
+                    <time datetime="<?= htmlspecialchars($event['date'] ?? '') ?>" class="event-date">
+                        <?= !empty($event['date']) ? date('F j, Y', strtotime($event['date'])) : 'Tarehe haijajulikana' ?>
+                    </time>
+                    <p class="event-description"><?= nl2br(htmlspecialchars($event['desc'])) ?></p>
+                    <?php if (!empty($event['read_more_link']) && $event['read_more_link'] !== '#'): ?>
+                        <a href="<?= htmlspecialchars($event['read_more_link']) ?>" class="btn-readmore">Soma Zaidi</a>
+                    <?php endif; ?>
+                </div>
+            </article>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>Hakuna matukio yaliyopo kwa sasa.</p>
+    <?php endif; ?>
+</section>
 <?php include 'footer.php'; ?>
-
 <script src="scripts.js"></script>
 </body>
 </html>
