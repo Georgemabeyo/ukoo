@@ -53,8 +53,8 @@ function loadCSVfromZip($zipPath) {
             if ($region) $locations[$region] = [];
         }
         foreach ($districts as $distRow) {
-            $region = trim($distRow['Region'] ?? $distRow[0]);
-            $district = trim($distRow['District'] ?? $distRow[1]);
+            $region = trim($distRow['Region'] ?? $distRow);
+            $district = trim($distRow['District'] ?? $distRow);
             if ($region && $district) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 $locations[$region][$district] = [];
@@ -62,8 +62,8 @@ function loadCSVfromZip($zipPath) {
         }
         foreach ($wards as $wardRow) {
             $region = trim($wardRow['Region'] ?? $wardRow[0]);
-            $district = trim($wardRow['District'] ?? $wardRow[1]);
-            $ward = trim($wardRow['Ward'] ?? $wardRow[2]);
+            $district = trim($wardRow['District'] ?? $wardRow);
+            $ward = trim($wardRow['Ward'] ?? $wardRow);
             if ($region && $district && $ward) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
@@ -72,9 +72,9 @@ function loadCSVfromZip($zipPath) {
         }
         foreach ($villages as $villageRow) {
             $region = trim($villageRow['Region'] ?? $villageRow[0]);
-            $district = trim($villageRow['District'] ?? $villageRow[1]);
-            $ward = trim($villageRow['Ward'] ?? $villageRow[2]);
-            $village = trim($villageRow['Village'] ?? $villageRow[3]);
+            $district = trim($villageRow['District'] ?? $villageRow);
+            $ward = trim($villageRow['Ward'] ?? $villageRow);
+            $village = trim($villageRow['Village'] ?? $villageRow);
             if ($region && $district && $ward && $village) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
@@ -116,6 +116,7 @@ try {
     $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
 }
 
+// Initialize to empty arrays if no selection yet
 $districts = [];
 $wards = [];
 $villages = [];
