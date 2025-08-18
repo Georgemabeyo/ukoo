@@ -15,7 +15,6 @@ if (!isset($_SESSION['is_admin'])) {
         exit;
     }
 }
-// Funguo za kusoma na kuandika data JSON
 function read_data($file) {
     if (!file_exists($file)) return [];
     $json = file_get_contents($file);
@@ -31,7 +30,6 @@ function write_data($file, $data) {
     }
     fclose($fp);
 }
-// Funzione ya kupunguza picha ukubwa
 function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
     $sourceProperties = getimagesize($fileTmpPath);
     if ($sourceProperties === false) {
@@ -54,7 +52,8 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
             return false;
     }
     $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
-    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, $newWidth, $newHeight, $src_width, $src_height);
+    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, 
+        $newWidth, $newHeight, $src_width, $src_height);
     switch ($imageType) {
         case IMAGETYPE_JPEG:
             imagejpeg($imageLayer, $targetPath);
@@ -70,23 +69,17 @@ function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 30
     imagedestroy($imageLayer);
     return true;
 }
-// Prevent caching
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-// Hifadhi success message
 $message = '';
-// Fomu ya kuongeza ujumbe mpya
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
-    $title = trim($_POST['title']);
-    $desc = trim($_POST['desc']);
+    $title = trim($_POST['title'] ?? '');
+    $desc = trim($_POST['desc'] ?? '');
     $img_name = '';
-    // Upload picha na resize
     if (isset($_FILES['photo']) && $_FILES['photo']['size'] > 0) {
         $upload_dir = 'uploads/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        if (!file_exists($upload_dir)) mkdir($upload_dir, 0777, true);
+        $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
         $img_name = time() . '_' . uniqid() . '.' . $ext;
         $target_path = $upload_dir . $img_name;
         if (!resizeImage($_FILES['photo']['tmp_name'], $target_path)) {
@@ -105,16 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
             'photo' => $img_name,
             'created_at' => $timeNow,
         ];
-        usort($entries, function($a, $b) {
-            return strtotime($b['created_at']) <=> strtotime($a['created_at']);
-        });
+        usort($entries, fn($a,$b) => strtotime($b['created_at']) <=> strtotime($a['created_at']));
         write_data($file, $entries);
         $message = "Taarifa imeandikwa kwa mafanikio!";
     } else {
         $message = "Jaza kichwa cha taarifa.";
     }
 }
-// Kufuta taarifa
 if (isset($_GET['delete'])) {
     $delete_id = (int)$_GET['delete'];
     $entries = read_data('events.json');
@@ -123,14 +113,14 @@ if (isset($_GET['delete'])) {
     header("Location: taarifa.php?updated=1");
     exit;
 }
-// Pakua data za sasa
 $events = read_data('events.json');
 ?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
 <meta charset="UTF-8" />
-<title>Admin - Taarifa Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel - Taarifa</title>
 <style>
 body { max-width: 700px; margin: 30px auto; font-family: Arial, sans-serif; background:#121212; color:#eee; padding:15px; }
 form { background: #222; padding: 20px; border-radius: 10px; margin-bottom: 40px; }
