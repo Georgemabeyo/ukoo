@@ -49,11 +49,11 @@ function loadCSVfromZip($zipPath) {
         }
         $zip->close();
 
-        foreach ($regions as $regionRow) {
+        foreach ($region as $regionRow) {
             $region = trim($regionRow['Region'] ?? $regionRow[0]);
             if ($region) $locations[$region] = [];
         }
-        foreach ($districts as $distRow) {
+        foreach ($district as $distRow) {
             $region = trim($distRow['Region'] ?? $distRow);
             $district = trim($distRow['District'] ?? $distRow);
             if ($region && $district) {
@@ -61,7 +61,7 @@ function loadCSVfromZip($zipPath) {
                 $locations[$region][$district] = [];
             }
         }
-        foreach ($wards as $wardRow) {
+        foreach ($ward as $wardRow) {
             $region = trim($wardRow['Region'] ?? $wardRow[0]);
             $district = trim($wardRow['District'] ?? $wardRow);
             $ward = trim($wardRow['Ward'] ?? $wardRow);
@@ -71,7 +71,7 @@ function loadCSVfromZip($zipPath) {
                 $locations[$region][$district][$ward] = [];
             }
         }
-        foreach ($villages as $villageRow) {
+        foreach ($village as $villageRow) {
             $region = trim($villageRow['Region'] ?? $villageRow[0]);
             $district = trim($villageRow['District'] ?? $villageRow);
             $ward = trim($villageRow['Ward'] ?? $villageRow);
