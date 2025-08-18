@@ -1,5 +1,7 @@
 <?php
+include 'config.php'; // Hii ni ku-connect database $conn
 session_start();
+
 $ADMIN_PASS = 'Makomelelo';
 
 if (!isset($_SESSION['is_admin'])) {
@@ -12,107 +14,98 @@ if (!isset($_SESSION['is_admin'])) {
             <input type="password" name="pass" placeholder="Password" required />
             <button type="submit">Login</button>
         </form>
-        <?php
-        exit;
+        <?php exit;
     }
-}
-
-include 'header.php';
-
-$dataFile = __DIR__ . '/family_tree.json';
-$entries = [];
-if (file_exists($dataFile)) {
-    $entries = json_decode(file_get_contents($dataFile), true) ?: [];
 }
 
 $message = '';
 
-// Delete entry
+// Futa mtu
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $entries = array_filter($entries, fn($e) => $e['id'] !== $id);
-    file_put_contents($dataFile, json_encode(array_values($entries), JSON_PRETTY_PRINT));
-    header('Location: taarifa.php');
-    exit;
+    $res = pg_query_params($conn, "DELETE FROM family_tree WHERE id = $1", [$id]);
+    if ($res) {
+        $message = "Mtu amefutwa kwa mafanikio.";
+    } else {
+        $message = "Imeshindikana kufuta mtu: " . pg_last_error($conn);
+    }
 }
 
 // Toggle admin rights
 if (isset($_GET['toggle_admin'])) {
     $id = (int)$_GET['toggle_admin'];
-    foreach ($entries as &$entry) {
-        if ($entry['id'] === $id) {
-            $entry['is_admin'] = empty($entry['is_admin']);
-            break;
+    $result = pg_query_params($conn, "SELECT is_admin FROM family_tree WHERE id = $1", [$id]);
+    if ($row = pg_fetch_assoc($result)) {
+        $newAdmin = ($row['is_admin'] == 't') ? 'f' : 't'; // t = true, f = false
+        $updateResult = pg_query_params($conn, "UPDATE family_tree SET is_admin = $1 WHERE id = $2", [$newAdmin, $id]);
+        if ($updateResult) {
+            $message = $newAdmin === 't' ? "Mtu amefanyiwa Admin." : "Mtu ameondolewa kama Admin.";
+        } else {
+            $message = "Tatizo katika kubadilisha admin: " . pg_last_error($conn);
         }
     }
-    unset($entry);
-    file_put_contents($dataFile, json_encode($entries, JSON_PRETTY_PRINT));
-    header('Location: taarifa.php');
-    exit;
 }
 
-// Redirect to registration.php to add new person
-if (isset($_GET['register_new'])) {
-    header('Location: registration.php');
-    exit;
+// Onyesha mtu kwa ajili ya ku-edit
+$editEntry = null;
+if (isset($_GET['edit'])) {
+    $id = (int)$_GET['edit'];
+    $result = pg_query_params($conn, "SELECT * FROM family_tree WHERE id = $1", [$id]);
+    $editEntry = pg_fetch_assoc($result);
 }
 
-// Handle update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    $id = (int)$_POST['id'];
+// Handle update mtu (POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
+    $id = (int)$_POST['edit_id'];
     $first_name = trim($_POST['first_name'] ?? '');
     $middle_name = trim($_POST['middle_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');
-    $dob = $_POST['dob'] ?? '';
-    $gender = $_POST['gender'] ?? '';
-    $is_admin_flag = isset($_POST['is_admin']);
+    $dob = $_POST['dob'] ?? null;
+    $gender = $_POST['gender'] ?? null;
+    $is_admin = isset($_POST['is_admin']) ? true : false;
 
     if ($first_name === '' || $last_name === '') {
         $message = "Jaza majina ya kwanza na ya mwisho.";
     } else {
-        foreach ($entries as &$entry) {
-            if ($entry['id'] === $id) {
-                $entry['first_name'] = $first_name;
-                $entry['middle_name'] = $middle_name;
-                $entry['last_name'] = $last_name;
-                $entry['dob'] = $dob;
-                $entry['gender'] = $gender;
-                $entry['is_admin'] = $is_admin_flag;
-                break;
-            }
-        }
-        unset($entry);
-        file_put_contents($dataFile, json_encode($entries, JSON_PRETTY_PRINT));
-        $message = "Mrekebisho umetekelezwa.";
-    }
-}
-
-
-// Pre-fill form data for editing
-$editEntry = null;
-if (isset($_GET['edit'])) {
-    $editId = (int)$_GET['edit'];
-    foreach ($entries as $e) {
-        if ($e['id'] === $editId) {
-            $editEntry = $e;
-            break;
+        $res = pg_query_params($conn, "UPDATE family_tree SET first_name=$1, middle_name=$2, last_name=$3, dob=$4, gender=$5, is_admin=$6 WHERE id=$7",
+            [$first_name, $middle_name, $last_name, $dob, $gender, $is_admin, $id]);
+        if ($res) {
+            $message = "Mabadiliko yametunzwa.";
+            // reload updated mtu
+            $result = pg_query_params($conn, "SELECT * FROM family_tree WHERE id = $1", [$id]);
+            $editEntry = pg_fetch_assoc($result);
+        } else {
+            $message = "Tatizo katika kuhifadhi mabadiliko: " . pg_last_error($conn);
         }
     }
 }
+
+// Pakua list ya watu
+$result = pg_query($conn, "SELECT * FROM family_tree ORDER BY first_name, last_name");
+$people = [];
+if ($result) {
+    while ($row = pg_fetch_assoc($result)) {
+        $people[] = $row;
+    }
+} else {
+    $message = "Tatizo kuchukua data: " . pg_last_error($conn);
+}
+
+include 'header.php';
 ?>
+
 <div class="container my-5">
     <h1>Family Tree Admin Panel</h1>
     <?php if ($message): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
+    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
-
     <div class="mb-3">
-        <a href="?register_new=1" class="btn btn-primary">Sajili Mtu Mpya</a>
+        <a href="registration.php" class="btn btn-success">Sajili Mtu Mpya</a>
     </div>
 
     <?php if ($editEntry): ?>
     <form method="post" class="mb-4">
-        <input type="hidden" name="id" value="<?= htmlspecialchars($editEntry['id']) ?>">
+        <input type="hidden" name="edit_id" value="<?= htmlspecialchars($editEntry['id']) ?>">
         <div class="mb-3">
             <label>Jina la Kwanza</label>
             <input type="text" name="first_name" class="form-control" required value="<?= htmlspecialchars($editEntry['first_name']) ?>">
@@ -133,20 +126,20 @@ if (isset($_GET['edit'])) {
             <label>Jinsia</label>
             <select name="gender" class="form-select">
                 <option value="">-- Chagua --</option>
-                <option value="male" <?= $editEntry['gender'] === 'male' ? 'selected' : '' ?>>Mwanaume</option>
-                <option value="female" <?= $editEntry['gender'] === 'female' ? 'selected' : '' ?>>Mwanamke</option>
+                <option value="male" <?= (isset($editEntry['gender']) && $editEntry['gender'] === 'male') ? 'selected' : '' ?>>Mwanaume</option>
+                <option value="female" <?= (isset($editEntry['gender']) && $editEntry['gender'] === 'female') ? 'selected' : '' ?>>Mwanamke</option>
             </select>
         </div>
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" name="is_admin" id="isAdmin" <?= !empty($editEntry['is_admin']) ? 'checked' : '' ?>>
+            <input type="checkbox" name="is_admin" class="form-check-input" id="isAdmin" <?= !empty($editEntry['is_admin']) ? 'checked' : '' ?>>
             <label for="isAdmin" class="form-check-label">Mmoja wa Admin</label>
         </div>
-        <button type="submit" class="btn btn-success">Hifadhi Mabadiliko</button>
+        <button type="submit" class="btn btn-primary">Hifadhi Mabadiliko</button>
         <a href="taarifa.php" class="btn btn-secondary ms-2">Ongeza Mtu Mpya</a>
     </form>
     <?php endif; ?>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>Jina Kamili</th>
@@ -157,23 +150,26 @@ if (isset($_GET['edit'])) {
             </tr>
         </thead>
         <tbody>
-            <?php if (empty($entries)): ?>
-                <tr><td colspan="5">Hakuna taarifa za familia.</td></tr>
-            <?php else: foreach ($entries as $entry): ?>
-                <tr>
-                    <td><a href="?edit=<?= $entry['id'] ?>"><?= htmlspecialchars(trim("{$entry['first_name']} {$entry['middle_name']} {$entry['last_name']}")) ?></a></td>
-                    <td><?= htmlspecialchars($entry['dob'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($entry['gender'] ?? '') ?></td>
-                    <td><?= !empty($entry['is_admin']) ? 'Ndiyo' : 'Hapana' ?></td>
-                    <td>
-                        <a href="?toggle_admin=<?= $entry['id'] ?>" class="btn btn-warning btn-sm" onclick="return confirm('Kubadilisha ruhusa ya admin?')">
-                            <?= !empty($entry['is_admin']) ? 'Ondoa Admin' : 'Fanya Admin' ?>
-                        </a>
-                        <a href="?delete=<?= $entry['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Unataka kumfuta mtu?')">Futa</a>
-                    </td>
-                </tr>
+            <?php if (empty($people)): ?>
+            <tr><td colspan="5">Hakuna taarifa za familia.</td></tr>
+            <?php else: foreach ($people as $person): ?>
+            <tr>
+                <td><a href="taarifa.php?edit=<?= $person['id'] ?>"><?= htmlspecialchars(trim($person['first_name'] . ' ' . $person['middle_name'] . ' ' . $person['last_name'])) ?></a></td>
+                <td><?= htmlspecialchars($person['dob'] ?? '') ?></td>
+                <td><?= htmlspecialchars($person['gender'] ?? '') ?></td>
+                <td><?= $person['is_admin'] == 't' ? 'Ndiyo' : 'Hapana' ?></td>
+                <td>
+                    <a href="taarifa.php?toggle_admin=<?= $person['id'] ?>" class="btn btn-sm btn-warning" onclick="return confirm('Kubadilisha ruhusa ya admin?')">
+                        <?= $person['is_admin'] == 't' ? 'Ondoa Admin' : 'Fanya Admin' ?>
+                    </a>
+                    <a href="taarifa.php?delete=<?= $person['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Unataka kumfuta mtu?')">
+                        Futa
+                    </a>
+                </td>
+            </tr>
             <?php endforeach; endif; ?>
         </tbody>
     </table>
 </div>
+
 <?php include 'footer.php'; ?>
