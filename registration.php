@@ -1,147 +1,84 @@
 <?php
 include 'config.php';
 session_start();
-
 $isLoggedIn = isset($_SESSION['user_id']);
 $message = '';
-$errors = [];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $first_name      = $_POST['first_name'];
+    $middle_name     = $_POST['middle_name'] ?? '';
+    $last_name       = $_POST['last_name'];
+    $dob             = $_POST['dob'];
+    $gender          = $_POST['gender'];
+    $marital_status  = $_POST['marital_status'];
+    $has_children    = isset($_POST['has_children']) ? 1 : 0;
+    $children_male   = $_POST['children_male'] ?? 0;
+    $children_female = $_POST['children_female'] ?? 0;
+    $country         = $_POST['country'];
+    $region          = $_POST['region'];
+    $district        = $_POST['districtSelect'];
+    $ward            = $_POST['wardSelect'];
+    $village         = $_POST['villageSelect'];
+    $city            = $_POST['city'] ?? '';
+    $phone           = $_POST['phone'];
+    $email           = $_POST['email'];
+    $password        = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $parent_id       = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
-function generateUniqueUsername($conn, $first_name, $middle_name, $last_name) {
-    $base_username = strtolower(preg_replace('/\s+/', '', $first_name . $middle_name . $last_name));
-    $username = $base_username;
-    $suffix = 0;
-    while (true) {
-        $sql_check = "SELECT COUNT(*) FROM family_tree WHERE username = $1";
-        $res = pg_query_params($conn, $sql_check, [$username]);
-        $count = 0;
-        if ($res) {
-            $row = pg_fetch_row($res);
-            $count = (int)$row[0];
-        }
-        if ($count == 0) {
-            return $username;
-        }
-        $suffix++;
-        $username = $base_username . $suffix;
-        if ($suffix > 9999) {
-            throw new Exception("Unable to generate unique username.");
-        }
-    }
-}
-
-// Simulated loadCSVfromZip function omitted for brevity.
-// Assume $locations is loaded and ready for dropdowns.
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitize and validate inputs
-    $first_name = trim($_POST['first_name'] ?? '');
-    $middle_name = trim($_POST['middle_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-    $dob = trim($_POST['dob'] ?? '');
-    $gender = $_POST['gender'] ?? '';
-    $marital_status = $_POST['marital_status'] ?? '';
-    $has_children = isset($_POST['has_children']) ? 1 : 0;
-    $children_male = (int)($_POST['children_male'] ?? 0);
-    $children_female = (int)($_POST['children_female'] ?? 0);
-    $country = $_POST['country'] ?? '';
-    $region = $_POST['region'] ?? '';
-    $district = $_POST['districtSelect'] ?? '';
-    $ward = $_POST['wardSelect'] ?? '';
-    $village = $_POST['villageSelect'] ?? '';
-    $city = trim($_POST['city'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-    $parent_id = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
-
-    // Validate required fields
-    if ($first_name === '') $errors['first_name'] = 'Jina la Kwanza linahitajika.';
-    if ($last_name === '') $errors['last_name'] = 'Jina la Mwisho linahitajika.';
-    if ($dob === '') $errors['dob'] = 'Tarehe ya Kuzaliwa inahitajika.';
-    if (!in_array($gender, ['male', 'female'])) $errors['gender'] = 'Chagua Jinsia.';
-    if (!in_array($marital_status, ['single', 'married'])) $errors['marital_status'] = 'Chagua hali ya ndoa.';
-    if ($phone === '') $errors['phone'] = 'Namba ya simu inahitajika.';
-    if ($email === '') $errors['email'] = 'Email inahitajika.';
-    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Email sio sahihi.';
-    if (strlen($password) < 8) $errors['password'] = 'Password lazima iwe na angalau herufi 8.';
-    if ($password !== $confirm_password) $errors['confirm_password'] = 'Password hazilingani.';
-
-    // Validate location
-    if ($region === '') $errors['region'] = 'Chagua Mkoa.';
-    if ($district === '') $errors['districtSelect'] = 'Chagua Wilaya.';
-    if ($ward === '') $errors['wardSelect'] = 'Chagua Kata.';
-    if ($village === '') $errors['villageSelect'] = 'Chagua Kijiji/Mtaa.';
-
-    // Proceed if no errors
-    if (empty($errors)) {
-        try {
-            $username = generateUniqueUsername($conn, $first_name, $middle_name, $last_name);
-        } catch (Exception $e) {
-            $message = "Imeshindikana kuunda jina la mtumiaji.";
-        }
-
-        if (!$message) {
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $photo = '';
-            if (!empty($_FILES['photo']['name'])) {
-                $target_dir = __DIR__ . "/uploads/";
-                if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-                $photo = time() . "_" . basename($_FILES["photo"]["name"]);
-                move_uploaded_file($_FILES["photo"]["tmp_name"], $target_dir . $photo);
+    // Automatic ID generation without manual child id input
+    if ($parent_id) {
+        // Find last child id of parent
+        $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
+        if ($res_max && pg_num_rows($res_max) > 0) {
+            $row_max = pg_fetch_assoc($res_max);
+            $last_child_id = (int)$row_max['id'];
+            $parent_digits = (string)$parent_id;
+            $last_digits = substr($last_child_id, strlen($parent_digits));
+            $next_digit = (int)$last_digits + 1;
+            if ($next_digit > 999) {
+                echo "<div class='alert alert-danger text-center'>Mzazi tayari ana watoto 999</div>";
+                exit;
             }
-            // generate new id logic here same as before (omitted for brevity)...
-if ($parent_id) {
-    $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
-    if ($res_max && pg_num_rows($res_max) > 0) {
-        $row_max = pg_fetch_assoc($res_max);
-        $last_child_id = (int)$row_max['id'];
-        $parent_digits = (string)$parent_id;
-        $last_digits = substr($last_child_id, strlen($parent_digits));
-        $next_digit = (int)$last_digits + 1;
-        if ($next_digit > 999) {
-            echo "<div class='alert alert-danger text-center'>Mzazi tayari ana watoto 999</div>";
-            exit;
+            $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
+        } else {
+            $new_id = (int)($parent_id . '1');
         }
-        $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
     } else {
-        $new_id = (int)($parent_id . '1');
+        // Root ID
+        $new_id = 1;
     }
-} else {
-    $res_root_max = pg_query($conn, "SELECT MAX(id) as maxid FROM family_tree WHERE parent_id IS NULL");
-    $row_root = pg_fetch_assoc($res_root_max);
-    $max_root_id = $row_root ? (int)$row_root['maxid'] : 0;
-    $new_id = $max_root_id + 1;
-}
 
-            // Insert into DB
-            $sql = "INSERT INTO family_tree (
-                id, username, first_name, middle_name, last_name, dob, gender, marital_status,
-                has_children, children_male, children_female, country, region,
-                district, ward, village, city, phone, email, password, photo, parent_id
-            ) VALUES (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22
-            )";
+    // Photo upload
+    $photo = '';
+    if (!empty($_FILES['photo']['name'])) {
+        $target_dir = __DIR__ . "/uploads/";
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+        $photo = time() . "_" . basename($_FILES["photo"]["name"]);
+        move_uploaded_file($_FILES["photo"]["tmp_name"], $target_dir . $photo);
+    }
 
-            $params = [
-                $new_id, $username, $first_name, $middle_name, $last_name, $dob, $gender,
-                $marital_status, $has_children, $children_male, $children_female,
-                $country, $region, $district, $ward, $village, $city, $phone, $email,
-                $password_hash, $photo, $parent_id
-            ];
+    $sql = "INSERT INTO family_tree (
+        id, first_name, middle_name, last_name, dob, gender, marital_status,
+        has_children, children_male, children_female, country, region, district,
+        ward, village, city, phone, email, password, photo, parent_id
+    ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21
+    )";
 
-            $result = pg_query_params($conn, $sql, $params);
-            if ($result) {
-                header("Location: register_success.php?id=$new_id");
-                exit();
-            } else {
-                $message = "Tatizo limejitokeza: " . pg_last_error($conn);
-            }
-        }
+    $params = [
+        $new_id, $first_name, $middle_name, $last_name, $dob, $gender, $marital_status,
+        $has_children, $children_male, $children_female, $country, $region, $district,
+        $ward, $village, $city, $phone, $email, $password, $photo, $parent_id
+    ];
+
+    $result = pg_query_params($conn, $sql, $params);
+    if ($result) {
+        header("Location: register_success.php?id=$new_id");
+        exit();
+    } else {
+        $message = "Tatizo limejitokeza: " . pg_last_error($conn);
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -155,109 +92,84 @@ if ($parent_id) {
 <div class="container">
   <h2>Usajili wa Ukoo wa Makomelelo</h2>
   <?php if($message): ?>
-    <div class="alert"><?= htmlspecialchars($message) ?></div>
+    <div class="alert"><?= $message ?></div>
   <?php endif; ?>
 
-  <form method="post" enctype="multipart/form-data" novalidate>
-    <label>Jina la Kwanza *</label>
-    <input type="text" name="first_name" value="<?=htmlspecialchars($_POST['first_name'] ?? '')?>">
-    <div style="color:red;"><?= $errors['first_name'] ?? '' ?></div>
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
 
-    <label>Jina la Kati</label>
-    <input type="text" name="middle_name" value="<?=htmlspecialchars($_POST['middle_name'] ?? '')?>">
-
-    <label>Jina la Mwisho *</label>
-    <input type="text" name="last_name" value="<?=htmlspecialchars($_POST['last_name'] ?? '')?>">
-    <div style="color:red;"><?= $errors['last_name'] ?? '' ?></div>
-
-    <label>Tarehe ya Kuzaliwa *</label>
-    <input type="date" name="dob" value="<?=htmlspecialchars($_POST['dob'] ?? '')?>">
-    <div style="color:red;"><?= $errors['dob'] ?? '' ?></div>
-
-    <label>Jinsia *</label>
-    <select name="gender">
-      <option value="">--Chagua--</option>
-      <option value="male" <?= (($_POST['gender'] ?? '')==='male') ? 'selected' : ''?>>Mwanaume</option>
-      <option value="female" <?= (($_POST['gender'] ?? '')==='female') ? 'selected' : ''?>>Mwanamke</option>
-    </select>
-    <div style="color:red;"><?= $errors['gender'] ?? '' ?></div>
-
-    <label>Hali ya Ndoa *</label>
-    <select name="marital_status">
-      <option value="">--Chagua--</option>
-      <option value="single" <?= (($_POST['marital_status'] ?? '')==='single') ? 'selected' : ''?>>Sijaoa/Sijaolewa</option>
-      <option value="married" <?= (($_POST['marital_status'] ?? '')==='married') ? 'selected' : ''?>>Nimeoa/Nimeolewa</option>
-    </select>
-    <div style="color:red;"><?= $errors['marital_status'] ?? '' ?></div>
-
-    <div>
-      <input type="checkbox" name="has_children" <?= isset($_POST['has_children']) ? 'checked' : '' ?>>
-      <label>Una watoto?</label>
+  <form method="post" enctype="multipart/form-data" id="regForm" novalidate>
+    <!-- Step 1 -->
+    <div class="step active">
+      <label>Jina la Kwanza *</label>
+      <input type="text" name="first_name" required>
+      <label>Jina la Kati</label>
+      <input type="text" name="middle_name">
+      <label>Jina la Mwisho *</label>
+      <input type="text" name="last_name" required>
     </div>
 
-    <div>
-      <label>Idadi ya Watoto wa Kiume</label>
-      <input type="number" name="children_male" min="0" value="<?= (int)($_POST['children_male'] ?? 0) ?>">
-      <label>Idadi ya Watoto wa Kike</label>
-      <input type="number" name="children_female" min="0" value="<?= (int)($_POST['children_female'] ?? 0) ?>">
+    <!-- Step 2 -->
+    <div class="step">
+      <label>Tarehe ya Kuzaliwa *</label>
+      <input type="date" name="dob" required>
+      <label>Jinsia *</label>
+      <select name="gender" required>
+        <option value="" disabled selected>--Chagua--</option>
+        <option value="male">Mwanaume</option>
+        <option value="female">Mwanamke</option>
+      </select>
+      <label>Hali ya Ndoa *</label>
+      <select name="marital_status" required>
+        <option value="" disabled selected>--Chagua--</option>
+        <option value="single">Sijaoa/Sijaolewa</option>
+        <option value="married">Nimeoa/Nimeolewa</option>
+      </select>
+      <div class="form-check">
+        <input type="checkbox" name="has_children" id="hasChildren" class="form-check-input">
+        <label for="hasChildren" class="form-check-label">Una Watoto?</label>
+      </div>
+      <div id="childrenFields" style="display:none;">
+        <label>Idadi ya Watoto wa Kiume</label>
+        <input type="number" name="children_male" min="0" value="0">
+        <label>Idadi ya Watoto wa Kike</label>
+        <input type="number" name="children_female" min="0" value="0">
+      </div>
     </div>
 
-    <label>Nchi *</label>
-    <select name="country">
-      <option value="Tanzania" <?= (($_POST['country'] ?? '')==='Tanzania') ? 'selected': ''?>>Tanzania</option>
-      <option value="Other" <?= (($_POST['country'] ?? '')==='Other') ? 'selected': ''?>>Nyingine</option>
-    </select>
+    <!-- Step 3 -->
+    <div class="step">
+      <label>Nchi *</label>
+      <select name="country" id="countrySelect" required>
+        <option value="Tanzania" selected>Tanzania</option>
+        <option value="Other">Nyingine</option>
+      </select>
+      <label>Mkoa *</label>
+      <select name="region" id="regionSelect" required></select>
+      <label>Wilaya *</label>
+      <select name="districtSelect" id="districtSelect" required></select>
+      <label>Kata *</label>
+      <select name="wardSelect" id="wardSelect" required></select>
+      <label>Kijiji/Mtaa *</label>
+      <select name="villageSelect" id="villageSelect" required></select>
+      <label>Namba ya Simu *</label>
+      <input type="text" name="phone" required>
+      <label>Email *</label>
+      <input type="email" name="email" required>
+      <label>Password *</label>
+      <input type="password" name="password" required>
+      <label>ID ya Mzazi (Parent ID)</label>
+      <input type="number" name="parent_id" id="parent_id">
+      <div id="parentName"></div>
+      <div id="displayChildID">ID ya mtoto itakuwa: <span id="childID">1</span></div>
+      <label>Picha</label>
+      <input type="file" name="photo" accept="image/*">
+    </div>
 
-    <label>Mkoa *</label>
-    <select id="regionSelect" name="region" required>
-      <option value="">--Chagua Mkoa--</option>
-      <?php foreach ($locations ?? [] as $region => $districts): ?>
-        <option value="<?= htmlspecialchars($region) ?>" <?= (($_POST['region'] ?? '') === $region) ? 'selected' : '' ?>><?= htmlspecialchars($region) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <div style="color:red;"><?= $errors['region'] ?? '' ?></div>
-
-    <label>Wilaya *</label>
-    <select id="districtSelect" name="districtSelect" required disabled>
-      <option value="">--Chagua Wilaya--</option>
-    </select>
-    <div style="color:red;"><?= $errors['districtSelect'] ?? '' ?></div>
-
-    <label>Kata *</label>
-    <select id="wardSelect" name="wardSelect" required disabled>
-      <option value="">--Chagua Kata--</option>
-    </select>
-    <div style="color:red;"><?= $errors['wardSelect'] ?? '' ?></div>
-
-    <label>Kijiji/Mtaa *</label>
-    <select id="villageSelect" name="villageSelect" required disabled>
-      <option value="">--Chagua Kijiji/Mtaa--</option>
-    </select>
-    <div style="color:red;"><?= $errors['villageSelect'] ?? '' ?></div>
-
-    <label>Namba ya Simu *</label>
-    <input type="text" name="phone" value="<?=htmlspecialchars($_POST['phone'] ?? '')?>">
-    <div style="color:red;"><?= $errors['phone'] ?? '' ?></div>
-
-    <label>Email *</label>
-    <input type="email" name="email" value="<?=htmlspecialchars($_POST['email'] ?? '')?>">
-    <div style="color:red;"><?= $errors['email'] ?? '' ?></div>
-
-    <label>Password *</label>
-    <input type="password" name="password" required>
-    <div style="color:red;"><?= $errors['password'] ?? '' ?></div>
-
-    <label>Thibitisha Password *</label>
-    <input type="password" name="confirm_password" required>
-    <div style="color:red;"><?= $errors['confirm_password'] ?? '' ?></div>
-
-    <label>ID ya Mzazi (Parent ID)</label>
-    <input type="number" name="parent_id" value="<?=htmlspecialchars($_POST['parent_id'] ?? '')?>">
-
-    <label>Picha</label>
-    <input type="file" name="photo" accept="image/*">
-
-    <button type="submit">Sajili</button>
+    <div class="btn-group">
+      <button type="button" id="prevBtn" class="btn-prev" disabled>&larr; Nyuma</button>
+      <button type="button" id="nextBtn" class="btn-next">Mbele &rarr;</button>
+    </div>
+    <button type="submit" class="btn-submit" style="display:none;">Sajili</button>
   </form>
 </div>
 
@@ -265,53 +177,114 @@ if ($parent_id) {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-// Handle dynamic dropdowns as before...
+// Multi-step form logic with dark mode input color fix
+$(function () {
+    let currentStep = 0;
+    const steps = $(".step");
+    const nextBtn = $("#nextBtn");
+    const prevBtn = $("#prevBtn");
+    const submitBtn = $(".btn-submit");
+    const progressBar = $("#progressBar");
 
-let locations = <?= json_encode($locations) ?>;
+    function showStep(n) {
+        steps.removeClass("active").eq(n).addClass("active");
+        prevBtn.prop("disabled", n === 0);
+        if (n === steps.length - 1) {
+            nextBtn.hide();
+            submitBtn.show();
+        } else {
+            nextBtn.show();
+            submitBtn.hide();
+        }
+        if (progressBar.length) {
+            progressBar.css("width", ((n + 1) / steps.length) * 100 + "%");
+        }
+    }
 
-$(function(){
+    function validateStep() {
+        let valid = true;
+        steps.eq(currentStep).find("input,select").each(function () {
+            if ($(this).prop("required") && !$(this).val()) {
+                alert("Tafadhali jaza " + $(this).prev("label").text());
+                valid = false;
+                return false;
+            }
+        });
+        return valid;
+    }
+
+    nextBtn.click(function () {
+        if (!validateStep()) return;
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    });
+
+    prevBtn.click(function () {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+
+    showStep(currentStep);
+
+    $("#hasChildren").change(function () {
+        $("#childrenFields").toggle(this.checked);
+    });
+
+    // Populate Tanzania locations dynamically
+    let locData = {};
+    $.getJSON('tanzania_locations.json', function (data) {
+        locData = data;
+        populateRegions();
+    });
+
+    function populateRegions() {
+        let reg = $("#regionSelect");
+        reg.html('<option value="">--Chagua Mkoa--</option>');
+        $.each(locData, function (key) {
+            reg.append($('<option></option>').attr("value", key).text(key));
+        });
+        populateDistricts();
+    }
+
     function populateDistricts() {
-        let region = $("#regionSelect").val();
+        let reg = $("#regionSelect").val();
         let dis = $("#districtSelect");
         dis.html('<option value="">--Chagua Wilaya--</option>');
-        if(region && locations[region]){
-            Object.keys(locations[region]).forEach(function(key){
-                dis.append('<option value="'+key+'">'+key+'</option>');
+        if (locData[reg]) {
+            $.each(locData[reg], function (key) {
+                dis.append($('<option></option>').attr("value", key).text(key));
             });
-            dis.prop('disabled', false);
-        }else{
-            dis.prop('disabled', true);
         }
         populateWards();
     }
+
     function populateWards() {
-        let region = $("#regionSelect").val();
-        let district = $("#districtSelect").val();
+        let reg = $("#regionSelect").val();
+        let dis = $("#districtSelect").val();
         let ward = $("#wardSelect");
         ward.html('<option value="">--Chagua Kata--</option>');
-        if(region && district && locations[region] && locations[region][district]){
-            Object.keys(locations[region][district]).forEach(function(key){
-                ward.append('<option value="'+key+'">'+key+'</option>');
+        if (locData[reg] && locData[reg][dis]) {
+            $.each(locData[reg][dis], function (key) {
+                ward.append($('<option></option>').attr("value", key).text(key));
             });
-            ward.prop('disabled', false);
-        } else {
-            ward.prop('disabled', true);
         }
         populateVillages();
     }
+
     function populateVillages() {
-        let region = $("#regionSelect").val();
-        let district = $("#districtSelect").val();
-        let wardVal = $("#wardSelect").val();
+        let reg = $("#regionSelect").val();
+        let dis = $("#districtSelect").val();
+        let ward = $("#wardSelect").val();
         let vil = $("#villageSelect");
         vil.html('<option value="">--Chagua Kijiji/Mtaa--</option>');
-        if(region && district && wardVal && locations[region] && locations[region][district] && locations[region][district][wardVal]){
-            locations[region][district][wardVal].forEach(function(village){
-                vil.append('<option value="'+village+'">'+village+'</option>');
+        if (locData[reg] && locData[reg][dis] && locData[reg][dis][ward]) {
+            $.each(locData[reg][dis][ward], function (i, village) {
+                vil.append($('<option></option>').attr("value", village).text(village));
             });
-            vil.prop('disabled', false);
-        } else {
-            vil.prop('disabled', true);
         }
     }
 
@@ -319,14 +292,33 @@ $(function(){
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
 
-    // Trigger populates if POST data exists (optional)
-    let initRegion = "<?= htmlspecialchars($_POST['region'] ?? '') ?>";
-    if(initRegion){
-        $("#regionSelect").val(initRegion).change();
-        // delayed triggers for districts, wards to select previously chosen values can be added
-    }
+    // AJAX parent info loader
+    $("#parent_id").on("input", function () {
+        let pid = $(this).val();
+        if (pid === '') {
+            $("#parentName").text('');
+            $("#childID").text('1');
+            return;
+        }
+        $.post('get_parent_info.php', { parent_id: pid }, function (data) {
+            try {
+                let obj = JSON.parse(data);
+                if (obj.error) {
+                    $("#parentName").text(obj.error);
+                    $("#childID").text('Error');
+                } else {
+                    $("#parentName").text('Mzazi: ' + obj.name);
+                    $("#childID").text(obj.next_child_id);
+                }
+            } catch (e) {
+                $("#parentName").text('Tatizo la server');
+                $("#childID").text('Error');
+            }
+        });
+    });
 });
 </script>
-
+<script src="jquery-3.6.0.min.js"></script>
+<script src="scripts.js"></script>
 </body>
 </html>
