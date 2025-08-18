@@ -34,7 +34,6 @@ function loadCSVfromZip($zipPath) {
     $locations = [];
     $zip = new ZipArchive();
     if ($zip->open($zipPath) === TRUE) {
-
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $filename = $zip->getNameIndex($i);
             if (strpos($filename, 'regions.csv') !== false) {
@@ -49,33 +48,33 @@ function loadCSVfromZip($zipPath) {
         }
         $zip->close();
 
-        foreach ($region as $regionRow) {
+        foreach ($regions as $regionRow) {
             $region = trim($regionRow['Region'] ?? $regionRow[0]);
             if ($region) $locations[$region] = [];
         }
-        foreach ($district as $distRow) {
-            $region = trim($distRow['Region'] ?? $distRow);
-            $district = trim($distRow['District'] ?? $distRow);
+        foreach ($districts as $distRow) {
+            $region = trim($distRow['Region'] ?? $distRow[0]);
+            $district = trim($distRow['District'] ?? $distRow[1]);
             if ($region && $district) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 $locations[$region][$district] = [];
             }
         }
-        foreach ($ward as $wardRow) {
+        foreach ($wards as $wardRow) {
             $region = trim($wardRow['Region'] ?? $wardRow[0]);
-            $district = trim($wardRow['District'] ?? $wardRow);
-            $ward = trim($wardRow['Ward'] ?? $wardRow);
+            $district = trim($wardRow['District'] ?? $wardRow[1]);
+            $ward = trim($wardRow['Ward'] ?? $wardRow[2]);
             if ($region && $district && $ward) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
                 $locations[$region][$district][$ward] = [];
             }
         }
-        foreach ($village as $villageRow) {
+        foreach ($villages as $villageRow) {
             $region = trim($villageRow['Region'] ?? $villageRow[0]);
-            $district = trim($villageRow['District'] ?? $villageRow);
-            $ward = trim($villageRow['Ward'] ?? $villageRow);
-            $village = trim($villageRow['Village'] ?? $villageRow);
+            $district = trim($villageRow['District'] ?? $villageRow[1]);
+            $ward = trim($villageRow['Ward'] ?? $villageRow[2]);
+            $village = trim($villageRow['Village'] ?? $villageRow[3]);
             if ($region && $district && $ward && $village) {
                 if (!isset($locations[$region])) $locations[$region] = [];
                 if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
@@ -115,6 +114,20 @@ try {
     $locations = loadCSVfromZip(__DIR__ . '/tanzania_locations.zip');
 } catch (Exception $e) {
     $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
+}
+
+$districts = [];
+$wards = [];
+$villages = [];
+
+if (isset($_POST['region']) && isset($locations[$_POST['region']])) {
+    $districts = $locations[$_POST['region']];
+}
+if (isset($_POST['region'], $_POST['districtSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']])) {
+    $wards = $locations[$_POST['region']][$_POST['districtSelect']];
+}
+if (isset($_POST['region'], $_POST['districtSelect'], $_POST['wardSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']])) {
+    $villages = $locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -198,7 +211,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="sw">
@@ -252,13 +264,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <option value="Other">Nyingine</option>
     </select>
     <label for="regionSelect">Mkoa *</label>
-    <select id="regionSelect" name="region" required></select>
+    <select id="regionSelect" name="region" required>
+      <option value="">--Chagua Mkoa--</option>
+      <?php foreach ($locations as $region => $districts): ?>
+        <option value="<?= htmlspecialchars($region) ?>"><?= htmlspecialchars($region) ?></option>
+      <?php endforeach; ?>
+    </select>
     <label for="districtSelect">Wilaya *</label>
-    <select id="districtSelect" name="districtSelect" required></select>
+    <select id="districtSelect" name="districtSelect" required>
+      <option value="">--Chagua Wilaya--</option>
+    </select>
     <label for="wardSelect">Kata *</label>
-    <select id="wardSelect" name="wardSelect" required></select>
+    <select id="wardSelect" name="wardSelect" required>
+      <option value="">--Chagua Kata--</option>
+    </select>
     <label for="villageSelect">Kijiji/Mtaa *</label>
-    <select id="villageSelect" name="villageSelect" required></select>
+    <select id="villageSelect" name="villageSelect" required>
+      <option value="">--Chagua Kijiji/Mtaa--</option>
+    </select>
     <label for="phone">Namba ya Simu *</label>
     <input type="text" id="phone" name="phone" required>
     <label for="email">Email *</label>
@@ -281,67 +304,69 @@ $(function () {
     $("#has_children").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
-    // Load Tanzania locations JSON dynamically
-    let locData = {};
-    $.getJSON('tanzania_locations.json', function (data) {
-        locData = data;
-        populateRegions();
-    });
-    function populateRegions() {
-        let reg = $("#regionSelect");
-        reg.html('<option value="">--Chagua Mkoa--</option>');
-        $.each(locData, function (key) {
-            reg.append($('<option></option>').attr("value", key).text(key));
-        });
-        populateDistricts();
-    }
+
+    let locations = <?= json_encode($locations) ?>;
+
     function populateDistricts() {
-        let reg = $("#regionSelect").val();
+        let region = $("#regionSelect").val();
         let dis = $("#districtSelect");
         dis.html('<option value="">--Chagua Wilaya--</option>');
-        if (locData[reg]) {
-            $.each(locData[reg], function (key) {
+        if (region && locations[region]) {
+            Object.keys(locations[region]).forEach(function(key) {
                 dis.append($('<option></option>').attr("value", key).text(key));
             });
+            dis.prop('disabled', false);
+        } else {
+            dis.prop('disabled', true);
         }
         populateWards();
     }
+
     function populateWards() {
-        let reg = $("#regionSelect").val();
-        let dis = $("#districtSelect").val();
+        let region = $("#regionSelect").val();
+        let district = $("#districtSelect").val();
         let ward = $("#wardSelect");
         ward.html('<option value="">--Chagua Kata--</option>');
-        if (locData[reg] && locData[reg][dis]) {
-            $.each(locData[reg][dis], function (key) {
+        if (region && district && locations[region] && locations[region][district]) {
+            Object.keys(locations[region][district]).forEach(function(key) {
                 ward.append($('<option></option>').attr("value", key).text(key));
             });
+            ward.prop('disabled', false);
+        } else {
+            ward.prop('disabled', true);
         }
         populateVillages();
     }
+
     function populateVillages() {
-        let reg = $("#regionSelect").val();
-        let dis = $("#districtSelect").val();
+        let region = $("#regionSelect").val();
+        let district = $("#districtSelect").val();
         let ward = $("#wardSelect").val();
         let vil = $("#villageSelect");
         vil.html('<option value="">--Chagua Kijiji/Mtaa--</option>');
-        if (locData[reg] && locData[reg][dis] && locData[reg][dis][ward]) {
-            $.each(locData[reg][dis][ward], function (i, village) {
+        if (region && district && ward && locations[region] && locations[region][district] && locations[region][district][ward]) {
+            locations[region][district][ward].forEach(function(village) {
                 vil.append($('<option></option>').attr("value", village).text(village));
             });
+            vil.prop('disabled', false);
+        } else {
+            vil.prop('disabled', true);
         }
     }
+
     $("#regionSelect").change(populateDistricts);
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
+
     // AJAX parent info loader
-    $("#parent_id").on("input", function () {
+    $("#parent_id").on("input", function() {
         let pid = $(this).val();
         if (pid === '') {
             $("#parentName").text('');
             $("#childID").text('1');
             return;
         }
-        $.post('get_parent_info.php', { parent_id: pid }, function (data) {
+        $.post('get_parent_info.php', { parent_id: pid }, function(data) {
             try {
                 let obj = JSON.parse(data);
                 if (obj.error) {
