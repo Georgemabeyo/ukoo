@@ -123,9 +123,11 @@ $villages = [];
 if (isset($_POST['region']) && isset($locations[$_POST['region']])) {
     $districts = $locations[$_POST['region']];
 }
+
 if (isset($_POST['region'], $_POST['districtSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']])) {
     $wards = $locations[$_POST['region']][$_POST['districtSelect']];
 }
+
 if (isset($_POST['region'], $_POST['districtSelect'], $_POST['wardSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']])) {
     $villages = $locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']];
 }
@@ -266,20 +268,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="regionSelect">Mkoa *</label>
     <select id="regionSelect" name="region" required>
       <option value="">--Chagua Mkoa--</option>
-      <?php foreach ($locations as $region => $districts): ?>
+      <?php foreach ($locations ?? [] as $region => $districts): ?>
         <option value="<?= htmlspecialchars($region) ?>"><?= htmlspecialchars($region) ?></option>
       <?php endforeach; ?>
     </select>
     <label for="districtSelect">Wilaya *</label>
-    <select id="districtSelect" name="districtSelect" required>
+    <select id="districtSelect" name="districtSelect" required disabled>
       <option value="">--Chagua Wilaya--</option>
     </select>
     <label for="wardSelect">Kata *</label>
-    <select id="wardSelect" name="wardSelect" required>
+    <select id="wardSelect" name="wardSelect" required disabled>
       <option value="">--Chagua Kata--</option>
     </select>
     <label for="villageSelect">Kijiji/Mtaa *</label>
-    <select id="villageSelect" name="villageSelect" required>
+    <select id="villageSelect" name="villageSelect" required disabled>
       <option value="">--Chagua Kijiji/Mtaa--</option>
     </select>
     <label for="phone">Namba ya Simu *</label>
