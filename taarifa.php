@@ -1,172 +1,87 @@
 <?php
 session_start();
-// Password ya admin
-$ADMIN_PASS = 'Makomelelo';
-// Kuingia admin
-if (!isset($_SESSION['is_admin'])) {
-    if (isset($_POST['pass']) && $_POST['pass'] === $ADMIN_PASS) {
-        $_SESSION['is_admin'] = true;
-    } else {
-        echo '<form method="post" style="max-width:300px;margin:50px auto;">
-                <h3>Admin Login</h3>
-                <input type="password" name="pass" placeholder="Password" required />
-                <button type="submit">Login</button>
-              </form>';
-        exit;
-    }
-}
-function read_data($file) {
-    if (!file_exists($file)) return [];
-    $json = file_get_contents($file);
-    $data = json_decode($json, true);
-    return is_array($data) ? $data : [];
-}
-function write_data($file, $data) {
-    $fp = fopen($file, 'w');
-    if (flock($fp, LOCK_EX)) {
-        fwrite($fp, json_encode($data, JSON_PRETTY_PRINT));
-        fflush($fp);
-        flock($fp, LOCK_UN);
-    }
-    fclose($fp);
-}
-function resizeImage($fileTmpPath, $targetPath, $newWidth = 500, $newHeight = 300) {
-    $sourceProperties = getimagesize($fileTmpPath);
-    if ($sourceProperties === false) {
-        return false;
-    }
-    $src_width = $sourceProperties[0];
-    $src_height = $sourceProperties;
-    $imageType = $sourceProperties;
-    switch ($imageType) {
-        case IMAGETYPE_JPEG:
-            $resourceType = imagecreatefromjpeg($fileTmpPath);
-            break;
-        case IMAGETYPE_PNG:
-            $resourceType = imagecreatefrompng($fileTmpPath);
-            break;
-        case IMAGETYPE_GIF:
-            $resourceType = imagecreatefromgif($fileTmpPath);
-            break;
-        default:
-            return false;
-    }
-    $imageLayer = imagecreatetruecolor($newWidth, $newHeight);
-    imagecopyresampled($imageLayer, $resourceType, 0, 0, 0, 0, 
-        $newWidth, $newHeight, $src_width, $src_height);
-    switch ($imageType) {
-        case IMAGETYPE_JPEG:
-            imagejpeg($imageLayer, $targetPath);
-            break;
-        case IMAGETYPE_PNG:
-            imagepng($imageLayer, $targetPath);
-            break;
-        case IMAGETYPE_GIF:
-            imagegif($imageLayer, $targetPath);
-            break;
-    }
-    imagedestroy($resourceType);
-    imagedestroy($imageLayer);
-    return true;
-}
-header("Cache-Control: no-cache, must-revalidate");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
+$dataFile = __DIR__ . '/events.json';
 $message = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_admin'])) {
-    $title = trim($_POST['title'] ?? '');
-    $desc = trim($_POST['desc'] ?? '');
-    $img_name = '';
-    if (isset($_FILES['photo']) && $_FILES['photo']['size'] > 0) {
-        $upload_dir = 'uploads/';
-        if (!file_exists($upload_dir)) mkdir($upload_dir, 0777, true);
-        $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
-        $img_name = time() . '_' . uniqid() . '.' . $ext;
-        $target_path = $upload_dir . $img_name;
-        if (!resizeImage($_FILES['photo']['tmp_name'], $target_path)) {
-            $message = "Upload ya picha haikufanikiwa au aina yake haitegemeliwi.";
-            $img_name = '';
-        }
+
+// Soma data zilizopo kwenye faili
+if (file_exists($dataFile)) {
+    $json = file_get_contents($dataFile);
+    $events = json_decode($json, true);
+    if (!is_array($events)) {
+        $events = [];
     }
-    if ($title !== '') {
-        $file = 'events.json';
-        $entries = read_data($file);
-        $timeNow = date('c');
-        $entries[] = [
+} else {
+    $events = [];
+}
+
+// Ongeza taarifa mpya baada ya POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = trim($_POST['title'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $image = trim($_POST['image'] ?? '');
+    $read_more_link = trim($_POST['read_more_link'] ?? '#');
+
+    // Validation ya msingi
+    if ($title == '' || $date == '') {
+        $message = "Tafadhali jaza vichwa muhimu kama Title na Date.";
+    } else {
+        $newEvent = [
             'id' => time(),
             'title' => $title,
-            'desc' => $desc,
-            'photo' => $img_name,
-            'created_at' => $timeNow,
+            'date' => $date,
+            'description' => $description,
+            'image' => $image,
+            'read_more_link' => $read_more_link
         ];
-        usort($entries, fn($a,$b) => strtotime($b['created_at']) <=> strtotime($a['created_at']));
-        write_data($file, $entries);
-        $message = "Taarifa imeandikwa kwa mafanikio!";
-    } else {
-        $message = "Jaza kichwa cha taarifa.";
+        $events[] = $newEvent;
+        // Andika taarifa zote pamoja kwenye faili
+        if (file_put_contents($dataFile, json_encode($events, JSON_PRETTY_PRINT))) {
+            $message = "Taarifa mpya imeongezwa kikamilifu.";
+        } else {
+            $message = "Imeshindikana kuhifadhi taarifa mpya.";
+        }
     }
 }
-if (isset($_GET['delete'])) {
-    $delete_id = (int)$_GET['delete'];
-    $entries = read_data('events.json');
-    $entries = array_filter($entries, fn($e) => $e['id'] !== $delete_id);
-    write_data('events.json', array_values($entries));
-    header("Location: taarifa.php?updated=1");
-    exit;
-}
-$events = read_data('events.json');
 ?>
 <!DOCTYPE html>
 <html lang="sw">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Panel - Taarifa</title>
-<style>
-body { max-width: 700px; margin: 30px auto; font-family: Arial, sans-serif; background:#121212; color:#eee; padding:15px; }
-form { background: #222; padding: 20px; border-radius: 10px; margin-bottom: 40px; }
-input, textarea { width: 100%; margin: 10px 0; padding: 8px; background: #333; border: none; color: #eee; border-radius: 6px; }
-button { background: #1e90ff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 6px; font-weight: bold; }
-button:hover { background: #015bb5; }
-h2 { border-bottom: 1px solid #444; padding-bottom: 5px; }
-img.upload-img { max-width: 60px; margin-right: 10px; vertical-align: middle; border-radius: 6px; }
-.entry { margin-bottom: 15px; padding: 15px; background: #222; border-radius: 8px; }
-.entry img { max-width: 150px; display: block; margin-top: 8px; border-radius: 6px; }
-a.delete-link { color: #ff6666; text-decoration: none; font-weight: bold; float: right; }
-a.delete-link:hover { text-decoration: underline; }
-.message { margin-bottom: 20px; color: #66ff66; font-weight: bold; }
-</style>
+<title>Ongeza Taarifa Mpya</title>
+<link rel="stylesheet" href="style.css" />
 </head>
-<body>
-<h1>Admin Panel - Taarifa</h1>
-<?php if ($message): ?>
-  <p class="message"><?= htmlspecialchars($message) ?></p>
-<?php endif; ?>
-<form method="post" enctype="multipart/form-data">
-    <label>Kichwa cha Taarifa:</label>
-    <input type="text" name="title" required />
-    <label>Maelezo:</label>
-    <textarea name="desc" rows="4" required></textarea>
-    <label>Upload Picha (hiari):</label>
-    <input type="file" name="photo" accept="image/*" />
-    <button type="submit" name="submit_admin">Andika Taarifa</button>
-</form>
-<h2>Taarifa Zilizopo</h2>
-<?php if (count($events) > 0): ?>
-    <?php foreach ($events as $entry): ?>
-        <div class="entry">
-          <a href="?delete=<?= $entry['id'] ?>" class="delete-link" onclick="return confirm('Una uhakika unataka kufuta?')">Futa</a>
-          <strong><?= htmlspecialchars($entry['title']) ?></strong>
-          <p><em>Imeandikwa: <?= htmlspecialchars(date('j F Y, H:i', strtotime($entry['created_at'] ?? ''))) ?></em></p>
-          <p><?= nl2br(htmlspecialchars($entry['desc'])) ?></p>
-          <?php if (!empty($entry['photo']) && file_exists('uploads/' . $entry['photo'])): ?>
-            <img src="uploads/<?= htmlspecialchars($entry['photo']) ?>" alt="Taarifa Picha" class="upload-img" />
-          <?php else: ?>
-            <p><em>Hakuna picha imepakiwa.</em></p>
-          <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
-<?php else: ?>
-  <p>Hakuna taarifa za kuonyesha.</p>
-<?php endif; ?>
+<body class="light-mode">
+<div class="container">
+    <h1>Ongeza Taarifa Mpya</h1>
+    <?php if ($message): ?>
+        <p style="color:green;"><?= htmlspecialchars($message) ?></p>
+    <?php endif; ?>
+    <form method="post" action="taarifa.php">
+        <label>Kichwa cha Tukio:*<br>
+            <input type="text" name="title" required value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
+        </label><br><br>
+
+        <label>Tarehe ya Tukio:*<br>
+            <input type="date" name="date" required value="<?= htmlspecialchars($_POST['date'] ?? '') ?>">
+        </label><br><br>
+
+        <label>Maelezo:<br>
+            <textarea name="description"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+        </label><br><br>
+
+        <label>URL ya Picha:<br>
+            <input type="url" name="image" value="<?= htmlspecialchars($_POST['image'] ?? '') ?>">
+        </label><br><br>
+
+        <label>Link ya "Soma Zaidi":<br>
+            <input type="url" name="read_more_link" value="<?= htmlspecialchars($_POST['read_more_link'] ?? '#') ?>">
+        </label><br><br>
+
+        <button type="submit">Ongeza Taarifa</button>
+    </form>
+</div>
 </body>
 </html>
