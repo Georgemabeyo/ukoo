@@ -5,7 +5,7 @@ session_start();
 $isLoggedIn = isset($_SESSION['user_id']);
 $message = '';
 
-// Function to generate a unique username based on names
+// Function to generate unique username
 function generateUniqueUsername($conn, $first_name, $middle_name, $last_name) {
     $base_username = strtolower(preg_replace('/\s+/', '', $first_name . $middle_name . $last_name));
     $username = $base_username;
@@ -29,11 +29,12 @@ function generateUniqueUsername($conn, $first_name, $middle_name, $last_name) {
     }
 }
 
-// Read Tanzanian locations from zip CSV files
+// Read CSVs from ZIP and build locations array
 function loadCSVfromZip($zipPath) {
     $locations = [];
     $zip = new ZipArchive();
     if ($zip->open($zipPath) === TRUE) {
+        $regions = $districts = $wards = $villages = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $filename = $zip->getNameIndex($i);
             if (strpos($filename, 'regions.csv') !== false) {
@@ -48,6 +49,7 @@ function loadCSVfromZip($zipPath) {
         }
         $zip->close();
 
+        // Build locations hierarchical array
         foreach ($regions as $regionRow) {
             $region = trim($regionRow['Region'] ?? $regionRow[0]);
             if ($region) $locations[$region] = [];
@@ -61,7 +63,7 @@ function loadCSVfromZip($zipPath) {
             }
         }
         foreach ($wards as $wardRow) {
-            $region = trim($wardRow['Region'] ?? $wardRow[0]);
+            $region = trim($wardRow['Region'] ?? $wardRow);
             $district = trim($wardRow['District'] ?? $wardRow);
             $ward = trim($wardRow['Ward'] ?? $wardRow);
             if ($region && $district && $ward) {
@@ -116,7 +118,6 @@ try {
     $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
 }
 
-// Initialize to empty arrays if no selection yet
 $districts = [];
 $wards = [];
 $villages = [];
@@ -125,12 +126,12 @@ if (isset($_POST['region']) && isset($locations[$_POST['region']])) {
     $districts = $locations[$_POST['region']];
 }
 
-if (isset($_POST['region'], $_POST['districtSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']])) {
-    $wards = $locations[$_POST['region']][$_POST['districtSelect']];
+if (isset($_POST['districtSelect']) && isset($districts[$_POST['districtSelect']])) {
+    $wards = $districts[$_POST['districtSelect']];
 }
 
-if (isset($_POST['region'], $_POST['districtSelect'], $_POST['wardSelect']) && isset($locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']])) {
-    $villages = $locations[$_POST['region']][$_POST['districtSelect']][$_POST['wardSelect']];
+if (isset($_POST['wardSelect']) && isset($wards[$_POST['wardSelect']])) {
+    $villages = $wards[$_POST['wardSelect']];
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
