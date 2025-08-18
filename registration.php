@@ -10,7 +10,6 @@ function generateUniqueUsername($conn, $first_name, $middle_name, $last_name) {
     $base_username = strtolower(preg_replace('/\s+/', '', $first_name . $middle_name . $last_name));
     $username = $base_username;
     $suffix = 0;
-
     while (true) {
         $sql_check = "SELECT COUNT(*) FROM family_tree WHERE username = $1";
         $res = pg_query_params($conn, $sql_check, [$username]);
@@ -25,10 +24,97 @@ function generateUniqueUsername($conn, $first_name, $middle_name, $last_name) {
         $suffix++;
         $username = $base_username . $suffix;
         if ($suffix > 9999) {
-            // Safety break if suffix goes too high
             throw new Exception("Unable to generate unique username.");
         }
     }
+}
+
+// Read Tanzanian locations from zip CSV files
+function loadCSVfromZip($zipPath) {
+    $locations = [];
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath) === TRUE) {
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $filename = $zip->getNameIndex($i);
+            if (strpos($filename, 'regions.csv') !== false) {
+                $regions = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'districts.csv') !== false) {
+                $districts = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'wards.csv') !== false) {
+                $wards = getCSVContentsFromZip($zip, $filename);
+            } elseif (strpos($filename, 'villages.csv') !== false) {
+                $villages = getCSVContentsFromZip($zip, $filename);
+            }
+        }
+        $zip->close();
+
+        foreach ($regions as $regionRow) {
+            $region = trim($regionRow['Region'] ?? $regionRow[0]);
+            if ($region) $locations[$region] = [];
+        }
+        foreach ($districts as $distRow) {
+            $region = trim($distRow['Region'] ?? $distRow);
+            $district = trim($distRow['District'] ?? $distRow);
+            if ($region && $district) {
+                if (!isset($locations[$region])) $locations[$region] = [];
+                $locations[$region][$district] = [];
+            }
+        }
+        foreach ($wards as $wardRow) {
+            $region = trim($wardRow['Region'] ?? $wardRow[0]);
+            $district = trim($wardRow['District'] ?? $wardRow);
+            $ward = trim($wardRow['Ward'] ?? $wardRow);
+            if ($region && $district && $ward) {
+                if (!isset($locations[$region])) $locations[$region] = [];
+                if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
+                $locations[$region][$district][$ward] = [];
+            }
+        }
+        foreach ($villages as $villageRow) {
+            $region = trim($villageRow['Region'] ?? $villageRow[0]);
+            $district = trim($villageRow['District'] ?? $villageRow);
+            $ward = trim($villageRow['Ward'] ?? $villageRow);
+            $village = trim($villageRow['Village'] ?? $villageRow);
+            if ($region && $district && $ward && $village) {
+                if (!isset($locations[$region])) $locations[$region] = [];
+                if (!isset($locations[$region][$district])) $locations[$region][$district] = [];
+                if (!isset($locations[$region][$district][$ward])) $locations[$region][$district][$ward] = [];
+                $locations[$region][$district][$ward][] = $village;
+            }
+        }
+    } else {
+        throw new Exception("Failed to open ZIP archive");
+    }
+    return $locations;
+}
+
+function getCSVContentsFromZip($zip, $filename) {
+    $fp = $zip->getStream($filename);
+    if (!$fp) return [];
+
+    $csv = [];
+    $headers = [];
+    $rowIndex = 0;
+
+    while (($row = fgetcsv($fp)) !== false) {
+        if ($rowIndex === 0) {
+            $headers = $row;
+        } else {
+            if(count($headers) == count($row)){
+                $csv[] = array_combine($headers, $row);
+            }
+        }
+        $rowIndex++;
+    }
+    fclose($fp);
+    return $csv;
+}
+
+try {
+    $locations = loadCSVfromZip(__DIR__ . '/tanzania_locations.zip');
+} catch (Exception $e) {
+    $message = "Tatizo la kupakia data za maeneo: " . $e->getMessage();
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -52,7 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password        = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $parent_id       = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
-    // Generate new ID for this family member based on parent
     if ($parent_id) {
         $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
         if ($res_max && pg_num_rows($res_max) > 0) {
@@ -70,21 +155,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $new_id = (int)($parent_id . '1');
         }
     } else {
-        // Root ID starts at 1 or use auto-increment in DB (recommended to use serial IDs ideally)
         $res_root_max = pg_query($conn, "SELECT MAX(id) as maxid FROM family_tree WHERE parent_id IS NULL");
         $row_root = pg_fetch_assoc($res_root_max);
         $max_root_id = $row_root ? (int)$row_root['maxid'] : 0;
         $new_id = $max_root_id + 1;
     }
 
-    // Generate unique username
     try {
         $username = generateUniqueUsername($conn, $first_name, $middle_name, $last_name);
     } catch (Exception $e) {
         $message = "Imeshindikana kuunda jina la kipekee la mtumiaji. Jaribu tena.";
     }
 
-    // Photo upload
     $photo = '';
     if (!empty($_FILES['photo']['name'])) {
         $target_dir = __DIR__ . "/uploads/";
@@ -107,7 +189,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $country, $region, $district, $ward, $village, $city,
             $phone, $email, $password, $photo, $parent_id
         ];
-
         $result = pg_query_params($conn, $sql, $params);
         if ($result) {
             header("Location: register_success.php?id=$new_id");
@@ -117,6 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="sw">
@@ -125,7 +207,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Usajili Ukoo - Makomelelo</title>
 <link rel="stylesheet" href="style.css" />
-
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
@@ -137,99 +218,75 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <form method="post" enctype="multipart/form-data" novalidate>
     <label for="first_name">Jina la Kwanza *</label>
     <input type="text" id="first_name" name="first_name" required>
-
     <label for="middle_name">Jina la Kati</label>
     <input type="text" id="middle_name" name="middle_name">
-
     <label for="last_name">Jina la Mwisho *</label>
     <input type="text" id="last_name" name="last_name" required>
-
     <label for="dob">Tarehe ya Kuzaliwa *</label>
     <input type="date" id="dob" name="dob" required>
-
     <label for="gender">Jinsia *</label>
     <select id="gender" name="gender" required>
       <option value="" disabled selected>--Chagua--</option>
       <option value="male">Mwanaume</option>
       <option value="female">Mwanamke</option>
     </select>
-
     <label for="marital_status">Hali ya Ndoa *</label>
     <select id="marital_status" name="marital_status" required>
       <option value="" disabled selected>--Chagua--</option>
       <option value="single">Sijaoa/Sijaolewa</option>
       <option value="married">Nimeoa/Nimeolewa</option>
     </select>
-
     <div class="form-check">
       <input type="checkbox" id="has_children" name="has_children">
       <label for="has_children" style="margin:0;">Una watoto?</label>
     </div>
-
     <div id="childrenFields" style="display:none;" class="form-inline">
       <label for="children_male" style="margin:0;">Idadi ya Watoto wa Kiume</label>
       <input type="number" id="children_male" name="children_male" min="0" value="0" style="width:60px;">
-
       <label for="children_female" style="margin:0;">Idadi ya Watoto wa Kike</label>
       <input type="number" id="children_female" name="children_female" min="0" value="0" style="width:60px;">
     </div>
-
     <label for="country">Nchi *</label>
     <select id="country" name="country" required>
       <option value="Tanzania" selected>Tanzania</option>
       <option value="Other">Nyingine</option>
     </select>
-
     <label for="regionSelect">Mkoa *</label>
     <select id="regionSelect" name="region" required></select>
-
     <label for="districtSelect">Wilaya *</label>
     <select id="districtSelect" name="districtSelect" required></select>
-
     <label for="wardSelect">Kata *</label>
     <select id="wardSelect" name="wardSelect" required></select>
-
     <label for="villageSelect">Kijiji/Mtaa *</label>
     <select id="villageSelect" name="villageSelect" required></select>
-
     <label for="phone">Namba ya Simu *</label>
     <input type="text" id="phone" name="phone" required>
-
     <label for="email">Email *</label>
     <input type="email" id="email" name="email" required>
-
     <label for="password">Password *</label>
     <input type="password" id="password" name="password" required>
-
     <label for="parent_id">ID ya Mzazi (Parent ID)</label>
     <input type="number" id="parent_id" name="parent_id">
-
     <div id="parentName" style="margin-bottom:10px;"></div>
     <div id="displayChildID" style="margin-bottom:20px;">ID ya mtoto itakuwa: <span id="childID">1</span></div>
-
     <label for="photo">Picha</label>
     <input type="file" id="photo" name="photo" accept="image/*">
-
     <button type="submit" class="btn-submit">Sajili</button>
   </form>
 </div>
-
 <?php include 'footer.php'; ?>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
     $("#has_children").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
-
     // Load Tanzania locations JSON dynamically
     let locData = {};
     $.getJSON('tanzania_locations.json', function (data) {
         locData = data;
         populateRegions();
     });
-
     function populateRegions() {
         let reg = $("#regionSelect");
         reg.html('<option value="">--Chagua Mkoa--</option>');
@@ -273,11 +330,9 @@ $(function () {
             });
         }
     }
-
     $("#regionSelect").change(populateDistricts);
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
-
     // AJAX parent info loader
     $("#parent_id").on("input", function () {
         let pid = $(this).val();
