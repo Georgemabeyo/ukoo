@@ -10,18 +10,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($username) || empty($password)) {
         $msg = "Tafadhali jaza jina la mtumiaji na nenosiri.";
     } else {
-        // Tafuta mtumiaji DB kwa username hasa kama string, pasipo kuita strtolower au kubadilisha
-        $sql = "SELECT id, username, password, FROM family_tree WHERE username = $1 LIMIT 1";
+        // SQL query bila comma ya ziada, na kolamu za kawaida katika schema yako
+        $sql = "SELECT id, username, password FROM family_tree WHERE username = $1 LIMIT 1";
         $result = pg_query_params($conn, $sql, [$username]);
 
         if ($result && pg_num_rows($result) == 1) {
             $user = pg_fetch_assoc($result);
-
+            // Linganisha password halisi na hashed password DB
             if (password_verify($password, $user['password'])) {
-                // Set session variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-
                 header('Location: index.php');
                 exit();
             } else {
@@ -33,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -43,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light-mode">
+    <?php include 'header.php'; ?>
     <div class="container" style="max-width: 400px; margin: 50px auto;">
         <h2>Ingia kwenye tovuti ya Ukoo wa Makomelelo</h2>
         <?php if ($msg): ?>
