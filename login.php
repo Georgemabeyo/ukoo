@@ -17,11 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result && pg_num_rows($result) == 1) {
             $user = pg_fetch_assoc($result);
 
-            if (password_verify($password, $user['password_hash'])) {
+            if (password_verify($password, $user['password'])) {
                 // Set session variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
 
                 header('Location: index.php');
                 exit();
@@ -45,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body class="light-mode">
     <div class="container" style="max-width: 400px; margin: 50px auto;">
-        <h2>Ingia kwenye Mfumo wa Ukoo wa Makomelelo</h2>
+        <h2>Ingia kwenye tovuti ya Ukoo wa Makomelelo</h2>
         <?php if ($msg): ?>
             <div class="alert alert-danger"><?= htmlspecialchars($msg) ?></div>
         <?php endif; ?>
