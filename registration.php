@@ -5,7 +5,6 @@ $message = '';
 $showSuccess = false;
 $generated_username = '';
 $plain_password = '';
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name      = trim($_POST['first_name']);
     $middle_name     = trim($_POST['middle_name'] ?? '');
@@ -28,25 +27,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password        = password_hash($plain_password, PASSWORD_DEFAULT);
     $parent_id       = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
-    // Generate new ID based on parent_id logic (kee as before)
-     if ($parent_id) {
-        $res_max = pg_query_params($conn, "SELECT id FROM family_tree WHERE parent_id = $1 ORDER BY id DESC LIMIT 1", [$parent_id]);
+    // Generate new ID based on parent_id logic fixed to avoid duplicates
+    if ($parent_id) {
+        $res_max = pg_query_params($conn, "SELECT MAX(id) as maxid FROM family_tree WHERE parent_id = $1", [$parent_id]);
         if ($res_max && pg_num_rows($res_max) > 0) {
             $row_max = pg_fetch_assoc($res_max);
-            $last_child_id = (int)$row_max['id'];
-            $parent_digits = (string)$parent_id;
-            $last_digits = substr($last_child_id, strlen($parent_digits));
-            $next_digit = (int)$last_digits + 1;
-            if ($next_digit > 999) {
-                $message = "<div class='alert alert-danger text-center'>Mzazi tayari ana watoto 999</div>";
+            $max_child_id = $row_max['maxid'];
+            if ($max_child_id) {
+                $new_id = (int)$max_child_id + 1;
             } else {
-                $new_id = (int)($parent_digits . str_pad($next_digit, strlen($last_digits), '0', STR_PAD_LEFT));
+                $new_id = $parent_id * 1000 + 1;
             }
         } else {
-            $new_id = (int)($parent_id . '1');
+            $new_id = $parent_id * 1000 + 1;
         }
     } else {
-        // Root ID
         $res_id = pg_query($conn, "SELECT MAX(id) as maxid FROM family_tree");
         if ($res_id) {
             $row_id = pg_fetch_assoc($res_id);
@@ -55,7 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $new_id = 1;
         }
     }
-    // Your existing logic to generate $new_id from $parent_id goes here
 
     if (empty($message)) {
         $generated_username = preg_replace('/[^a-zA-Z0-9]/', '', ucfirst(strtolower($first_name))) . $new_id;
@@ -216,17 +210,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
     <?php endif; ?>
 </div>
-<?php include 'footer.php'; ?>
 
+<?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
-    // Toggle children fields
     $("#hasChildren").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
 
-    // Load dropdown data from JSON (mikoa, wilaya, kata, kijiji)
     let locData = {};
     $.getJSON('tanzania_mikoa.json', function (data) {
         locData = data;
@@ -284,7 +276,6 @@ $(function () {
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
 
-    // AJAX Fetch parent info and next child ID
     $("#parent_id").on("input", function () {
         let pid = $(this).val();
         if (pid === '') {
