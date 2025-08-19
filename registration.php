@@ -5,6 +5,7 @@ $message = '';
 $showSuccess = false;
 $generated_username = '';
 $plain_password = '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name      = trim($_POST['first_name']);
     $middle_name     = trim($_POST['middle_name'] ?? '');
@@ -27,9 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password        = password_hash($plain_password, PASSWORD_DEFAULT);
     $parent_id       = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
-    // Generate new ID based on parent_id logic fixed to avoid duplicates
     if ($parent_id) {
-        $res_max = pg_query_params($conn, "SELECT MAX(id) as maxid FROM family_tree WHERE parent_id = $1", [$parent_id]);
+        $res_max = pg_query_params($conn, "SELECT MAX(id) AS maxid FROM family_tree WHERE parent_id = $1", [$parent_id]);
         if ($res_max && pg_num_rows($res_max) > 0) {
             $row_max = pg_fetch_assoc($res_max);
             $max_child_id = $row_max['maxid'];
@@ -71,7 +71,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ward, village, city, phone, email, password, photo, parent_id, username
             ) VALUES (
                 $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22
-            )";
+            )
+            ON CONFLICT (id) DO NOTHING";
             $params = [
                 $new_id, $first_name, $middle_name, $last_name, $dob, $gender, $marital_status,
                 $has_children, $children_male, $children_female, $country, $region, $district,
@@ -79,7 +80,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ];
             $result = pg_query_params($conn, $sql, $params);
             if ($result) {
-                $showSuccess = true;
+                if (pg_affected_rows($result) == 0) {
+                    $message = "<div class='alert alert-warning'>Rekodi tayari ipo na haikuingizwa mara nyingine.</div>";
+                } else {
+                    $showSuccess = true;
+                }
             } else {
                 $message = "<div class='alert alert-danger'>Tatizo limejitokeza: " . pg_last_error($conn) . "</div>";
             }
@@ -210,7 +215,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
     <?php endif; ?>
 </div>
-
 <?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -218,13 +222,11 @@ $(function () {
     $("#hasChildren").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
-
     let locData = {};
     $.getJSON('tanzania_mikoa.json', function (data) {
         locData = data;
         populateRegions();
     });
-
     function populateRegions() {
         let reg = $("#regionSelect");
         reg.html('<option value="">--Chagua Mkoa--</option>');
@@ -233,7 +235,6 @@ $(function () {
         });
         populateDistricts();
     }
-
     function populateDistricts() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect");
@@ -245,7 +246,6 @@ $(function () {
         }
         populateWards();
     }
-
     function populateWards() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -258,7 +258,6 @@ $(function () {
         }
         populateVillages();
     }
-
     function populateVillages() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -271,11 +270,9 @@ $(function () {
             });
         }
     }
-
     $("#regionSelect").change(populateDistricts);
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
-
     $("#parent_id").on("input", function () {
         let pid = $(this).val();
         if (pid === '') {
