@@ -22,62 +22,78 @@ if (!isset($userPhoto)) {
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<header class="header-container d-flex align-items-center justify-content-between flex-wrap p-3 bg-light">
 
-<header>
-  <div class="logo">Ukoo wa Makomelelo</div>
-  
-  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" style="background:none; border:none; cursor:pointer;">
+  <!-- User info top right -->
+  <?php if ($isLoggedIn): ?>
+  <div class="user-info d-flex align-items-center gap-2 order-md-3">
+    <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" 
+         class="rounded-circle" style="width:40px; height:40px; object-fit:cover;">
+    <span class="fw-bold"><?= htmlspecialchars($username) ?></span>
+  </div>
+  <?php endif; ?>
+
+  <div class="logo fw-bold fs-4 order-md-1">Ukoo wa Makomelelo</div>
+
+  <button class="nav-toggle btn btn-light d-md-none order-md-2" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button" style="border:none;">
     <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
     <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
     <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
   </button>
-  
-  <nav id="navMenu" class="nav-links" style="display:none; flex-direction: column; gap: 10px; background: #f0f0f0; padding: 10px;">
-    <a href="index.php" class="<?= ($currentPage === 'index.php') ? 'active' : '' ?>">Nyumbani</a>
-    <a href="family_tree.php" class="<?= ($currentPage === 'family_tree.php') ? 'active' : '' ?>">Ukoo</a>
-    <a href="events.php" class="<?= ($currentPage === 'events.php') ? 'active' : '' ?>">Matukio</a>
-    <a href="contact.php" class="<?= ($currentPage === 'contact.php') ? 'active' : '' ?>">Mawasiliano</a>
-    <div class="user-status" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
-      <?php if ($isLoggedIn): ?>
-        <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" style="width:32px; height:32px; border-radius:50%; object-fit: cover;">
-        <span><?= htmlspecialchars($username) ?></span>
-        <a href="logout.php" class="btn btn-sm btn-outline-dark ms-2">Toka</a>
-      <?php else: ?>
-        <a href="login.php" class="btn btn-sm btn-outline-dark me-2">Ingia</a>
-        <a href="registration.php" class="btn btn-sm btn-outline-dark">Jisajili</a>
-      <?php endif; ?>
-      <button id="toggleTheme" style="cursor:pointer; font-weight:700; background:none; border:none;">Dark Mode</button>
-    </div>
+
+  <nav id="navMenu" class="nav-links d-none d-md-flex flex-column flex-md-row gap-3 p-3 p-md-0 bg-light bg-md-transparent rounded-md order-md-2 align-items-center" aria-hidden="true">
+    <a href="index.php" class="<?= ($currentPage === 'index.php') ? 'active' : '' ?> nav-link">Nyumbani</a>
+    <a href="family_tree.php" class="<?= ($currentPage === 'family_tree.php') ? 'active' : '' ?> nav-link">Ukoo</a>
+    <a href="events.php" class="<?= ($currentPage === 'events.php') ? 'active' : '' ?> nav-link">Matukio</a>
+    <a href="contact.php" class="<?= ($currentPage === 'contact.php') ? 'active' : '' ?> nav-link">Mawasiliano</a>
+
+    <?php if ($isLoggedIn): ?>
+      <a href="logout.php" class="btn btn-sm btn-outline-danger ms-md-3 mt-2 mt-md-0">Toka</a>
+    <?php else: ?>
+      <a href="login.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Ingia</a>
+      <a href="registration.php" class="btn btn-sm btn-primary ms-md-2 mt-2 mt-md-0">Jisajili</a>
+    <?php endif; ?>
+
+    <button id="toggleTheme" class="btn btn-sm btn-outline-secondary fw-bold mt-2 mt-md-0 ms-md-3">Dark Mode</button>
   </nav>
+
 </header>
 
 <script>
-const navToggleBtn = document.querySelector('.nav-toggle');
-const navMenu = document.getElementById('navMenu');
-const toggleThemeBtn = document.getElementById('toggleTheme');
+  const navToggleBtn = document.querySelector('.nav-toggle');
+  const navMenu = document.getElementById('navMenu');
+  const toggleThemeBtn = document.getElementById('toggleTheme');
 
-navToggleBtn.addEventListener('click', () => {
-  const isVisible = navMenu.style.display === 'flex';
-  navMenu.style.display = isVisible ? 'none' : 'flex';
-  navToggleBtn.setAttribute('aria-expanded', !isVisible);
-  navMenu.setAttribute('aria-hidden', isVisible);
-});
+  navToggleBtn.addEventListener('click', () => {
+    const isHidden = navMenu.classList.contains('d-none');
+    if (isHidden) {
+      navMenu.classList.remove('d-none');
+      navToggleBtn.setAttribute('aria-expanded', 'true');
+      navMenu.setAttribute('aria-hidden', 'false');
+    } else {
+      navMenu.classList.add('d-none');
+      navToggleBtn.setAttribute('aria-expanded', 'false');
+      navMenu.setAttribute('aria-hidden', 'true');
+    }
+  });
 
-toggleThemeBtn.addEventListener('click', () => {
-  const body = document.body;
-  const isDarkMode = body.classList.toggle('dark-mode');
-  toggleThemeBtn.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
-  localStorage.setItem('prefers-dark', isDarkMode ? 'yes' : 'no');
-});
+  toggleThemeBtn.addEventListener('click', () => {
+    const body = document.body;
+    const isDarkMode = body.classList.toggle('dark-mode');
+    toggleThemeBtn.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
+    localStorage.setItem('prefers-dark', isDarkMode ? 'yes' : 'no');
+  });
 
-window.addEventListener('DOMContentLoaded', () => {
-  const prefersDark = localStorage.getItem('prefers-dark');
-  if (prefersDark === 'yes') {
-    document.body.classList.add('dark-mode');
-    toggleThemeBtn.textContent = 'Light Mode';
-  } else {
-    document.body.classList.remove('dark-mode');
-    toggleThemeBtn.textContent = 'Dark Mode';
-  }
-});
+  window.addEventListener('DOMContentLoaded', () => {
+    const prefersDark = localStorage.getItem('prefers-dark');
+    if (prefersDark === 'yes') {
+      document.body.classList.add('dark-mode');
+      toggleThemeBtn.textContent = 'Light Mode';
+    } else {
+      document.body.classList.remove('dark-mode');
+      toggleThemeBtn.textContent = 'Dark Mode';
+    }
+  });
 </script>
+</body>
+</html>
