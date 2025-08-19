@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $msg = "Tafadhali jaza jina la mtumiaji na nenosiri.";
     } else {
         // Tafuta mtumiaji DB kwa username hasa kama string, pasipo kuita strtolower au kubadilisha
-        $sql = "SELECT id, username, password_hash, role FROM users WHERE username = $1 LIMIT 1";
+        $sql = "SELECT id, username, password_hash, role FROM family_tree WHERE username = $1 LIMIT 1";
         $result = pg_query_params($conn, $sql, [$username]);
 
         if ($result && pg_num_rows($result) == 1) {
