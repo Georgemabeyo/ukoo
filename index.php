@@ -36,14 +36,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
   <?php if ($isLoggedIn): ?>
     <div class="mb-4">
       <strong>Karibu, <?= htmlspecialchars($username) ?></strong>
-      <a href="logout.php" class="btn btn-outline-danger ms-3">Toka</a>
     </div>
-  <?php else: ?>
-    <div class="mb-4">
-      <a href="login.php" class="btn btn-outline-primary me-2">Ingia</a>
-      <a href="registration.php" class="btn btn-primary">Jiandikishe</a>
-    </div>
-  <?php endif; ?>
 
   <h1>Karibu kwenye Mfumo wa Ukoo wa Makomelelo</h1>
   <p>Ungana na familia yako, tushirikiane kujenga urithi wa familia kwa vizazi vijavyo.</p>
