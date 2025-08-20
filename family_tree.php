@@ -45,30 +45,7 @@ function displayTree($conn, $parent_id = null) {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
 <link rel="stylesheet" href="style.css" />
-<style>
-  /* Modal content text styling for dark mode / light mode */
-  #member-modal {
-    color: #000;
-    background: #fff;
-  }
-  body.dark-mode #member-modal {
-    background: #222;
-    color: #eee;
-  }
 
-  #modal-content {
-    font-size: 1rem;
-  }
-
-  #close-modal {
-    background: transparent;
-    border: none;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: inherit;
-    cursor: pointer;
-  }
-</style>
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
