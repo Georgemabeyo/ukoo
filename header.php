@@ -13,20 +13,22 @@ if (!isset($userPhoto)) {
 }
 ?>
 <header class="header-container" role="banner">
-  <!-- User info fixed top-left -->
   <?php if ($isLoggedIn): ?>
     <div class="user-info" title="<?= htmlspecialchars($username) ?>" aria-label="User info">
       <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
       <span><?= htmlspecialchars($username) ?></span>
     </div>
   <?php endif; ?>
+
   <div class="logo" role="heading" aria-level="1" tabindex="0">Ukoo wa Makomelelo</div>
+
   <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button">
     <span></span>
     <span></span>
     <span></span>
   </button>
-  <nav id="navMenu" class="nav-links d-none" aria-label="Main navigation" aria-hidden="true">
+
+  <nav id="navMenu" class="nav-links" aria-label="Main navigation" aria-hidden="false">
     <a href="index.php" class="<?= ($currentPage === 'index.php') ? 'active' : '' ?> nav-link">Nyumbani</a>
     <a href="family_tree.php" class="<?= ($currentPage === 'family_tree.php') ? 'active' : '' ?> nav-link">Ukoo</a>
     <a href="events.php" class="<?= ($currentPage === 'events.php') ? 'active' : '' ?> nav-link">Matukio</a>
@@ -41,21 +43,65 @@ if (!isset($userPhoto)) {
   </nav>
 
   <style>
-    .nav-links.d-none {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .nav-links.show {
-      display: flex !important;
-      opacity: 1 !important;
-    }
-    .nav-links {
+    /* Default nav visible for desktop */
+    nav#navMenu {
+      display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
-    .nav-toggle.active span {
-      background-color: #ffc107;
+    /* Hide nav on mobile by default */
+    @media (max-width: 768px) {
+      nav#navMenu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: linear-gradient(180deg, var(--primary, #0d47a1), var(--secondary, #1976d2));
+        border-radius: 10px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease, box-shadow 0.35s;
+        width: 220px;
+        box-shadow: none;
+        aria-hidden: true;
+      }
+      nav#navMenu.show {
+        display: flex !important;
+        max-height: 600px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        aria-hidden: false;
+      }
+      .nav-toggle {
+        display: flex;
+      }
+    }
+    /* Nav toggle button styles */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 1100;
+    }
+    .nav-toggle span {
+      height: 3px;
+      background: var(--primary, #0d47a1);
+      border-radius: 2px;
+      transition: all 0.4s;
+    }
+    .nav-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .nav-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .nav-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
     }
   </style>
 
@@ -66,25 +112,17 @@ if (!isset($userPhoto)) {
       const toggleThemeBtn = document.getElementById('toggleTheme');
 
       navToggleBtn.addEventListener('click', () => {
-        const isHidden = navMenu.classList.toggle('d-none');
-        if (!isHidden) {
-          navMenu.classList.add('show');
-          navToggleBtn.classList.add('active');
-          navToggleBtn.setAttribute('aria-expanded', 'true');
-          navMenu.setAttribute('aria-hidden', 'false');
-        } else {
-          navMenu.classList.remove('show');
-          navToggleBtn.classList.remove('active');
-          navToggleBtn.setAttribute('aria-expanded', 'false');
-          navMenu.setAttribute('aria-hidden', 'true');
-        }
+        const shown = navMenu.classList.toggle('show');
+        navToggleBtn.classList.toggle('active', shown);
+        navToggleBtn.setAttribute('aria-expanded', shown ? 'true' : 'false');
+        navMenu.setAttribute('aria-hidden', shown ? 'false' : 'true');
       });
 
       toggleThemeBtn.addEventListener('click', () => {
         const body = document.body;
         const isDarkMode = body.classList.toggle('dark-mode');
         toggleThemeBtn.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
-        toggleThemeBtn.setAttribute('aria-pressed', isDarkMode);
+        toggleThemeBtn.setAttribute('aria-pressed', isDarkMode.toString());
         localStorage.setItem('prefers-dark', isDarkMode ? 'yes' : 'no');
       });
 
