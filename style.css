@@ -1,4 +1,4 @@
-/* Refined style.css with balanced blue tones and footer fix */
+/* Refined and polished style.css with harmonious blues and clean layout */
 
 /* CSS Variables */
 :root {
@@ -190,7 +190,7 @@ body.dark-mode .container {
 .btn-submit:hover,
 .btn-next:hover,
 .btn-prev:hover {
-  background: #eab308;
+  background: #2df7fb;
   color: var(--primary);
 }
 .btn-primary:disabled,
@@ -253,6 +253,7 @@ footer {
   margin-top: auto;
   box-shadow: 0 -3px 15px rgba(25, 118, 210, 0.6);
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 /* Form elements */
@@ -291,6 +292,7 @@ textarea:focus {
   outline: none;
   border-color: var(--accent);
 }
+
 /* Checkbox */
 .form-check-label {
   font-weight: 700;
@@ -305,6 +307,7 @@ body.dark-mode .form-check-label {
   margin-right: 10px;
   cursor: pointer;
 }
+
 /* Progress bar */
 .progress-container {
   width: 100%;
@@ -381,7 +384,7 @@ body.dark-mode .tree li::before {
 .member {
   display: flex;
   align-items: center;
-  background: #0d47a1;
+  background: #0a54c2;
   padding: 0.5rem 1rem;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(13, 71, 161, 0.25);
@@ -393,7 +396,7 @@ body.dark-mode .tree li::before {
 }
 .member:hover, .member:focus {
   transform: translateY(-4px);
-  box-shadow: 0 7px 20px rgba(234, 179, 8, 0.7);
+  box-shadow: 0 7px 20px rgba(95, 209, 226, 0.7);
   outline: none;
 }
 
@@ -409,7 +412,7 @@ body.dark-mode .tree li::before {
   transition: border-color 0.3s ease;
 }
 .member:hover img, .member:focus img {
-  border-color: #fbc02d;
+  border-color: #2df7fb;
 }
 
 /* Member name */
@@ -429,7 +432,7 @@ body.dark-mode .tree li::before {
   flex-shrink: 0;
   font-size: 1.3rem;
   color: #f0f4ff;
-  background: #0d47a1;
+  background: #0a54c2;
   border-radius: 50%;
   width: 34px;
   height: 34px;
@@ -447,9 +450,9 @@ body.dark-mode .tree li::before {
 }
 .view-children-btn:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 16px #fbc02d;
-  background-color: #fbc02d;
-  color: #0d47a1;
+  box-shadow: 0 0 16px#2df7fb;
+  background-color: #2df7fb;
+  color: #0a54c2;
 }
 
 /* Children list */
@@ -457,7 +460,7 @@ body.dark-mode .tree li::before {
   margin-top: 0.5rem;
   padding-left: 1.8rem;
   display: none;
-  color: #0d47a1;
+  color: #0a54c2;
 }
 body.dark-mode .children-list {
   color: #dbe4fa;
