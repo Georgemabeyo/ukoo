@@ -8,12 +8,11 @@ function displayTree($conn, $parent_id = null) {
         return;
     }
     if (is_null($parent_id)) {
-        // Order by 'id' instead of names
-        $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY id";
+        // Order by 'id' ascending so that e.g. 11 then 12, 13 etc.
+        $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY id ASC";
         $params = [];
     } else {
-        // Order by 'id' instead of names
-        $sql = "SELECT * FROM family_tree WHERE parent_id = $1 ORDER BY id";
+        $sql = "SELECT * FROM family_tree WHERE parent_id = $1 ORDER BY id ASC";
         $params = [$parent_id];
     }
     $result = pg_query_params($conn, $sql, $params);
