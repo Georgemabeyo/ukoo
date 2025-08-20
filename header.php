@@ -12,7 +12,7 @@ if (!isset($userPhoto)) {
     $userPhoto = 'default-avatar.png';
 }
 ?>
-<header class="header-container">
+<header class="header-container" role="banner">
   <?php if ($isLoggedIn): ?>
     <div class="user-info" title="<?= htmlspecialchars($username) ?>" aria-label="User info">
       <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
@@ -43,13 +43,14 @@ if (!isset($userPhoto)) {
   </nav>
 
   <style>
-    /* Nav always visible on desktop */
+    /* Desktop: nav visible by default */
     nav#navMenu {
       display: flex;
       flex-wrap: wrap;
       gap: 15px;
     }
-    /* Hide nav on mobile by default */
+
+    /* Mobile: hidden nav by default */
     @media (max-width: 768px) {
       nav#navMenu {
         display: none;
@@ -64,20 +65,19 @@ if (!isset($userPhoto)) {
         transition: max-height 0.4s ease, box-shadow 0.3s ease;
         width: 220px;
         box-shadow: none;
-        aria-hidden: true;
-        padding: 10px 10px;
+        padding: 10px;
         z-index: 1050;
       }
       nav#navMenu.show {
         display: flex !important;
         max-height: 600px;
         box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
-        aria-hidden: false;
       }
       .nav-toggle {
         display: flex;
       }
     }
+
     /* Nav toggle button */
     .nav-toggle {
       display: none;
