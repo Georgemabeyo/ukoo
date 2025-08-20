@@ -99,6 +99,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <title>Usajili Ukoo - Makomelelo</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
+<style>
+  /* Center the submit button at bottom */
+  form#regForm {
+    position: relative;
+    padding-bottom: 100px; /* space for button */
+  }
+  form#regForm button[type="submit"] {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    width: 180px;
+  }
+</style>
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
@@ -214,23 +229,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
     <?php endif; ?>
 </div>
-
 <?php include 'footer.php'; ?>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
 $(function () {
     $("#hasChildren").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
-
     let locData = {};
     $.getJSON('tanzania_mikoa.json', function (data) {
         locData = data;
         populateRegions();
     });
-
     function populateRegions() {
         let reg = $("#regionSelect");
         reg.html('<option value="">--Chagua Mkoa--</option>');
@@ -239,7 +249,6 @@ $(function () {
         });
         populateDistricts();
     }
-
     function populateDistricts() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect");
@@ -251,7 +260,6 @@ $(function () {
         }
         populateWards();
     }
-
     function populateWards() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -264,7 +272,6 @@ $(function () {
         }
         populateVillages();
     }
-
     function populateVillages() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -277,11 +284,9 @@ $(function () {
             });
         }
     }
-
     $("#regionSelect").change(populateDistricts);
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
-
     $("#parent_id").on("input", function () {
         let pid = $(this).val();
         if (pid === '') {
