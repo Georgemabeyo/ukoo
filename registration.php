@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 session_start();
+
 $message = '';
 $showSuccess = false;
 $generated_username = '';
@@ -53,7 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($message)) {
         $generated_username = preg_replace('/[^a-zA-Z0-9]/', '', ucfirst(strtolower($first_name))) . $new_id;
-
         $photo = '';
         if (!empty($_FILES['photo']['name'])) {
             $target_dir = __DIR__ . "/uploads/";
@@ -63,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "<div class='alert alert-danger'>Imeshindikana kupakia picha.</div>";
             }
         }
-
         if (empty($message)) {
             $sql = "INSERT INTO family_tree (
                 id, first_name, middle_name, last_name, dob, gender, marital_status,
@@ -215,18 +214,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
     <?php endif; ?>
 </div>
+
 <?php include 'footer.php'; ?>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 $(function () {
     $("#hasChildren").change(function () {
         $("#childrenFields").toggle(this.checked);
     });
+
     let locData = {};
     $.getJSON('tanzania_mikoa.json', function (data) {
         locData = data;
         populateRegions();
     });
+
     function populateRegions() {
         let reg = $("#regionSelect");
         reg.html('<option value="">--Chagua Mkoa--</option>');
@@ -235,6 +239,7 @@ $(function () {
         });
         populateDistricts();
     }
+
     function populateDistricts() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect");
@@ -246,6 +251,7 @@ $(function () {
         }
         populateWards();
     }
+
     function populateWards() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -258,6 +264,7 @@ $(function () {
         }
         populateVillages();
     }
+
     function populateVillages() {
         let reg = $("#regionSelect").val();
         let dis = $("#districtSelect").val();
@@ -270,9 +277,11 @@ $(function () {
             });
         }
     }
+
     $("#regionSelect").change(populateDistricts);
     $("#districtSelect").change(populateWards);
     $("#wardSelect").change(populateVillages);
+
     $("#parent_id").on("input", function () {
         let pid = $(this).val();
         if (pid === '') {
@@ -294,5 +303,3 @@ $(function () {
     });
 });
 </script>
-</body>
-</html>
