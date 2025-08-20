@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $marital_status = $_POST['marital_status'] ?? null;
     $phone = $_POST['phone'] ?? '';
     $email = $_POST['email'] ?? '';
+    $photo = $_POST['photo'] ?? '';
     // Hakikisha una usalama wa password, hapa hatubahariri password
 
     if ($first_name == '' || $last_name == '') {
