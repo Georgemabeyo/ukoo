@@ -336,8 +336,8 @@ body.dark-mode .progress-container {
   transition: background 0.3s, color 0.3s;
 }
 body.dark-mode .tree-container {
-  background: #2c3e72;
-  color: #d5dbf5;
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 /* Tree Styles */
