@@ -126,103 +126,107 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="index.php" class="btn btn-primary mt-3">Rudi Nyumbani</a>
         </div>
     <?php else: ?>
-    <?php if($message): ?>
-        <div class="alert alert-danger"><?= $message ?></div>
-    <?php endif; ?>
-    <h2>Usajili wa Ukoo wa Makomelelo</h2>
-    <form method="post" enctype="multipart/form-data" id="regForm" novalidate>
-        <div class="mb-3">
-            <label for="first_name">Jina la Kwanza *</label>
-            <input type="text" id="first_name" name="first_name" required class="form-control" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="middle_name">Jina la Kati</label>
-            <input type="text" id="middle_name" name="middle_name" class="form-control" value="<?= htmlspecialchars($_POST['middle_name'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="last_name">Jina la Mwisho</label>
-            <input type="text" id="last_name" name="last_name" class="form-control" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="dob">Tarehe ya Kuzaliwa</label>
-            <input type="date" id="dob" name="dob" class="form-control" value="<?= htmlspecialchars($_POST['dob'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="gender">Jinsia</label>
-            <select id="gender" name="gender" class="form-select">
-                <option value="" disabled selected>--Chagua--</option>
-                <option value="male" <?= (($_POST['gender'] ?? '') === 'male') ? 'selected' : '' ?>>Mwanaume</option>
-                <option value="female" <?= (($_POST['gender'] ?? '') === 'female') ? 'selected' : '' ?>>Mwanamke</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="marital_status">Hali ya Ndoa</label>
-            <select id="marital_status" name="marital_status" class="form-select">
-                <option value="" disabled selected>--Chagua--</option>
-                <option value="single" <?= (($_POST['marital_status'] ?? '') === 'single') ? 'selected' : '' ?>>Sijaoa/Sijaolewa</option>
-                <option value="married" <?= (($_POST['marital_status'] ?? '') === 'married') ? 'selected' : '' ?>>Nimeoa/Nimeolewa</option>
-            </select>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="hasChildren" name="has_children" class="form-check-input" <?= isset($_POST['has_children']) ? 'checked' : '' ?>>
-            <label for="hasChildren" class="form-check-label">Una Watoto?</label>
-        </div>
-        <div id="childrenFields" style="display: <?= isset($_POST['has_children']) ? 'block' : 'none' ?>;">
+        <?php if($message): ?>
+            <div class="alert alert-danger"><?= $message ?></div>
+        <?php endif; ?>
+        <h2>Usajili wa Ukoo wa Makomelelo</h2>
+        <form method="post" enctype="multipart/form-data" id="regForm" novalidate>
             <div class="mb-3">
-                <label for="children_male">Idadi ya Watoto wa Kiume</label>
-                <input type="number" id="children_male" name="children_male" min="0" class="form-control" value="<?= htmlspecialchars($_POST['children_male'] ?? '0') ?>">
+                <label for="first_name">Jina la Kwanza *</label>
+                <input type="text" id="first_name" name="first_name" required class="form-control" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
             </div>
             <div class="mb-3">
-                <label for="children_female">Idadi ya Watoto wa Kike</label>
-                <input type="number" id="children_female" name="children_female" min="0" class="form-control" value="<?= htmlspecialchars($_POST['children_female'] ?? '0') ?>">
+                <label for="middle_name">Jina la Kati</label>
+                <input type="text" id="middle_name" name="middle_name" class="form-control" value="<?= htmlspecialchars($_POST['middle_name'] ?? '') ?>">
             </div>
-        </div>
-        <div class="mb-3">
-            <label for="country">Nchi</label>
-            <select id="country" name="country" class="form-select" required>
-                <option value="Tanzania" <?= (($_POST['country'] ?? '') === 'Tanzania') ? 'selected' : '' ?>>Tanzania</option>
-                <option value="Other" <?= (($_POST['country'] ?? '') === 'Other') ? 'selected' : '' ?>>Nyingine</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="regionSelect">Mkoa</label>
-            <select id="regionSelect" name="region" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-            <label for="districtSelect">Wilaya</label>
-            <select id="districtSelect" name="districtSelect" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-            <label for="wardSelect">Kata</label>
-            <select id="wardSelect" name="wardSelect" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-            <label for="villageSelect">Kijiji/Mtaa</label>
-            <select id="villageSelect" name="villageSelect" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-            <label for="phone">Namba ya Simu</label>
-            <input type="text" id="phone" name="phone" class="form-control" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required class="form-control" value="">
-        </div>
-        <div class="mb-3">
-            <label for="parent_id">ID ya Mzazi (Parent ID)</label>
-            <input type="number" id="parent_id" name="parent_id" class="form-control" value="<?= htmlspecialchars($_POST['parent_id'] ?? '') ?>">
-            <div id="parentName" class="mt-1 mb-2"></div>
-        </div>
-        <div class="mb-3">
-            <label for="photo">Picha</label>
-            <input type="file" id="photo" name="photo" accept="image/*" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-success">Sajili</button>
-    </form>
+            <div class="mb-3">
+                <label for="last_name">Jina la Mwisho</label>
+                <input type="text" id="last_name" name="last_name" class="form-control" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+            </div>
+            <div class="mb-3">
+                <label for="dob">Tarehe ya Kuzaliwa</label>
+                <input type="date" id="dob" name="dob" class="form-control" value="<?= htmlspecialchars($_POST['dob'] ?? '') ?>">
+            </div>
+            <div class="mb-3">
+                <label for="gender">Jinsia</label>
+                <select id="gender" name="gender" class="form-select">
+                    <option value="" disabled selected>--Chagua--</option>
+                    <option value="male" <?= (($_POST['gender'] ?? '') === 'male') ? 'selected' : '' ?>>Mwanaume</option>
+                    <option value="female" <?= (($_POST['gender'] ?? '') === 'female') ? 'selected' : '' ?>>Mwanamke</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="marital_status">Hali ya Ndoa</label>
+                <select id="marital_status" name="marital_status" class="form-select">
+                    <option value="" disabled selected>--Chagua--</option>
+                    <option value="single" <?= (($_POST['marital_status'] ?? '') === 'single') ? 'selected' : '' ?>>Sijaoa/Sijaolewa</option>
+                    <option value="married" <?= (($_POST['marital_status'] ?? '') === 'married') ? 'selected' : '' ?>>Nimeoa/Nimeolewa</option>
+                </select>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="hasChildren" name="has_children" class="form-check-input" <?= isset($_POST['has_children']) ? 'checked' : '' ?>>
+                <label for="hasChildren" class="form-check-label">Una Watoto?</label>
+            </div>
+            <div id="childrenFields" style="display: <?= isset($_POST['has_children']) ? 'block' : 'none' ?>;">
+                <div class="mb-3">
+                    <label for="children_male">Idadi ya Watoto wa Kiume</label>
+                    <input type="number" id="children_male" name="children_male" min="0" class="form-control" value="<?= htmlspecialchars($_POST['children_male'] ?? '0') ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="children_female">Idadi ya Watoto wa Kike</label>
+                    <input type="number" id="children_female" name="children_female" min="0" class="form-control" value="<?= htmlspecialchars($_POST['children_female'] ?? '0') ?>">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="country">Nchi</label>
+                <select id="country" name="country" class="form-select" required>
+                    <option value="Tanzania" <?= (($_POST['country'] ?? '') === 'Tanzania') ? 'selected' : '' ?>>Tanzania</option>
+                    <option value="Other" <?= (($_POST['country'] ?? '') === 'Other') ? 'selected' : '' ?>>Nyingine</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="regionSelect">Mkoa</label>
+                <select id="regionSelect" name="region" class="form-select"></select>
+            </div>
+            <div class="mb-3">
+                <label for="districtSelect">Wilaya</label>
+                <select id="districtSelect" name="districtSelect" class="form-select"></select>
+            </div>
+            <div class="mb-3">
+                <label for="wardSelect">Kata</label>
+                <select id="wardSelect" name="wardSelect" class="form-select"></select>
+            </div>
+            <div class="mb-3">
+                <label for="villageSelect">Kijiji/Mtaa</label>
+                <select id="villageSelect" name="villageSelect" class="form-select"></select>
+            </div>
+            <div class="mb-3">
+                <label for="city">Jiji</label>
+                <input type="text" id="city" name="city" class="form-control" value="<?= htmlspecialchars($_POST['city'] ?? '') ?>">
+            </div>
+            <div class="mb-3">
+                <label for="phone">Namba ya Simu</label>
+                <input type="text" id="phone" name="phone" class="form-control" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+            </div>
+            <div class="mb-3">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+            </div>
+            <div class="mb-3">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required class="form-control" value="">
+            </div>
+            <div class="mb-3">
+                <label for="parent_id">ID ya Mzazi (Parent ID)</label>
+                <input type="number" id="parent_id" name="parent_id" class="form-control" value="<?= htmlspecialchars($_POST['parent_id'] ?? '') ?>">
+                <div id="parentName" class="mt-1 mb-2"></div>
+            </div>
+            <div class="mb-3">
+                <label for="photo">Picha</label>
+                <input type="file" id="photo" name="photo" accept="image/*" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sajili</button>
+        </form>
     <?php endif; ?>
 </div>
 <?php include 'footer.php'; ?>
