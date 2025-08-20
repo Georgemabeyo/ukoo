@@ -201,10 +201,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <select id="villageSelect" name="villageSelect" class="form-select"></select>
         </div>
         <div class="mb-3">
-            <label for="city">Jiji</label>
-            <input type="text" id="city" name="city" class="form-control" value="<?= htmlspecialchars($_POST['city'] ?? '') ?>">
-        </div>
-        <div class="mb-3">
             <label for="phone">Namba ya Simu</label>
             <input type="text" id="phone" name="phone" class="form-control" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
         </div>
