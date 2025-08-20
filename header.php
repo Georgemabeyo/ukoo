@@ -12,7 +12,7 @@ if (!isset($userPhoto)) {
     $userPhoto = 'default-avatar.png';
 }
 ?>
-<header class="header-container" role="banner">
+<header class="header-container">
   <?php if ($isLoggedIn): ?>
     <div class="user-info" title="<?= htmlspecialchars($username) ?>" aria-label="User info">
       <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
@@ -22,7 +22,7 @@ if (!isset($userPhoto)) {
 
   <div class="logo" role="heading" aria-level="1" tabindex="0">Ukoo wa Makomelelo</div>
 
-  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button">
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button" aria-pressed="false">
     <span></span>
     <span></span>
     <span></span>
@@ -39,15 +39,15 @@ if (!isset($userPhoto)) {
       <a href="login.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Ingia</a>
       <a href="registration.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Jisajiri</a>
     <?php endif; ?>
-    <button id="toggleTheme" class="btn btn-sm btn-outline-secondary fw-bold mt-2 mt-md-0 ms-md-3" aria-pressed="false">Dark Mode</button>
+    <button id="toggleTheme" class="btn btn-sm btn-outline-secondary fw-bold mt-2 mt-md-0 ms-md-3">Dark Mode</button>
   </nav>
 
   <style>
-    /* Default nav visible for desktop */
+    /* Nav always visible on desktop */
     nav#navMenu {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
     }
     /* Hide nav on mobile by default */
     @media (max-width: 768px) {
@@ -55,28 +55,30 @@ if (!isset($userPhoto)) {
         display: none;
         flex-direction: column;
         position: absolute;
-        top: 60px;
-        right: 20px;
-        background: linear-gradient(180deg, var(--primary, #0d47a1), var(--secondary, #1976d2));
+        top: 55px;
+        right: 15px;
+        background: linear-gradient(180deg, #0d47a1, #1976d2);
         border-radius: 10px;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.35s ease, box-shadow 0.35s;
+        transition: max-height 0.4s ease, box-shadow 0.3s ease;
         width: 220px;
         box-shadow: none;
         aria-hidden: true;
+        padding: 10px 10px;
+        z-index: 1050;
       }
       nav#navMenu.show {
         display: flex !important;
         max-height: 600px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
         aria-hidden: false;
       }
       .nav-toggle {
         display: flex;
       }
     }
-    /* Nav toggle button styles */
+    /* Nav toggle button */
     .nav-toggle {
       display: none;
       flex-direction: column;
@@ -86,13 +88,15 @@ if (!isset($userPhoto)) {
       background: transparent;
       border: none;
       cursor: pointer;
+      padding: 0;
       z-index: 1100;
     }
     .nav-toggle span {
+      display: block;
       height: 3px;
-      background: var(--primary, #0d47a1);
+      background: #0d47a1;
       border-radius: 2px;
-      transition: all 0.4s;
+      transition: all 0.3s ease;
     }
     .nav-toggle.active span:nth-child(1) {
       transform: rotate(45deg) translate(5px, 5px);
@@ -106,16 +110,17 @@ if (!isset($userPhoto)) {
   </style>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', () => {
       const navToggleBtn = document.querySelector('.nav-toggle');
       const navMenu = document.getElementById('navMenu');
       const toggleThemeBtn = document.getElementById('toggleTheme');
 
       navToggleBtn.addEventListener('click', () => {
-        const shown = navMenu.classList.toggle('show');
-        navToggleBtn.classList.toggle('active', shown);
-        navToggleBtn.setAttribute('aria-expanded', shown ? 'true' : 'false');
-        navMenu.setAttribute('aria-hidden', shown ? 'false' : 'true');
+        navMenu.classList.toggle('show');
+        const isShown = navMenu.classList.contains('show');
+        navToggleBtn.classList.toggle('active', isShown);
+        navToggleBtn.setAttribute('aria-expanded', isShown.toString());
+        navMenu.setAttribute('aria-hidden', (!isShown).toString());
       });
 
       toggleThemeBtn.addEventListener('click', () => {
