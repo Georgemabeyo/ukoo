@@ -21,51 +21,77 @@ if (!isset($userPhoto)) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Additional styling for layout */
+    /* Layout adjustments */
     header.header-container {
       position: relative;
+      padding-left: 120px; /* leave space for user-info on left */
+      background-color: #f8f9fa;
     }
     .user-info {
       position: fixed;
       top: 10px;
       left: 10px;
-      z-index: 1050;
-      background: #f8f9fa;
-      padding: 5px 10px;
+      z-index: 1065;
+      background: #fff;
+      padding: 5px 12px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
       align-items: center;
+      gap: 8px;
+      max-width: 220px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .user-info img {
       width: 40px;
       height: 40px;
       object-fit: cover;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
     .user-info span {
-      margin-left: 8px;
       font-weight: 600;
-      white-space: nowrap;
+      font-size: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    /* Adjust nav-toggle button on top right */
+    /* nav toggle button top-right */
     .nav-toggle {
       position: fixed;
       top: 10px;
       right: 10px;
-      z-index: 1060;
+      z-index: 1070;
       border: none;
       background: transparent;
+      cursor: pointer;
+      width: 40px;
+      height: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 0;
     }
-
-    /* Adjust nav menu on all devices */
+    .nav-toggle span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background: #000;
+      border-radius: 2px;
+      transition: background-color 0.3s;
+    }
+    /* Nav menu styling */
     nav#navMenu {
-      margin-left: 100px; /* leave space for user-info */
-      padding-left: 0 !important; /* remove padding from bootstrap */
+      margin-left: 120px; /* leave space for user-info */
+      padding-left: 0 !important;
       background: transparent !important;
       box-shadow: none !important;
       position: relative;
-      z-index: 1040;
+      z-index: 1050;
+      transition: all 0.3s ease;
     }
-
     /* Mobile nav menu - sidebar style */
     @media (max-width: 767.98px) {
       nav#navMenu {
@@ -74,13 +100,13 @@ if (!isset($userPhoto)) {
         top: 50px;  /* below toggle */
         right: 0;
         height: calc(100vh - 50px);
-        width: 240px;
+        width: 260px;
         overflow-y: auto;
         display: none !important;
         flex-direction: column !important;
-        padding: 1rem;
-        border-radius: 0 0 0 10px;
-        box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+        padding: 1rem 1.5rem;
+        border-radius: 0 0 0 12px;
+        box-shadow: -3px 0 12px rgba(0,0,0,0.2);
         margin-left: 0;
       }
       nav#navMenu.d-md-flex {
@@ -88,6 +114,9 @@ if (!isset($userPhoto)) {
       }
       .nav-link, .btn {
         margin-bottom: 0.75rem;
+      }
+      header.header-container {
+        padding-left: 10px; /* reduce padding on mobile */
       }
     }
     /* Desktop nav menu inline */
@@ -102,20 +131,20 @@ if (!isset($userPhoto)) {
 </head>
 <body>
   <header class="header-container d-flex align-items-center justify-content-between flex-wrap p-3 bg-light">
-    <!-- User info outside nav, fixed top-left -->
+    <!-- User info fixed top-left outside nav -->
     <?php if ($isLoggedIn): ?>
-      <div class="user-info d-flex">
-        <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" class="rounded-circle" />
+      <div class="user-info" title="<?= htmlspecialchars($username) ?>">
+        <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
         <span><?= htmlspecialchars($username) ?></span>
       </div>
     <?php endif; ?>
 
     <div class="logo fw-bold fs-4 order-md-1">Ukoo wa Makomelelo</div>
 
-    <button class="nav-toggle btn btn-light d-md-none" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button">
-      <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
-      <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
-      <span style="display:block; width:25px; height:3px; background:#000; margin:5px 0;"></span>
+    <button class="nav-toggle d-md-none" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" type="button">
+      <span></span>
+      <span></span>
+      <span></span>
     </button>
 
     <nav id="navMenu" class="nav-links d-none d-md-flex gap-3" aria-hidden="true">
