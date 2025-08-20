@@ -8,7 +8,7 @@ function displayTree($conn, $parent_id = null) {
         return;
     }
     if (is_null($parent_id)) {
-        // Order by 'id' ascending so that e.g. 11 then 12, 13 etc.
+        // Order by 'id' ascending (e.g., 11,12,13,...)
         $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY id ASC";
         $params = [];
     } else {
@@ -37,6 +37,7 @@ function displayTree($conn, $parent_id = null) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -44,6 +45,30 @@ function displayTree($conn, $parent_id = null) {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
 <link rel="stylesheet" href="style.css" />
+<style>
+  /* Modal content text styling for dark mode / light mode */
+  #member-modal {
+    color: #000;
+    background: #fff;
+  }
+  body.dark-mode #member-modal {
+    background: #222;
+    color: #eee;
+  }
+
+  #modal-content {
+    font-size: 1rem;
+  }
+
+  #close-modal {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: inherit;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body class="light-mode">
 <?php include 'header.php'; ?>
@@ -57,12 +82,14 @@ function displayTree($conn, $parent_id = null) {
         <a href="index.php" class="btn-custom">Rudi Nyumbani</a>
     </div>
 </div>
+
 <!-- Modal na overlay -->
 <div id="modal-overlay" style="display:none; position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;"></div>
-<div id="member-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translateX(-50%);background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.5);max-width:400px;z-index:1000;">
-    <button id="close-modal" style="float:right;cursor:pointer;">X</button>
+<div id="member-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translateX(-50%);padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.5);max-width:400px;z-index:1000;">
+    <button id="close-modal">X</button>
     <div id="modal-content"></div>
 </div>
+
 <?php include 'footer.php'; ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="scripts.js"></script>
@@ -90,17 +117,27 @@ $(document).on('click keypress', '.member', function(e) {
         }
     }
 });
+
 $(document).on('click', '.view-children-btn', function(e){
     e.stopPropagation();
     const parentId = $(this).data('parent');
     $.get('view_member.php', {id: parentId}, function(data){
         $('#modal-content').html(data);
-        $('#modal-overlay, #member-modal').show();
+        $('#modal-overlay, #member-modal').fadeIn(200);
+        // Adjust modal colors based on dark mode
+        if(document.body.classList.contains('dark-mode')){
+            $('#member-modal').css({'background-color':'#222', 'color':'#eee', 'box-shadow':'0 0 15px rgba(0,0,0,0.9)'});
+            $('#close-modal').css('color', '#eee');
+        } else {
+            $('#member-modal').css({'background-color':'#fff', 'color':'#000', 'box-shadow':'0 0 10px rgba(0,0,0,0.5)'});
+            $('#close-modal').css('color', '#000');
+        }
     });
 });
+
 $('#close-modal, #modal-overlay').on('click', function(){
     $('#modal-content').html('');
-    $('#modal-overlay, #member-modal').hide();
+    $('#modal-overlay, #member-modal').fadeOut(200);
 });
 </script>
 </body>
