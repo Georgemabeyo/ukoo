@@ -1,15 +1,15 @@
 <?php
 if (!isset($currentPage)) {
-    $currentPage = basename($_SERVER['PHP_SELF']);
+  $currentPage = basename($_SERVER['PHP_SELF']);
 }
 if (!isset($isLoggedIn)) {
-    $isLoggedIn = false;
+  $isLoggedIn = false;
 }
 if (!isset($username)) {
-    $username = '';
+  $username = '';
 }
 if (!isset($userPhoto)) {
-    $userPhoto = 'default-avatar.png';
+  $userPhoto = 'default-avatar.png';
 }
 ?>
 <header class="header-container" role="banner">
@@ -43,14 +43,11 @@ if (!isset($userPhoto)) {
   </nav>
 
   <style>
-    /* Desktop: nav visible by default */
     nav#navMenu {
       display: flex;
-      flex-wrap: wrap;
       gap: 15px;
+      flex-wrap: wrap;
     }
-
-    /* Mobile: hidden nav by default */
     @media (max-width: 768px) {
       nav#navMenu {
         display: none;
@@ -60,12 +57,12 @@ if (!isset($userPhoto)) {
         right: 15px;
         background: linear-gradient(180deg, #0d47a1, #1976d2);
         border-radius: 10px;
+        width: 220px;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.4s ease, box-shadow 0.3s ease;
-        width: 220px;
-        box-shadow: none;
         padding: 10px;
+        box-shadow: none;
+        transition: max-height 0.4s ease, box-shadow 0.3s ease;
         z-index: 1050;
       }
       nav#navMenu.show {
@@ -77,8 +74,6 @@ if (!isset($userPhoto)) {
         display: flex;
       }
     }
-
-    /* Nav toggle button */
     .nav-toggle {
       display: none;
       flex-direction: column;
