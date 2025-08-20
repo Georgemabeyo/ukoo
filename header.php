@@ -48,7 +48,7 @@ if (!isset($userPhoto)) {
         <a href="logout.php" class="btn btn-sm btn-outline-danger ms-md-3 mt-2 mt-md-0">Toka</a>
       <?php else: ?>
         <a href="login.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Ingia</a>
-        <a href="registration.php" class="btn btn-sm btn-primary ms-md-2 mt-2 mt-md-0">Jisajili</a>
+        <a href="registration.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Jisajiri</a>
       <?php endif; ?>
       <button id="toggleTheme" class="btn btn-sm btn-outline-secondary fw-bold mt-2 mt-md-0 ms-md-3">Dark Mode</button>
     </nav>
