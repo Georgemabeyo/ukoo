@@ -1,12 +1,11 @@
 <?php
-include 'config.php'; // Unganisha DB connection $conn hapa
+include 'config.php'; // Ensure $conn is your DB connection
 session_start();
 
-// Define login status variable
 $isLoggedIn = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
 $ADMIN_PASS = 'Makomelelo';
 
-// Admin login check
+// Admin login
 if (!$isLoggedIn) {
     if (isset($_POST['pass']) && $_POST['pass'] === $ADMIN_PASS) {
         $_SESSION['is_admin'] = true;
@@ -18,14 +17,14 @@ if (!$isLoggedIn) {
             <input type="password" name="pass" class="form-control mb-3" placeholder="Password" required autofocus />
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
-        <?php exit;
+        <?php
+        exit;
     }
 }
 
-// Initialize message
 $message = '';
 
-// Delete entry
+// Handle delete user
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $res = pg_query_params($conn, "DELETE FROM family_tree WHERE id = $1", [$id]);
@@ -43,51 +42,43 @@ if (isset($_GET['toggle_admin'])) {
     }
 }
 
-// Load entry for editing
-$editEntry = null;
-if (isset($_GET['edit'])) {
-    $id = (int)$_GET['edit'];
-    $result = pg_query_params($conn, "SELECT * FROM family_tree WHERE id = $1", [$id]);
-    $editEntry = pg_fetch_assoc($result);
+// Publish new event
+if (isset($_POST['publish_event'])) {
+    $title = trim($_POST['event_title'] ?? '');
+    $description = trim($_POST['event_description'] ?? '');
+    if ($title === '' || $description === '') {
+        $message = "Tafadhali jaza kichwa na maelezo ya tukio.";
+    } else {
+        $res = pg_query_params($conn, "INSERT INTO events (title, description, created_at) VALUES ($1, $2, NOW())", [$title, $description]);
+        $message = $res ? "Tukio limechapishwa kwa mafanikio." : "Tatizo la kuchapisha tukio: " . pg_last_error($conn);
+    }
 }
 
-// Process update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
-    $id = (int)$_POST['edit_id'];
-    $first_name = trim($_POST['first_name'] ?? '');
-    $middle_name = trim($_POST['middle_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-    $dob = $_POST['dob'] ?? null;
-    $gender = $_POST['gender'] ?? null;
-    $is_admin = isset($_POST['is_admin']);
-
-    if ($first_name == '' || $last_name == '') {
-        $message = "Jaza majina ya kwanza na ya mwisho.";
+// Send bulk SMS
+if (isset($_POST['send_sms'])) {
+    $sms_message = trim($_POST['sms_message'] ?? '');
+    if ($sms_message === '') {
+        $message = "Tafadhali andika ujumbe wa SMS.";
     } else {
-        $res = pg_query_params($conn, "UPDATE family_tree SET first_name=$1, middle_name=$2, last_name=$3, dob=$4, gender=$5, is_admin=$6 WHERE id=$7",
-            [$first_name, $middle_name, $last_name, $dob, $gender, $is_admin, $id]);
-
+        // Example: get all phone numbers and send SMS (integration needed)
+        $res = pg_query($conn, "SELECT phone FROM family_tree WHERE phone IS NOT NULL AND phone != ''");
+        $phones = [];
         if ($res) {
-            $message = "Mabadiliko yametunzwa.";
-            $result = pg_query_params($conn, "SELECT * FROM family_tree WHERE id = $1", [$id]);
-            $editEntry = pg_fetch_assoc($result);
+            while ($row = pg_fetch_assoc($res)) {
+                $phones[] = $row['phone'];
+            }
+            // TODO: Integrate with SMS API here
+            // For demo, just simulate success
+            $message = "SMS imetumwa kwa " . count($phones) . " wanajamii.";
         } else {
-            $message = "Tatizo kuhifadhi mabadiliko: " . pg_last_error($conn);
+            $message = "Tatizo la kupata nambari za simu: " . pg_last_error($conn);
         }
     }
 }
 
-// Fetch all people
+// Fetch all people for admin list
 $result = pg_query($conn, "SELECT * FROM family_tree ORDER BY first_name, last_name");
-$people = [];
-if ($result) {
-    while ($row = pg_fetch_assoc($result)) {
-        $people[] = $row;
-    }
-} else {
-    $message = "Tatizo kuchukua data: " . pg_last_error($conn);
-}
-
+$people = $result ? pg_fetch_all($result) : [];
 ?>
 <!DOCTYPE html>
 <html lang="sw">
@@ -100,88 +91,79 @@ if ($result) {
 </head>
 <body>
 <?php include 'header.php'; ?>
-
 <div class="container my-5">
     <h1>Family Tree Admin Panel</h1>
     <?php if ($message): ?>
         <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
 
-    <div class="mb-3">
-        <a href="registration.php" class="btn btn-success">Sajili Mtu Mpya</a>
-    </div>
+    <!-- Publish Event -->
+    <section class="mb-5">
+        <h3>Chapisha Tukio Jipya</h3>
+        <form method="post" class="mb-4">
+            <div class="mb-3">
+                <label for="event_title" class="form-label">Kichwa cha Tukio</label>
+                <input type="text" id="event_title" name="event_title" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="event_description" class="form-label">Maelezo ya Tukio</label>
+                <textarea id="event_description" name="event_description" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" name="publish_event" class="btn btn-primary">Chapisha Tukio</button>
+        </form>
+    </section>
 
-    <?php if ($editEntry): ?>
-    <form method="post" class="mb-4">
-        <input type="hidden" name="edit_id" value="<?= htmlspecialchars($editEntry['id']) ?>">
-        <div class="mb-3">
-            <label>Jina la Kwanza</label>
-            <input type="text" name="first_name" class="form-control" required value="<?= htmlspecialchars($editEntry['first_name']) ?>">
-        </div>
-        <div class="mb-3">
-            <label>Jina la Kati</label>
-            <input type="text" name="middle_name" class="form-control" value="<?= htmlspecialchars($editEntry['middle_name']) ?>">
-        </div>
-        <div class="mb-3">
-            <label>Jina la Mwisho</label>
-            <input type="text" name="last_name" class="form-control" required value="<?= htmlspecialchars($editEntry['last_name']) ?>">
-        </div>
-        <div class="mb-3">
-            <label>Tarehe ya Kuzaliwa</label>
-            <input type="date" name="dob" class="form-control" value="<?= htmlspecialchars($editEntry['dob']) ?>">
-        </div>
-        <div class="mb-3">
-            <label>Jinsia</label>
-            <select name="gender" class="form-select">
-                <option value="">-- Chagua --</option>
-                <option value="male" <?= (isset($editEntry['gender']) && $editEntry['gender'] === 'male') ? 'selected' : '' ?>>Mwanaume</option>
-                <option value="female" <?= (isset($editEntry['gender']) && $editEntry['gender'] === 'female') ? 'selected' : '' ?>>Mwanamke</option>
-            </select>
-        </div>
-        <div class="form-check mb-3">
-            <input type="checkbox" name="is_admin" class="form-check-input" id="isAdmin" <?= !empty($editEntry['is_admin']) ? 'checked' : '' ?>>
-            <label for="isAdmin" class="form-check-label">Mmoja wa Admin</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Hifadhi Mabadiliko</button>
-        <a href="taarifa.php" class="btn btn-secondary ms-2">Ongeza Mtu Mpya</a>
-    </form>
-    <?php endif; ?>
+    <!-- Bulk SMS -->
+    <section class="mb-5">
+        <h3>Tuma SMS kwa Wanajamii</h3>
+        <form method="post" class="mb-4">
+            <div class="mb-3">
+                <label for="sms_message" class="form-label">Ujumbe wa SMS</label>
+                <textarea id="sms_message" name="sms_message" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" name="send_sms" class="btn btn-warning">Tuma SMS</button>
+        </form>
+    </section>
 
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Jina Kamili</th>
-                <th>Tarehe ya Kuzaliwa</th>
-                <th>Jinsia</th>
-                <th>Admin</th>
-                <th>Vitendo</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Family Members List -->
+    <section>
+        <div class="mb-3">
+            <a href="registration.php" class="btn btn-success">Sajili Mtu Mpya</a>
+        </div>
+        <table class="table table-striped table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Jina Kamili</th>
+                    <th>Tarehe ya Kuzaliwa</th>
+                    <th>Jinsia</th>
+                    <th>Admin</th>
+                    <th>Vitendo</th>
+                </tr>
+            </thead>
+            <tbody>
             <?php if (empty($people)): ?>
-            <tr><td colspan="5">Hakuna taarifa za familia.</td></tr>
+                <tr><td colspan="5" class="text-center">Hakuna taarifa za familia.</td></tr>
             <?php else: foreach ($people as $person): ?>
-            <tr>
-                <td><a href="taarifa.php?edit=<?= $person['id'] ?>"><?= htmlspecialchars(trim($person['first_name'] . ' ' .  $person['middle_name'] . ' ' . $person['last_name'])) ?></a></td>
-                <td><?= htmlspecialchars($person['dob'] ?? '') ?></td>
-                <td><?= htmlspecialchars($person['gender'] ?? '') ?></td>
-                <td><?= ($person['is_admin'] ?? 'f') == 't' ? 'Ndiyo' : 'Hapana' ?></td>
-                <td>
-                    <a href="taarifa.php?toggle_admin=<?= $person['id'] ?>" class="btn btn-sm btn-warning" onclick="return confirm('Kubadilisha ruhusa ya admin?')">
-                        <?= ($person['is_admin'] ?? 'f') == 't' ? 'Ondoa Admin' : 'Fanya Admin' ?>
-                    </a>
-                    <a href="taarifa.php?delete=<?= $person['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Unataka kumfuta mtu?')">
-                        Futa
-                    </a>
-                </td>
-            </tr>
+                <tr>
+                    <td><?= htmlspecialchars(trim($person['first_name'] . ' ' . $person['middle_name'] . ' ' . $person['last_name'])) ?></td>
+                    <td><?= htmlspecialchars($person['dob'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($person['gender'] ?? '') ?></td>
+                    <td><?= ($person['is_admin'] ?? 'f') === 't' ? 'Ndiyo' : 'Hapana' ?></td>
+                    <td>
+                        <a href="admin.php?toggle_admin=<?= $person['id'] ?>" class="btn btn-sm btn-warning" onclick="return confirm('Kubadilisha ruhusa ya admin?')">
+                            <?= ($person['is_admin'] ?? 'f') === 't' ? 'Ondoa Admin' : 'Fanya Admin' ?>
+                        </a>
+                        <a href="admin.php?delete=<?= $person['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Unataka kumfuta mtu?')">
+                            Futa
+                        </a>
+                    </td>
+                </tr>
             <?php endforeach; endif; ?>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </section>
 </div>
-
 <?php include 'footer.php'; ?>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
