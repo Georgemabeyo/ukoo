@@ -12,12 +12,171 @@ if (!isset($userPhoto)) {
   $userPhoto = 'default-avatar.png';
 }
 ?>
-<header class="header-container" role="banner">
+
+<header role="banner" class="header-container" 
+        style="--primary-bg-light:#000000; --primary-text-light:#38a169; --primary-bg-dark:#ffffff; --primary-text-dark:#22543d;">
+
+  <style>
+    :root {
+      --primary-bg-light: #000000;
+      --primary-text-light: #38a169;
+      --primary-bg-dark: #ffffff;
+      --primary-text-dark: #22543d;
+      --accent: #ffffff;
+    }
+    body:not(.dark-mode) header.header-container {
+      background-color: var(--primary-bg-light);
+      color: var(--primary-text-light);
+    }
+    body.dark-mode header.header-container {
+      background-color: var(--primary-bg-dark);
+      color: var(--primary-text-dark);
+    }
+    header.header-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      border-radius: 0 0 15px 15px;
+      position: relative;
+      z-index: 1000;
+    }
+    .logo {
+      font-size: clamp(1.5rem, 2vw, 1.8rem);
+      font-weight: 700;
+      color: inherit;
+      user-select: none;
+      cursor: default;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: inherit;
+    }
+    .user-info img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      object-fit: cover;
+    }
+    nav#navMenu {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    nav#navMenu a.nav-link, nav#navMenu a.btn {
+      color: inherit;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+      cursor: pointer;
+      display: inline-block;
+    }
+    nav#navMenu a.nav-link.active,
+    nav#navMenu a.nav-link:hover,
+    nav#navMenu a.nav-link:focus {
+      background-color: var(--accent);
+      color: var(--primary-bg-light);
+      outline: none;
+    }
+    nav#navMenu a.btn-outline-primary {
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: inherit;
+    }
+    nav#navMenu a.btn-outline-primary:hover {
+      background-color: var(--accent);
+      color: var(--primary-bg-light);
+    }
+    nav#navMenu a.btn-outline-danger {
+      border: 2px solid #ff4c51;
+      color: #ff4c51;
+    }
+    nav#navMenu a.btn-outline-danger:hover {
+      background-color: #ff4c51;
+      color: var(--accent);
+    }
+    nav#navMenu a.btn-outline-secondary {
+      border: 2px solid var(--accent);
+      color: inherit;
+    }
+    nav#navMenu a.btn-outline-secondary:hover {
+      background-color: var(--accent);
+      color: var(--primary-bg-light);
+    }
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 1100;
+      color: inherit;
+    }
+    .nav-toggle span {
+      display: block;
+      height: 3px;
+      background-color: currentColor;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .nav-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .nav-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .nav-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+    @media (max-width: 768px) {
+      nav#navMenu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 55px;
+        right: 15px;
+        background: var(--primary-bg-light);
+        border-radius: 10px;
+        width: 220px;
+        max-height: 0;
+        overflow: hidden;
+        padding: 10px;
+        box-shadow: none;
+        transition: max-height 0.4s ease, box-shadow 0.3s ease;
+        z-index: 1050;
+      }
+      body.dark-mode nav#navMenu {
+        background: var(--primary-bg-dark);
+        color: var(--primary-text-dark);
+      }
+      nav#navMenu.show {
+        display: flex !important;
+        max-height: 600px;
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
+      }
+      .nav-toggle {
+        display: flex;
+      }
+    }
+  </style>
+
   <?php if ($isLoggedIn): ?>
-    <div class="user-info" title="<?= htmlspecialchars($username) ?>" aria-label="User info">
-      <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
-      <span><?= htmlspecialchars($username) ?></span>
-    </div>
+  <div class="user-info" title="<?= htmlspecialchars($username) ?>" aria-label="User info">
+    <img src="<?= htmlspecialchars($userPhoto) ?>" alt="Picha ya <?= htmlspecialchars($username) ?>" />
+    <span><?= htmlspecialchars($username) ?></span>
+  </div>
   <?php endif; ?>
 
   <div class="logo" role="heading" aria-level="1" tabindex="0">Ukoo wa Makomelelo</div>
@@ -34,75 +193,13 @@ if (!isset($userPhoto)) {
     <a href="events.php" class="<?= ($currentPage === 'events.php') ? 'active' : '' ?> nav-link">Matukio</a>
     <a href="contact.php" class="<?= ($currentPage === 'contact.php') ? 'active' : '' ?> nav-link">Mawasiliano</a>
     <?php if ($isLoggedIn): ?>
-      <a href="logout.php" class="btn btn-sm btn-outline-danger ms-md-3 mt-2 mt-md-0">Toka</a>
+    <a href="logout.php" class="btn btn-sm btn-outline-danger ms-md-3 mt-2 mt-md-0">Toka</a>
     <?php else: ?>
-      <a href="login.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Ingia</a>
-      <a href="registration.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Jisajiri</a>
+    <a href="login.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Ingia</a>
+    <a href="registration.php" class="btn btn-sm btn-outline-primary ms-md-3 mt-2 mt-md-0">Jisajiri</a>
     <?php endif; ?>
     <button id="toggleTheme" class="btn btn-sm btn-outline-secondary fw-bold mt-2 mt-md-0 ms-md-3">Dark Mode</button>
   </nav>
-
-  <style>
-    nav#navMenu {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-    @media (max-width: 768px) {
-      nav#navMenu {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 55px;
-        right: 15px;
-        background: linear-gradient(180deg, #0d47a1, #1976d2);
-        border-radius: 10px;
-        width: 220px;
-        max-height: 0;
-        overflow: hidden;
-        padding: 10px;
-        box-shadow: none;
-        transition: max-height 0.4s ease, box-shadow 0.3s ease;
-        z-index: 1050;
-      }
-      nav#navMenu.show {
-        display: flex !important;
-        max-height: 600px;
-        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
-      }
-      .nav-toggle {
-        display: flex;
-      }
-    }
-    .nav-toggle {
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 30px;
-      height: 24px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      z-index: 1100;
-    }
-    .nav-toggle span {
-      display: block;
-      height: 3px;
-      background: #0d47a1;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .nav-toggle.active span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .nav-toggle.active span:nth-child(2) {
-      opacity: 0;
-    }
-    .nav-toggle.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(5px, -5px);
-    }
-  </style>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
