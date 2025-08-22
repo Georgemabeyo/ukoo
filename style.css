@@ -398,6 +398,34 @@ h2.text-center {
 }
 
 
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+.container.tree-container {
+  max-width: 960px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2.text-center {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-text-light);
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
 .tree ul {
   position: relative;
@@ -412,80 +440,56 @@ h2.text-center {
 .tree ul ul {
   margin-top: 2.5rem;
   justify-content: flex-start;
+  flex-direction: column;
   flex-wrap: nowrap;
-  gap: 3rem;
+  gap: 1rem;
+  padding-left: 2rem;
+  border-left: 2px solid var(--border);
+  display: none;
 }
 
 .tree li {
   list-style-type: none;
   position: relative;
-  padding-top: 1rem;
+  padding: 1rem 0 0 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  max-width: 180px;
-  min-width: 150px;
+  align-items: flex-start;
+  width: 220px;
   box-sizing: border-box;
+  gap: 0.75rem;
 }
 
-.tree li:not(:last-child)::after,
-.tree li:not(:first-child)::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 50%;
-  height: 1rem;
-  border-top: 1.5px solid var(--border);
-  z-index: -1;
+/* Block rangi kutegemea maisha au kifo */
+.member.alive {
+  background-color: var(--primary-bg-light);
+  border: 2px solid var(--primary-text-light);
+  color: var(--primary-text-light);
 }
 
-.tree li:not(:last-child)::after {
-  right: 100%;
-  border-right: 1.5px solid var(--border);
-  border-radius: 0 15px 0 0;
-}
-
-.tree li:not(:first-child)::before {
-  left: 100%;
-  border-left: 1.5px solid var(--border);
-  border-radius: 15px 0 0 0;
-}
-
-.tree ul ul::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2rem;
-  border-left: 1.5px solid var(--border);
-  z-index: -1;
+.member.deceased {
+  background-color: #b0b7ad; /* rangi ya mtu aliyekufa, si nyekundu */
+  border: 2px solid #81867f;
+  color: #555a51;
 }
 
 .member {
-  background-color: var(--card);
-  color: var(--card-foreground);
-  border: 2px solid var(--border);
-  padding: 1rem;
   border-radius: 12px;
-  text-align: center;
+  padding: 10px 15px;
   cursor: pointer;
-  width: 100%;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
   user-select: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  align-items: start;
+  gap: 0.4rem;
 }
 
 .member:hover,
 .member:focus {
-  box-shadow: 0 8px 14px var(--primary-bg-light);
-  border-color: var(--primary-bg-light);
-  color: var(--primary-text-light);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  border-color: var(--primary-text-light);
   outline: none;
 }
 
@@ -495,73 +499,46 @@ h2.text-center {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--accent);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .member-name {
-  font-weight: 700;
-  font-size: 1.125rem;
-  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
   word-break: break-word;
-  color: inherit;
 }
 
+/* Button to toggle children */
 .view-children-btn {
-  background-color: var(--primary-bg-light);
-  color: var(--accent);
+  background-color: var(--primary-text-light);
+  color: var(--primary-bg-light);
   border: none;
   border-radius: 50%;
   width: 28px;
   height: 28px;
   cursor: pointer;
+  font-weight: 700;
   font-size: 1rem;
-  font-weight: bold;
   line-height: 1;
   user-select: none;
+  margin-top: 6px;
+  align-self: flex-end;
   transition: background-color 0.3s, color 0.3s;
-  align-self: center;
 }
 
 .view-children-btn:hover,
 .view-children-btn:focus {
-  background-color: var(--primary-text-light);
-  color: var(--primary-bg-light);
+  background-color: var(--accent);
+  color: var(--primary-text-light);
   outline: none;
 }
 
-.children-list {
-  margin-top: 1rem;
-  width: 100%;
-}
-
-.btn-container {
-  margin-top: 3rem;
+/* Show children vertically when parent opened */
+.tree li.open > ul {
   display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 
-.btn-custom {
-  background-color: var(--primary-bg-light);
-  color: var(--accent);
-  border: none;
-  padding: 0.8rem 2.5rem;
-  border-radius: 9999px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  text-decoration: none;
-  text-align: center;
-}
-
-.btn-custom:hover,
-.btn-custom:focus {
-  background-color: var(--primary-text-light);
-  color: var(--primary-bg-light);
-  outline: none;
-}
-
+/* Modal and overlay purpose styles */
 #modal-overlay {
   display: none;
   position: fixed;
@@ -607,15 +584,22 @@ h2.text-center {
   outline: none;
 }
 
+/* Dark mode overrides */
 body.dark-mode {
   background: oklch(0.145 0 0);
   color: oklch(0.985 0 0);
 }
 
-body.dark-mode .member {
-  background-color: var(--card-foreground);
-  color: var(--card);
+body.dark-mode .member.alive {
+  background-color: var(--primary-bg-dark);
   border-color: var(--primary-text-dark);
+  color: var(--primary-text-dark);
+}
+
+body.dark-mode .member.deceased {
+  background-color: #5e645a;
+  border-color: #91997f;
+  color: #cbcfc3;
 }
 
 body.dark-mode #member-modal {
@@ -632,12 +616,11 @@ body.dark-mode #close-modal {
   .tree ul,
   .tree ul ul {
     flex-direction: column;
-    justify-content: center;
     gap: 1.5rem;
   }
   .tree li {
-    max-width: 90vw;
-    width: auto;
+    width: 100% !important;
+    max-width: 100% !important;
     padding: 0.75rem 0 0 0;
   }
   .btn-container {
