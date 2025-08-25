@@ -718,9 +718,9 @@ body, html {
   font-family: 'Segoe UI', sans-serif;
   background: var(--background);
   color: var(--foreground);
+  min-height: 100vh;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
   line-height: 1.6;
   display: flex;
   flex-direction: column;
@@ -729,10 +729,10 @@ body, html {
 .container {
   max-width: 600px;
   width: 90%;
-  margin: 3rem auto 5rem;
+  margin: 4rem auto 5rem;
   background: var(--card);
   color: var(--card-foreground);
-  padding: 2rem 2.5rem;
+  padding: 2.5rem 3rem;
   border-radius: 15px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   transition: background 0.3s, color 0.3s;
@@ -746,13 +746,13 @@ body.dark-mode .container {
 /* Heading */
 h1 {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   color: inherit;
 }
 
-/* Form styles */
+/* Form Layout */
 form {
   display: flex;
   flex-direction: column;
@@ -762,26 +762,29 @@ form {
 label {
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   color: inherit;
+  user-select: none;
 }
 
 input[type="text"],
 input[type="email"],
 textarea {
   font-size: 1rem;
-  padding: 12px 15px;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border-radius: 10px;
   border: 2px solid var(--border);
   background: transparent;
   color: inherit;
-  transition: border-color 0.3s, background 0.3s;
+  transition: border-color 0.3s, background-color 0.3s;
+  box-sizing: border-box;
   resize: vertical;
-  min-height: 40px;
+  min-height: 42px;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 textarea {
-  min-height: 120px;
+  min-height: 140px;
 }
 
 input[type="text"]:focus,
@@ -791,21 +794,22 @@ textarea:focus {
   background-color: var(--accent);
   color: var(--primary-bg-light);
   outline: none;
+  box-shadow: 0 0 10px var(--primary-bg-light);
 }
 
-/* Button */
+/* Submit button */
 .btn-primary {
   background-color: var(--primary-bg-light);
   color: var(--accent);
   font-weight: 700;
-  font-size: 1.1rem;
-  padding: 15px 25px;
+  font-size: 1.15rem;
+  padding: 16px 30px;
   border: none;
   border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   align-self: center;
-  max-width: 250px;
+  max-width: 280px;
 }
 
 .btn-primary:hover,
@@ -813,52 +817,55 @@ textarea:focus {
   background-color: var(--primary-text-light);
   color: var(--primary-bg-light);
   outline: none;
+  box-shadow: 0 0 12px var(--primary-text-light);
 }
 
 
-/* Messages */
+/* Message feedback */
 .message {
-  padding: 15px 20px;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 2rem;
   font-weight: 600;
   text-align: center;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
 }
 
 .message.success {
-  background-color: #d1fae5; /* green-100 */
-  color: #065f46; /* green-800 */
-  border: 2px solid #10b981; /* green-500 */
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
 }
 
 .message.error {
-  background-color: #fee2e2; /* red-100 */
-  color: #b91c1c; /* red-700 */
-  border: 2px solid #ef4444; /* red-500 */
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 2px solid #ef4444;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    padding: 1.5rem 1.5rem;
+    padding: 2rem 1.5rem;
     width: 95%;
   }
-  
+
   h1 {
     font-size: 2rem;
   }
-  
+
   .btn-primary {
     width: 100%;
+    max-width: 100%;
   }
-  
+
   input[type="text"],
   input[type="email"],
   textarea {
-    padding: 10px 12px;
+    padding: 12px 14px;
     font-size: 0.95rem;
   }
 }
