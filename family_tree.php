@@ -1,121 +1,316 @@
-<?php
-include 'config.php';
-session_start();
-
-function displayTree($conn, $parent_id = null) {
-    if (!$conn) {
-        echo "<p style='color:red;'>Database connection failed!</p>";
-        return;
-    }
-    if (is_null($parent_id)) {
-        // Order by 'id' ascending (e.g., 11,12,13,...)
-        $sql = "SELECT * FROM family_tree WHERE parent_id IS NULL ORDER BY id ASC";
-        $params = [];
-    } else {
-        $sql = "SELECT * FROM family_tree WHERE parent_id = $1 ORDER BY id ASC";
-        $params = [$parent_id];
-    }
-    $result = pg_query_params($conn, $sql, $params);
-    if ($result && pg_num_rows($result) > 0) {
-        echo "<ul>";
-        while ($row = pg_fetch_assoc($result)) {
-            $id = (int)$row['id'];
-            $fullName = htmlspecialchars($row['first_name'] . " " . $row['last_name']);
-            $photo = !empty($row['photo']) ? "uploads/" . htmlspecialchars($row['photo']) : "https://via.placeholder.com/60?text=No+Image";
-            echo "<li>";
-            echo "<div class='member' data-id='$id' tabindex='0' role='button' aria-expanded='false' aria-controls='children-$id'>";
-            echo "<img src='$photo' alt='Picha ya $fullName'>";
-            echo "<p class='member-name'>$fullName</p>";
-            echo "<button class='view-children-btn' tabindex='-1' data-parent='$id' title='Ona taarifa'>i</button>";
-            echo "</div>";
-            echo "<div class='children-list' id='children-$id' aria-hidden='true'></div>";
-            echo "</li>";
-        }
-        echo "</ul>";
-    } elseif ($result === false) {
-        echo "<p style='color:red;'>Tatizo la ku-query database: " . pg_last_error($conn) . "</p>";
-    }
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
 }
-?>
 
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mti wa Ukoo | Ukoo wa Makomelelo</title>
-<link rel="stylesheet" href="style.css" />
+.container.tree-container {
+  max-width: 960px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-</head>
-<body class="light-mode">
-<?php include 'header.php'; ?>
-<div class="container tree-container">
-    <h2 class="text-center">Mti wa Ukoo wa Makomelelo</h2>
-    <div id="tree-container" class="tree">
-        <?php displayTree($conn, null); ?>
-    </div>
-    <div class="btn-container">
-        <a href="registration.php" class="btn-custom">Ongeza Mtu Mpya</a>
-        <a href="index.php" class="btn-custom">Rudi Nyumbani</a>
-    </div>
-</div>
+h2.text-center {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-text-light);
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
-<!-- Modal na overlay -->
-<div id="modal-overlay" style="display:none; position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;"></div>
-<div id="member-modal" style="display:none;position:fixed;top:20%;left:50%;transform:translateX(-50%);padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.5);max-width:400px;z-index:1000;">
-    <button id="close-modal">X</button>
-    <div id="modal-content"></div>
-</div>
+/* Tree structure */
 
-<?php include 'footer.php'; ?>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="scripts.js"></script>
-<script>
-$(document).on('click keypress', '.member', function(e) {
-    if(e.type === 'keypress' && ![13,32].includes(e.which)) return;
-    if($(e.target).hasClass('view-children-btn')) return;
-    const id = $(this).data('id');
-    const container = $('#children-' + id);
-    if(container.is(':visible')){
-        container.slideUp(200);
-        $(this).attr('aria-expanded', 'false');
-        container.attr('aria-hidden', 'true');
-    } else {
-        if(container.children().length === 0){
-            $.get('load_children.php', {parent_id: id}, function(data){
-                container.html(data).slideDown(200);
-                $(this).attr('aria-expanded', 'true');
-                container.attr('aria-hidden', 'false');
-            }.bind(this));
-        } else {
-            container.slideDown(200);
-            $(this).attr('aria-expanded', 'true');
-            container.attr('aria-hidden', 'false');
-        }
-    }
-});
+.tree ul {
+  position: relative;
+  padding-top: 1rem;
+  margin: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 1.5rem; /* smaller gap horizontally */
+}
 
-$(document).on('click', '.view-children-btn', function(e){
-    e.stopPropagation();
-    const parentId = $(this).data('parent');
-    $.get('view_member.php', {id: parentId}, function(data){
-        $('#modal-content').html(data);
-        $('#modal-overlay, #member-modal').fadeIn(200);
-        // Adjust modal colors based on dark mode
-        if(document.body.classList.contains('dark-mode')){
-            $('#member-modal').css({'background-color':'#222', 'color':'#eee', 'box-shadow':'0 0 15px rgba(0,0,0,0.9)'});
-            $('#close-modal').css('color', '#eee');
-        } else {
-            $('#member-modal').css({'background-color':'#fff', 'color':'#000', 'box-shadow':'0 0 10px rgba(0,0,0,0.5)'});
-            $('#close-modal').css('color', '#000');
-        }
-    });
-});
+.tree ul ul {
+  margin-top: 2.5rem;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 0.6rem; /* tighter gap vertically */
+  padding-left: 2rem;
+  border-left: 2px solid var(--border);
+  display: none;
+}
 
-$('#close-modal, #modal-overlay').on('click', function(){
-    $('#modal-content').html('');
-    $('#modal-overlay, #member-modal').fadeOut(200);
-});
-</script>
-</body>
-</html>
+.tree li {
+  list-style-type: none;
+  position: relative;
+  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 170px; /* narrower width */
+  max-width: 170px;
+  min-width: 150px;
+  box-sizing: border-box;
+  gap: 0.5rem;
+  /* cursor: pointer; */
+}
+
+/* Connectors horizontal using pseudo elements */
+.tree li:not(:last-child)::after,
+.tree li:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 0.8rem;
+  border-top: 1.5px solid var(--border);
+  z-index: -1;
+}
+
+.tree li:not(:last-child)::after {
+  right: 100%;
+  border-right: 1.5px solid var(--border);
+  border-radius: 0 15px 0 0;
+}
+
+.tree li:not(:first-child)::before {
+  left: 100%;
+  border-left: 1.5px solid var(--border);
+  border-radius: 15px 0 0 0;
+}
+
+/* Vertical connector from parent to children */
+.tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2.5rem;
+  border-left: 1.5px solid var(--border);
+  z-index: -1;
+}
+
+/* Member block */
+.member {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 2px solid var(--border);
+  padding: 15px 10px 15px 10px;
+  border-radius: 12px;
+  text-align: left;
+  width: 100%;
+  box-shadow: 0 5px 9px rgba(0,0,0,0.1);
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.member.alive {
+  background-color: var(--primary-bg-light);
+  border-color: var(--primary-text-light);
+  color: var(--primary-text-light);
+}
+
+.member.deceased {
+  background-color: #b0b7ad;
+  border-color: #81867f;
+  color: #555a51;
+}
+
+.member:hover,
+.member:focus {
+  box-shadow: 0 8px 14px var(--primary-bg-light);
+  border-color: var(--primary-bg-light);
+  outline: none;
+  color: var(--primary-text-light);
+}
+
+.member img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.member-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0;
+  word-break: break-word;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Toggle children button */
+.view-children-btn {
+  background-color: var(--primary-text-light);
+  color: var(--primary-bg-light);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-children-btn:hover,
+.view-children-btn:focus {
+  background-color: var(--accent);
+  color: var(--primary-text-light);
+  outline: none;
+}
+
+/* Display children block vertically inside parent */
+.tree li.open > ul {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+/* Children list */
+.children-list {
+  width: 100%;
+}
+
+/* Buttons container */
+.btn-container {
+  margin-top: 3rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-custom {
+  background-color: var(--primary-bg-light);
+  color: var(--accent);
+  border: none;
+  padding: 0.8rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-custom:hover,
+.btn-custom:focus {
+  background-color: var(--primary-text-light);
+  color: var(--primary-bg-light);
+  outline: none;
+}
+
+/* Modal styles */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+#member-modal {
+  display: none;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  max-width: 400px;
+  background-color: var(--card);
+  color: var(--card-foreground);
+  z-index: 1000;
+}
+
+#close-modal {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  color: var(--primary-text-light);
+  transition: color 0.3s ease;
+}
+
+#close-modal:hover,
+#close-modal:focus {
+  color: var(--primary-bg-light);
+  outline: none;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+  background: oklch(0.145 0 0);
+  color: oklch(0.985 0 0);
+}
+
+body.dark-mode .member.alive {
+  background-color: var(--primary-bg-dark);
+  border-color: var(--primary-text-dark);
+  color: var(--primary-text-dark);
+}
+
+body.dark-mode .member.deceased {
+  background-color: #5e645a;
+  border-color: #91997f;
+  color: #cbcfc3;
+}
+
+body.dark-mode #member-modal {
+  background-color: var(--primary-bg-dark);
+  color: var(--primary-text-dark);
+  box-shadow: 0 0 15px rgba(0,0,0,0.9);
+}
+
+body.dark-mode #close-modal {
+  color: var(--primary-text-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tree ul,
+  .tree ul ul {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .tree li {
+    max-width: 90vw !important;
+    width: 100% !important;
+    padding: 0.75rem 0 0 0;
+  }
+  .btn-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
